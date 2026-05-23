@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "extends": "./typescript/node.json",
+  "include": ["rslib.config.ts"]
+}

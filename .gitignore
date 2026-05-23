@@ -1,0 +1,14 @@
+!package-lock.json
+**/*.tsbuildinfo
+**/package-lock.json
+*-cache/
+.cspellcache
+.eslintcache
+.knipcache
+.prettiercache
+.turbo/
+coverage/
+dist/
+node_modules/
+npm-debug.log*
+out-tsc/

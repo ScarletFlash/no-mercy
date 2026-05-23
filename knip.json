@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "includeEntryExports": false,
+  "workspaces": {
+    "packages/configs": {
+      "cspell": { "config": ["cspell/index.json"] },
+      "entry": ["src/**/*.ts!"],
+      "prettier": { "config": ["prettier.mjs"] }
+    },
+    "packages/eslint-plugin": {
+      "entry": ["src/**/*.ts!", "tests/**/*.ts", "*.config.*"]
+    }
+  }
+}

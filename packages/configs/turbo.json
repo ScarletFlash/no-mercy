@@ -1,0 +1,42 @@
+{
+  "$schema": "../../node_modules/turbo/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "cache": true,
+      "inputs": ["./src/**/*.ts", "./rslib.config.ts", "./tsconfig.*.json", "./package.json"],
+      "outputLogs": "errors-only",
+      "outputs": ["./eslint.mjs", "./eslint.d.ts", "./prettier.mjs", "./prettier.d.ts"],
+      "persistent": false
+    },
+    "compiler__check": {
+      "dependsOn": ["build"],
+      "inputs": [
+        "./src/**/*.ts",
+        "./*.config.ts",
+        "./tsconfig.json",
+        "./tsconfig.*.json",
+        "./typescript/*.json",
+        "./package.json"
+      ]
+    },
+    "formatter__check": {
+      "dependsOn": ["build"],
+      "inputs": ["./src/**/*.ts", "./typescript/**/*.json", "./cspell/**/*.json", "./*.{ts,mjs,json}", "!./out-tsc/**"]
+    },
+    "formatter__fix": {
+      "dependsOn": ["build"],
+      "inputs": ["./src/**/*.ts", "./typescript/**/*.json", "./cspell/**/*.json", "./*.{ts,mjs,json}", "!./out-tsc/**"],
+      "outputs": ["./src/**/*.ts", "./typescript/**/*.json", "./cspell/**/*.json", "./*.{ts,mjs,json}", "!./out-tsc/**"]
+    },
+    "linter__check": {
+      "dependsOn": ["build"],
+      "inputs": ["./src/**/*.ts", "./*.config.ts", "./eslint.config.mjs", "./eslint.mjs"]
+    },
+    "linter__fix": {
+      "dependsOn": ["build"],
+      "inputs": ["./src/**/*.ts", "./*.config.ts", "./eslint.config.mjs", "./eslint.mjs"],
+      "outputs": ["./src/**/*.ts", "./*.config.ts"]
+    }
+  }
+}

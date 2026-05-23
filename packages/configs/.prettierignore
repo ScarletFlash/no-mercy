@@ -1,0 +1,10 @@
+eslint.mjs
+eslint.d.ts
+prettier.mjs
+prettier.d.ts
+prettier-ignore
+out-tsc/
+*.tsbuildinfo
+.prettiercache
+.eslintcache
+.cspellcache

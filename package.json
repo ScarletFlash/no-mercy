@@ -1,0 +1,51 @@
+{
+  "name": "@no-mercy/root",
+  "private": true,
+  "scripts": {
+    "🚀": "One-liners",
+    "check-all": "pnpm run turbo-run _check-all",
+    "fix-all": "pnpm run turbo-run _fix-all",
+    "build": "pnpm run turbo-run build",
+    "🏗️": "Compiling",
+    "compiler__check": "pnpm run turbo-run compiler__check",
+    "compiler__check:root": "tsc --project ./tsconfig.json --noEmit",
+    "🧪": "Testing",
+    "test__units": "pnpm run turbo-run test__units",
+    "🛂": "Code analysis",
+    "linter__check": "pnpm run turbo-run linter__check",
+    "linter__fix": "pnpm run turbo-run linter__fix",
+    "dependencies-checker__check": "knip --strict --cache --cache-location .knipcache",
+    "🎨": "Formatting",
+    "formatter__check": "pnpm run turbo-run formatter__check",
+    "formatter__check:root": "prettier --config .prettierrc.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --check './*.*'",
+    "formatter__fix": "pnpm run turbo-run formatter__fix",
+    "formatter__fix:root": "prettier --config .prettierrc.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --write './*.*'",
+    "📖": "Word spelling",
+    "spell-checker__check": "pnpm run turbo-run spell-checker__check",
+    "spell-checker__check:root": "cspell lint --config .cspell.json --cache --no-progress ./*.*",
+    "📚": "Documentation",
+    "doc:update": "pnpm run turbo-run doc:update",
+    "doc:lint": "pnpm run turbo-run doc:lint",
+    "⚙️": "Tools configuration",
+    "turbo": "turbo --color --no-update-notifier",
+    "turbo-run": "pnpm run turbo run --continue=dependencies-successful --env-mode=strict --log-order=stream --cache-dir=./.turbo --concurrency=75%",
+    "prettier": "prettier",
+    "🦾": "Automatic",
+    "postinstall": "turbo telemetry disable"
+  },
+  "devDependencies": {
+    "@no-mercy/configs": "workspace:*",
+    "cspell": "catalog:codebase",
+    "eslint": "catalog:codebase",
+    "knip": "catalog:codebase",
+    "prettier": "catalog:codebase",
+    "prettier-plugin-sort-json": "catalog:codebase",
+    "turbo": "catalog:stack",
+    "typescript": "catalog:stack"
+  },
+  "engines": {
+    "node": "24.11.1",
+    "pnpm": "10.28.0"
+  },
+  "packageManager": "pnpm@10.28.0"
+}

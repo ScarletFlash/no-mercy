@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schemastore.org/tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declarationMap": false,
+    "lib": ["ESNext"]
+  },
+  "extends": "./base.json"
+}

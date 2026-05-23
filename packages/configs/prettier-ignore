@@ -1,0 +1,13 @@
+.editorconfig
+.gitignore
+.npmrc
+*.d.ts
+.turbo/
+coverage/
+dist/
+node_modules/
+out-tsc/
+.*cache
+pnpm-lock.yaml
+.fix-root.prettierignore
+AGENTS.md

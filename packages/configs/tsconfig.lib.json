@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "declarationDir": "./",
+    "outDir": "./out-tsc/lib",
+    "rootDir": "./src",
+    "types": ["node"]
+  },
+  "extends": "./typescript/node.json",
+  "include": ["src"]
+}

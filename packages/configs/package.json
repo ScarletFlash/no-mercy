@@ -1,0 +1,48 @@
+{
+  "name": "@no-mercy/configs",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "_check-all": "",
+    "_fix-all": "",
+    "build": "rslib build",
+    "compiler__check": "tsc --project tsconfig.json --noEmit",
+    "formatter__check": "prettier --config ./prettier.mjs --cache --cache-location .prettiercache --cache-strategy content --check .",
+    "formatter__fix": "prettier --config ./prettier.mjs --cache --cache-location .prettiercache --cache-strategy content --write .",
+    "linter__check": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content .",
+    "linter__fix": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content . --fix",
+    "spell-checker__check": "cspell lint --config ./cspell/index.json --cache --no-progress ."
+  },
+  "dependencies": {
+    "@eslint/js": "catalog:codebase",
+    "eslint": "catalog:codebase",
+    "eslint-import-resolver-typescript": "catalog:codebase",
+    "eslint-plugin-functional": "catalog:codebase",
+    "eslint-plugin-import-x": "catalog:codebase",
+    "eslint-plugin-unicorn": "catalog:codebase",
+    "prettier": "catalog:codebase",
+    "prettier-plugin-sort-json": "catalog:codebase",
+    "typescript": "catalog:stack",
+    "typescript-eslint": "catalog:codebase"
+  },
+  "devDependencies": {
+    "@rslib/core": "catalog:stack",
+    "@types/node": "catalog:stack",
+    "cspell": "catalog:codebase",
+    "typescript": "catalog:stack"
+  },
+  "exports": {
+    "./cspell": "./cspell/index.json",
+    "./eslint": {
+      "types": "./eslint.d.ts",
+      "default": "./eslint.mjs"
+    },
+    "./prettier": {
+      "types": "./prettier.d.ts",
+      "default": "./prettier.mjs"
+    },
+    "./prettier-ignore": "./prettier-ignore",
+    "./typescript/base.json": "./typescript/base.json",
+    "./typescript/node.json": "./typescript/node.json"
+  }
+}

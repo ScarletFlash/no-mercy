@@ -1,0 +1,43 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json",
+  "dictionaries": [
+    "en_us",
+    "en-gb",
+    "typescript",
+    "node",
+    "bash",
+    "softwareTerms",
+    "npm",
+    "git",
+    "markdown",
+    "filetypes"
+  ],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/configs/cspell/*.json",
+    "**/dist/**",
+    "**/*.tsbuildinfo",
+    "**/.turbo/**",
+    "**/coverage/**",
+    "**/*-cache/**",
+    "**/out-tsc/**",
+    "**/pnpm-lock.yaml",
+    "**/pnpm-workspace.yaml"
+  ],
+  "ignoreRegExpList": ["CStyleComment"],
+  "language": "en",
+  "version": "0.2",
+  "words": [
+    "autofix",
+    "knipcache",
+    "npmrc",
+    "prettiercache",
+    "rslib",
+    "rspack",
+    "rstest",
+    "Thenables",
+    "TSES",
+    "tseslint",
+    "turborepo"
+  ]
+}
