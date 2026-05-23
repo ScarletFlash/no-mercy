@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": false,
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "rootDir": "./src",
+    "types": ["node"],
+    "verbatimModuleSyntax": true
+  },
+  "exclude": ["src/**/*.test.ts", "dist/**", "node_modules/**", "out-tsc/**"],
+  "extends": "@no-mercy/configs/typescript/node.json",
+  "include": ["src/**/*"]
+}
