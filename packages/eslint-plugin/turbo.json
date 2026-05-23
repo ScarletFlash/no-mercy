@@ -1,0 +1,49 @@
+{
+  "$schema": "../../node_modules/turbo/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "cache": true,
+      "inputs": ["./src/**/*.ts", "./rslib.config.ts", "./tsconfig.lib.json", "./package.json"],
+      "outputLogs": "errors-only",
+      "outputs": ["./dist/**"],
+      "persistent": false
+    },
+    "compiler__check": {
+      "cache": false,
+      "dependsOn": ["compiler__check__lib", "compiler__check__scripts", "compiler__check__test"],
+      "outputLogs": "errors-only",
+      "persistent": false
+    },
+    "compiler__check__lib": {
+      "cache": true,
+      "dependsOn": ["@no-mercy/configs#build"],
+      "inputs": ["./src/**/*.ts", "./tsconfig.lib.json", "./tsconfig.json", "./package.json", "!./src/**/*.test.ts"],
+      "outputLogs": "errors-only",
+      "outputs": ["./out-tsc/lib.tsbuildinfo"],
+      "persistent": false
+    },
+    "compiler__check__scripts": {
+      "cache": true,
+      "dependsOn": ["@no-mercy/configs#build"],
+      "inputs": [
+        "./rslib.config.ts",
+        "./rstest.config.ts",
+        "./tsconfig.scripts.json",
+        "./tsconfig.json",
+        "./package.json"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": ["./out-tsc/scripts.tsbuildinfo"],
+      "persistent": false
+    },
+    "compiler__check__test": {
+      "cache": true,
+      "dependsOn": ["@no-mercy/configs#build"],
+      "inputs": ["./src/**/*.ts", "./tests/**/*.ts", "./tsconfig.test.json", "./tsconfig.json", "./package.json"],
+      "outputLogs": "errors-only",
+      "outputs": ["./out-tsc/test.tsbuildinfo"],
+      "persistent": false
+    }
+  }
+}

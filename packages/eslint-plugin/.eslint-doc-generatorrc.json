@@ -1,0 +1,7 @@
+{
+  "pathRuleDoc": "src/rules/{name}/README.md",
+  "pathRuleList": "README.md",
+  "ruleDocSectionInclude": ["Rule details"],
+  "ruleDocTitleFormat": "desc-parens-prefix-name",
+  "urlConfigs": "https://github.com/ScarletFlash/no-mercy#configs"
+}
