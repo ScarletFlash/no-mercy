@@ -24,7 +24,7 @@
     "linter__check": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content .",
     "linter__fix": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content . --fix",
     "spell-checker__check": "cspell lint --config ../../.cspell.json --cache --no-progress .",
-    "test__units": "rstest run",
+    "test__units": "rstest run --reporter=verbose",
     "test__units:watch": "rstest watch"
   },
   "peerDependencies": {
@@ -35,6 +35,8 @@
     "@typescript-eslint/utils": "catalog:stack"
   },
   "devDependencies": {
+    "change-case": "catalog:stack",
+    "arkregex": "catalog:stack",
     "@no-mercy/configs": "workspace:*",
     "@rslib/core": "catalog:stack",
     "@rstest/core": "catalog:stack",
