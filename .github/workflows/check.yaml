@@ -1,0 +1,107 @@
+name: Check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  schedule:
+    - cron: '0 4 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+    check_codebase:
+        runs-on: ubuntu-latest
+        name: Run codebase health checks
+        steps:
+            - name: Fetch all required Git history
+              uses: actions/checkout@v6
+              with:
+                fetch-depth: 2
+
+            - name: Ensure subsequent tasks should be executed
+              id: should-run
+              run: |
+                if [ "${{ github.event_name }}" = "pull_request" ]; then
+                    echo "result=$(git diff --quiet HEAD^ HEAD ./ && echo false || echo true)" >> $GITHUB_OUTPUT
+                else
+                    echo "result=true" >> $GITHUB_OUTPUT
+                fi
+
+            - name: Skip subsequent steps
+              if: ${{ steps.should-run.outputs.result == 'false' }}
+              run: |
+                  echo "Codebase is not affected, skipping all subsequent steps."
+                  exit 0
+
+            - name: Restore caches
+              if: ${{ steps.should-run.outputs.result == 'true' }}
+              id: caches
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                    .turbo/
+                    !.turbo/runs/
+                    .*cache
+                    packages/*/.*cache
+                    packages/*/.*tsbuildinfo
+                    packages/*/.jestcache/
+                    packages/*/coverage/
+                  key: ${{ runner.os }}-check-${{ github.sha }}
+                  restore-keys: |
+                    ${{ runner.os }}-check-main-
+                    ${{ runner.os }}-check-
+
+            - name: Setup Node.js environment
+              if: ${{ steps.should-run.outputs.result == 'true' }}
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: package.json
+
+            - name: Setup PNPM
+              if: ${{ steps.should-run.outputs.result == 'true' }}
+              uses: pnpm/action-setup@v6
+              with:
+                  package_json_file: package.json
+                  cache: true
+                  cache_dependency_path: pnpm-lock.yaml
+                  run_install: |
+                      - cwd: .
+                        args: [--frozen-lockfile]
+
+            - name: Run codebase checks
+              if: ${{ steps.should-run.outputs.result == 'true' }}
+              run: |
+                if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_name }}" = "main" ]; then
+                  pnpm run check-all
+                else
+                  pnpm run check-all-affected
+                fi
+              env:
+                TURBO_SCM_BASE:
+                  ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+
+            - name: Save caches
+              if:
+                ${{ failure() || ( steps.should-run.outputs.result == 'true' && steps.caches.outputs.cache-hit != 'true' ) }}
+              uses: actions/cache/save@v5
+              with:
+                path: |
+                  .turbo/
+                  !.turbo/runs/
+                  .*cache
+                  packages/*/.*cache
+                  packages/*/.*tsbuildinfo
+                  packages/*/.jestcache/
+                  packages/*/coverage/
+                key: ${{ runner.os }}-check-${{ github.ref_name == 'main' && format('main-{0}', github.sha) || github.sha }}

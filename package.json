@@ -4,6 +4,7 @@
   "scripts": {
     "🚀": "One-liners",
     "check-all": "pnpm run turbo-run _check-all",
+    "check-all-affected": "pnpm run turbo-run --affected _check-all",
     "fix-all": "pnpm run turbo-run _fix-all",
     "build": "pnpm run turbo-run build",
     "🏗️": "Compiling",
@@ -29,9 +30,7 @@
     "⚙️": "Tools configuration",
     "turbo": "turbo --color --no-update-notifier",
     "turbo-run": "pnpm run turbo run --continue=dependencies-successful --env-mode=strict --log-order=stream --cache-dir=./.turbo --concurrency=75%",
-    "prettier": "prettier",
-    "🦾": "Automatic",
-    "postinstall": "turbo telemetry disable"
+    "prettier": "prettier"
   },
   "devDependencies": {
     "@no-mercy/configs": "workspace:*",

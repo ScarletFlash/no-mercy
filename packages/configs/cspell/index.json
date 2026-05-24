@@ -28,6 +28,9 @@
   "language": "en",
   "version": "0.2",
   "words": [
+    "arkregex",
+    "arktype",
+    "generatorrc",
     "autofix",
     "knipcache",
     "npmrc",
