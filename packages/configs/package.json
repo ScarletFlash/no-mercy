@@ -7,8 +7,8 @@
     "_fix-all": "",
     "build": "rslib build",
     "compiler__check": "tsc --project tsconfig.json --noEmit",
-    "formatter__check": "prettier --config ./prettier.mjs --cache --cache-location .prettiercache --cache-strategy content --check .",
-    "formatter__fix": "prettier --config ./prettier.mjs --cache --cache-location .prettiercache --cache-strategy content --write .",
+    "formatter__check": "prettier --config ./prettier.mjs --ignore-path ./prettier-ignore --ignore-path ./.prettierignore --cache --cache-location .prettiercache --cache-strategy content --check .",
+    "formatter__fix": "prettier --config ./prettier.mjs --ignore-path ./prettier-ignore --ignore-path ./.prettierignore --cache --cache-location .prettiercache --cache-strategy content --write .",
     "linter__check": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content .",
     "linter__fix": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content . --fix",
     "spell-checker__check": "cspell lint --config ./cspell/index.json --cache --no-progress ."

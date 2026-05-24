@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "outDir": "./out-tsc/scripts",
+    "rootDir": ".",
+    "tsBuildInfoFile": "./out-tsc/scripts.tsbuildinfo",
+    "types": ["node"],
+    "verbatimModuleSyntax": true
+  },
+  "extends": "@no-mercy/configs/typescript/node.json",
+  "include": ["rslib.config.ts", "rstest.config.ts"]
+}

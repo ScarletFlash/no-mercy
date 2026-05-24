@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "outDir": "./out-tsc/test",
+    "resolveJsonModule": true,
+    "rootDir": ".",
+    "tsBuildInfoFile": "./out-tsc/test.tsbuildinfo",
+    "types": ["node"],
+    "verbatimModuleSyntax": true
+  },
+  "extends": "@no-mercy/configs/typescript/node.json",
+  "include": ["src/**/*.ts", "tests/**/*.ts", "package.json"]
+}

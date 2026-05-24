@@ -2,6 +2,7 @@
 .gitignore
 .npmrc
 *.d.ts
+*.tsbuildinfo
 .turbo/
 coverage/
 dist/

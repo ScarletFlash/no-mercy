@@ -251,7 +251,7 @@ export const RULES: Partial<Linter.RulesRecord> = {
     'error',
     {
       min: 2,
-      exceptions: [ '_'],
+      exceptions: ['_'],
       properties: 'always'
     }
   ],

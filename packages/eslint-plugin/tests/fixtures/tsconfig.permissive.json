@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": false,
+    "strict": false
+  },
+  "extends": "@no-mercy/configs/typescript/base.json",
+  "files": []
+}
