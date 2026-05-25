@@ -30,10 +30,11 @@
   "words": [
     "arkregex",
     "arktype",
-    "generatorrc",
     "autofix",
+    "generatorrc",
     "knipcache",
     "npmrc",
+    "postpublish",
     "prettiercache",
     "rslib",
     "rspack",

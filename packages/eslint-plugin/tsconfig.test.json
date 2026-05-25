@@ -5,7 +5,6 @@
     "resolveJsonModule": true,
     "rootDir": ".",
     "tsBuildInfoFile": "./out-tsc/test.tsbuildinfo",
-    "types": ["node"],
     "verbatimModuleSyntax": true
   },
   "extends": "@no-mercy/configs/typescript/node.json",

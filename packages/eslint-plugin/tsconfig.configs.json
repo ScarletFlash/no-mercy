@@ -1,4 +1,4 @@
 {
   "extends": "@no-mercy/configs/typescript/node.json",
-  "include": ["scripts/**/*"]
+  "include": ["*.config.ts"]
 }

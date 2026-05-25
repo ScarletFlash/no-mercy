@@ -28,11 +28,14 @@
     "doc:update": "pnpm run turbo-run doc:update",
     "doc:lint": "pnpm run turbo-run doc:lint",
     "⚙️": "Tools configuration",
+    "changeset": "changeset",
     "turbo": "turbo --color --no-update-notifier",
     "turbo-run": "pnpm run turbo run --continue=dependencies-successful --env-mode=strict --log-order=stream --cache-dir=./.turbo --concurrency=75%",
     "prettier": "prettier"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "catalog:codebase",
+    "@changesets/cli": "catalog:codebase",
     "@no-mercy/configs": "workspace:*",
     "cspell": "catalog:codebase",
     "eslint": "catalog:codebase",
