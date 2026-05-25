@@ -1,7 +1,7 @@
 # eslint-plugin-no-mercy
 
 <p align="center">
-  <img width="128" height="128" alt="No Mercy" src="https://github.com/ScarletFlash/no-mercy/tree/main/packages/web/assets/logo.png" />
+  <img width="128" height="128" alt="No Mercy" src="https://raw.githubusercontent.com/ScarletFlash/no-mercy/refs/heads/main/packages/web/assets/icon.png" />
 </p>
 
 ## About
