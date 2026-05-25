@@ -9,10 +9,7 @@
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
-  "files": [
-    "README.md",
-    "dist"
-  ],
+  "files": ["README.md", "dist"],
   "scripts": {
     "_check-all": "",
     "_fix-all": "",
