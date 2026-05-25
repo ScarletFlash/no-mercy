@@ -40,7 +40,9 @@ const ESSENTIAL_CONFIG: Config = {
   trailingComma: 'none',
   useTabs: false,
   vueIndentScriptAndStyle: false,
-  plugins: ['prettier-plugin-sort-json'],
+  plugins: ['prettier-plugin-embed', 'prettier-plugin-sort-json'],
+  embeddedTsTags: ['ts'],
+  embeddedTsParser: 'typescript',
   jsonRecursiveSort: true,
   jsonSortOrder: JSON.stringify({ '*': 'lexical' }),
   overrides: [
