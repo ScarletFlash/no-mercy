@@ -11,7 +11,19 @@
     },
     "compiler__check": {
       "cache": false,
-      "dependsOn": ["compiler__check__lib", "compiler__check__scripts", "compiler__check__test"],
+      "dependsOn": [
+        "compiler__check__configs",
+        "compiler__check__lib",
+        "compiler__check__scripts",
+        "compiler__check__test"
+      ],
+      "outputLogs": "errors-only",
+      "persistent": false
+    },
+    "compiler__check__configs": {
+      "cache": true,
+      "dependsOn": ["@no-mercy/configs#build"],
+      "inputs": ["./rslib.config.ts", "./rstest.config.ts", "./tsconfig.configs.json", "./package.json"],
       "outputLogs": "errors-only",
       "persistent": false
     },
@@ -26,15 +38,8 @@
     "compiler__check__scripts": {
       "cache": true,
       "dependsOn": ["@no-mercy/configs#build"],
-      "inputs": [
-        "./rslib.config.ts",
-        "./rstest.config.ts",
-        "./tsconfig.scripts.json",
-        "./tsconfig.json",
-        "./package.json"
-      ],
+      "inputs": ["./scripts/**/*.ts", "./tsconfig.scripts.json", "./package.json"],
       "outputLogs": "errors-only",
-      "outputs": ["./out-tsc/scripts.tsbuildinfo"],
       "persistent": false
     },
     "compiler__check__test": {

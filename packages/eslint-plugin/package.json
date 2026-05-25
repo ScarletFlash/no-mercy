@@ -2,28 +2,33 @@
   "name": "eslint-plugin-no-mercy",
   "version": "0.0.0",
   "private": false,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "README.md",
-    "dist"
-  ],
+  "repository": {
+    "directory": "packages/eslint-plugin",
+    "type": "git",
+    "url": "git+https://github.com/ScarletFlash/no-mercy.git"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "files": ["README.md", "dist"],
   "scripts": {
     "_check-all": "",
     "_fix-all": "",
     "build": "rslib build",
     "compiler__check": "",
+    "compiler__check__configs": "tsc --project tsconfig.configs.json --noEmit",
     "compiler__check__lib": "tsc --project tsconfig.lib.json --noEmit",
     "compiler__check__scripts": "tsc --project tsconfig.scripts.json --noEmit",
     "compiler__check__test": "tsc --project tsconfig.test.json --noEmit",
     "dev": "rslib build --watch",
     "doc:lint": "eslint-doc-generator --check",
     "doc:update": "eslint-doc-generator",
-    "formatter__check": "prettier --config ../../.prettierrc.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --check .",
-    "formatter__fix": "prettier --config ../../.prettierrc.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --write .",
+    "formatter__check": "prettier --config ./node_modules/@no-mercy/configs/prettier.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --check .",
+    "formatter__fix": "prettier --config ./node_modules/@no-mercy/configs/prettier.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --write .",
     "linter__check": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content .",
     "linter__fix": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content . --fix",
-    "spell-checker__check": "cspell lint --config ../../.cspell.json --cache --no-progress .",
+    "postpublish": "tsx scripts/postpublish.script.ts",
+    "prepublishOnly": "tsx scripts/prepublish.script.ts",
+    "spell-checker__check": "cspell lint --config ./node_modules/@no-mercy/configs/cspell/index.json --cache --no-progress .",
     "test__units": "rstest run --reporter=verbose",
     "test__units:watch": "rstest watch"
   },
@@ -35,26 +40,22 @@
     "@typescript-eslint/utils": "catalog:stack"
   },
   "devDependencies": {
-    "change-case": "catalog:stack",
-    "arkregex": "catalog:stack",
     "@no-mercy/configs": "workspace:*",
+    "@no-mercy/scripts": "workspace:*",
     "@rslib/core": "catalog:stack",
     "@rstest/core": "catalog:stack",
     "@types/node": "catalog:stack",
     "@typescript-eslint/parser": "catalog:stack",
     "@typescript-eslint/rule-tester": "catalog:stack",
+    "arkregex": "catalog:stack",
+    "change-case": "catalog:stack",
     "eslint": "catalog:codebase",
     "eslint-doc-generator": "catalog:codebase",
     "jiti": "catalog:stack",
     "prettier": "catalog:codebase",
+    "tsx": "catalog:stack",
     "typescript": "catalog:stack",
     "typescript-eslint": "catalog:codebase"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
   },
   "license": "MIT",
   "type": "module"

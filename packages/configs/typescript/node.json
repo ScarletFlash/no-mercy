@@ -3,7 +3,8 @@
   "compilerOptions": {
     "composite": true,
     "declarationMap": false,
-    "lib": ["ESNext"]
+    "lib": ["ESNext"],
+    "types": ["node"]
   },
   "extends": "./base.json"
 }

@@ -1,0 +1,94 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    name: Build and publish
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
+    steps:
+      - name: Fetch all required Git history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Restore caches
+        id: caches
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            .turbo/
+            !.turbo/runs/
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-main-
+            ${{ runner.os }}-build-
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          registry-url: https://registry.npmjs.org
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: package.json
+          cache: true
+          cache_dependency_path: pnpm-lock.yaml
+          run_install: |
+            - cwd: .
+              args: [--frozen-lockfile]
+
+      - name: Build targets
+        run: pnpm run build
+
+      - name: Generate GitHub App token
+        if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+        id: app_token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Handle package versions
+        if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+        uses: changesets/action@v1
+        with:
+          publish: pnpm --recursive --no-git-checks publish
+          createGithubReleases: true
+          commit: 'chore: update package versions'
+          title: 'chore: update package versions'
+        env:
+          GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
+          NPM_CONFIG_PROVENANCE: 'true'
+
+      - name: Save caches
+        if: ${{ always() && steps.caches.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            .turbo/
+            !.turbo/runs/
+          key: ${{ runner.os }}-build-${{ github.ref_name == 'main' && format('main-{0}', github.sha) || github.sha }}

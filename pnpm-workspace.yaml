@@ -5,7 +5,11 @@ catalogMode: strict
 
 catalogs:
   codebase:
+    '@changesets/changelog-github': ^0.7.0
+    '@changesets/cli': ^2.31.0
     '@eslint/js': ^10.0.1
+    '@pnpm/read-package-json': ^1000.1.8
+    '@pnpm/types': ^1001.3.0
     cspell: ^10.0.0
     eslint: ^10.2.1
     eslint-doc-generator: ^3.3.2
@@ -27,6 +31,7 @@ catalogs:
     'arkregex': ^0.0.5
     'change-case': ^5.4.4
     jiti: ^2.0.0
+    tsx: ^4.22.3
     turbo: ^2.9.0
     typescript: ^6.0.0
 
@@ -41,6 +46,7 @@ managePackageManagerVersions: true
 onlyBuiltDependencies:
   - core-js
   - cspell
+  - esbuild
   - prettier
   - typescript
   - unrs-resolver

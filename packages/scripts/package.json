@@ -1,0 +1,32 @@
+{
+  "name": "@no-mercy/scripts",
+  "private": true,
+  "main": "./src/public-api.ts",
+  "types": "./src/public-api.ts",
+  "scripts": {
+    "_check-all": "",
+    "_fix-all": "",
+    "build": "",
+    "compiler__check": "",
+    "compiler__check:sources": "tsc --project tsconfig.sources.json --noEmit",
+    "formatter__check": "prettier --config ./node_modules/@no-mercy/configs/prettier.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --check .",
+    "formatter__fix": "prettier --config ./node_modules/@no-mercy/configs/prettier.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --write .",
+    "linter__check": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content .",
+    "linter__fix": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content . --fix",
+    "spell-checker__check": "cspell lint --config ./node_modules/@no-mercy/configs/cspell/index.json --cache --no-progress ."
+  },
+  "dependencies": {
+    "@pnpm/read-package-json": "catalog:codebase",
+    "arkregex": "catalog:stack"
+  },
+  "devDependencies": {
+    "@no-mercy/configs": "workspace:*",
+    "@pnpm/types": "catalog:codebase",
+    "@types/node": "catalog:stack",
+    "cspell": "catalog:codebase",
+    "eslint": "catalog:codebase",
+    "prettier": "catalog:codebase",
+    "typescript": "catalog:stack"
+  },
+  "type": "module"
+}

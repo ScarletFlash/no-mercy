@@ -5,7 +5,6 @@
     "resolveJsonModule": true,
     "rootDir": "./src",
     "tsBuildInfoFile": "./out-tsc/lib.tsbuildinfo",
-    "types": ["node"],
     "verbatimModuleSyntax": true
   },
   "exclude": ["src/**/*.test.ts"],
