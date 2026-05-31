@@ -21,7 +21,7 @@ const PACKAGE_JSON_DEFAULT_SORT_ORDER: JsonSortOrder = {
   '*': 'lexical'
 };
 
-const ESSENTIAL_CONFIG: Config = {
+const CONFIG: Config = {
   arrowParens: 'always',
   bracketSameLine: false,
   bracketSpacing: true,
@@ -61,5 +61,5 @@ const ESSENTIAL_CONFIG: Config = {
   ]
 };
 
-export { PACKAGE_JSON_DEFAULT_SORT_ORDER };
-export default ESSENTIAL_CONFIG;
+export { CONFIG, PACKAGE_JSON_DEFAULT_SORT_ORDER };
+export default CONFIG;

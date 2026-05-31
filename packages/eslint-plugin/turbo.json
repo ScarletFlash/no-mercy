@@ -30,7 +30,7 @@
     "compiler__check__lib": {
       "cache": true,
       "dependsOn": ["@no-mercy/configs#build"],
-      "inputs": ["./src/**/*.ts", "./tsconfig.lib.json", "./tsconfig.json", "./package.json", "!./src/**/*.test.ts"],
+      "inputs": ["./src/**/*.ts", "./tsconfig.lib.json", "./tsconfig.json", "./package.json", "!./src/**/*.spec.ts"],
       "outputLogs": "errors-only",
       "outputs": ["./out-tsc/lib.tsbuildinfo"],
       "persistent": false

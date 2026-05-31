@@ -73,6 +73,9 @@ catalogs:
     '@typescript-eslint/rule-tester':
       specifier: ^8.59.1
       version: 8.59.1
+    '@typescript-eslint/typescript-estree':
+      specifier: ^8.59.1
+      version: 8.59.1
     '@typescript-eslint/utils':
       specifier: ^8.59.1
       version: 8.59.1
@@ -203,6 +206,9 @@ importers:
       '@typescript-eslint/rule-tester':
         specifier: catalog:stack
         version: 8.59.1(eslint@10.2.1(jiti@2.6.1))(typescript@6.0.3)
+      '@typescript-eslint/typescript-estree':
+        specifier: catalog:stack
+        version: 8.59.1(typescript@6.0.3)
       arkregex:
         specifier: catalog:stack
         version: 0.0.5
