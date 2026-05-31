@@ -7,7 +7,7 @@
     "tsBuildInfoFile": "./out-tsc/lib.tsbuildinfo",
     "verbatimModuleSyntax": true
   },
-  "exclude": ["src/**/*.test.ts"],
+  "exclude": ["src/**/*.spec.ts"],
   "extends": "@no-mercy/configs/typescript/node.json",
   "include": ["src/**/*"]
 }

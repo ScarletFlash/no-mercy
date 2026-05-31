@@ -1,18 +1,46 @@
 import type { Dirent } from 'fs';
 import { readdir } from 'fs/promises';
 import { join, resolve } from 'path';
-import { RuleTester, type RunTests } from '@typescript-eslint/rule-tester';
-import { type TSESLint } from '@typescript-eslint/utils';
+import { CONFIG } from '@no-mercy/configs/prettier';
+import { describe, expect, it } from '@rstest/core';
+import { default as parser } from '@typescript-eslint/parser';
+import { RuleTester, type TestCaseError, type ValidTestCase } from '@typescript-eslint/rule-tester';
+import { TSESLint } from '@typescript-eslint/utils';
 import { regex } from 'arkregex';
 import { sentenceCase } from 'change-case';
+import { format, type Options as FormatterOptions } from 'prettier';
 
 const TS_CONFIG_PATTERN = regex('^tsconfig\\.(?<scope>\\w*)\\.json$');
 
 const FIXTURES_DIR = resolve(import.meta.dirname, 'fixtures');
+const FIXTURE_FILE = join(FIXTURES_DIR, 'file.ts');
+
+const FORMATTER_OPTIONS: FormatterOptions = { ...CONFIG, parser: 'typescript' };
+
+const LINTER = new TSESLint.Linter({ configType: 'flat' });
 
 interface TsConfig {
   readonly path: string;
   readonly scope: string;
+}
+
+type ExpectedError<MessageIds extends string> = Pick<TestCaseError<MessageIds>, 'messageId'>;
+
+interface ReportingCase<MessageIds extends string, Options extends readonly unknown[]> extends ValidTestCase<Options> {
+  readonly errors: readonly ExpectedError<MessageIds>[];
+  readonly output?: string | null;
+}
+
+interface FixableCase<MessageIds extends string, Options extends readonly unknown[]> extends ReportingCase<
+  MessageIds,
+  Options
+> {
+  readonly output: string;
+}
+
+interface RuleTests<MessageIds extends string, Options extends readonly unknown[]> {
+  readonly valid: readonly ValidTestCase<Options>[];
+  readonly invalid: readonly ReportingCase<MessageIds, Options>[];
 }
 
 const tsConfigs = (
@@ -34,18 +62,67 @@ const tsConfigs = (
 export function runRuleTests<MessageIds extends string, Options extends readonly unknown[]>(
   testName: string,
   rule: TSESLint.RuleModule<MessageIds, Options>,
-  cases: RunTests<MessageIds, Options>
+  cases: RuleTests<MessageIds, Options>
 ): void {
   tsConfigs.forEach(({ path, scope }: TsConfig) => {
-    const tester = new RuleTester({
+    const prefix = `${sentenceCase(scope)} ▷ ${testName}`;
+
+    const reportingCases = cases.invalid.filter(
+      ({ output }: ReportingCase<MessageIds, Options>) => typeof output !== 'string'
+    );
+    const fixableCases = cases.invalid.filter(
+      (invalidCase: ReportingCase<MessageIds, Options>): invalidCase is FixableCase<MessageIds, Options> =>
+        typeof invalidCase.output === 'string'
+    );
+
+    new RuleTester({
       languageOptions: {
         parserOptions: {
           projectService: { allowDefaultProject: ['*.ts'], defaultProject: path },
           tsconfigRootDir: FIXTURES_DIR
         }
       }
-    });
+    }).run(prefix, rule, { valid: cases.valid, invalid: reportingCases });
 
-    tester.run(`${sentenceCase(scope)} ▷ ${testName}`, rule, cases);
+    if (fixableCases.length === 0) {
+      return;
+    }
+
+    describe(`${prefix} ▷ fix`, () => {
+      fixableCases.forEach(({ name, code, options, errors, output }: FixableCase<MessageIds, Options>) => {
+        it(name ?? code, async () => {
+          const config: TSESLint.FlatConfig.Config = {
+            files: ['**/*.ts'],
+            plugins: { local: { rules: { [testName]: rule } } },
+            rules: {
+              [`local/${testName}`]: [
+                'error',
+                ...(options === undefined ? [] : [...options])
+              ] satisfies TSESLint.FlatConfig.RuleLevelAndOptions
+            },
+            languageOptions: {
+              parser,
+              parserOptions: {
+                ecmaVersion: 'latest',
+                sourceType: 'module',
+                projectService: { allowDefaultProject: ['*.ts'], defaultProject: path },
+                tsconfigRootDir: FIXTURES_DIR
+              }
+            }
+          };
+
+          const reportedMessageIds = LINTER.verify(code, config, { filename: FIXTURE_FILE }).map(
+            ({ messageId }: TSESLint.Linter.LintMessage): string | undefined => messageId
+          );
+          const expectedMessageIds = errors.map(({ messageId }: ExpectedError<MessageIds>): MessageIds => messageId);
+          expect(reportedMessageIds).toStrictEqual(expectedMessageIds);
+
+          const { output: actualOutput } = LINTER.verifyAndFix(code, config, {
+            filename: FIXTURE_FILE
+          });
+          expect(await format(actualOutput, FORMATTER_OPTIONS)).toBe(await format(output, FORMATTER_OPTIONS));
+        });
+      });
+    });
   });
 }

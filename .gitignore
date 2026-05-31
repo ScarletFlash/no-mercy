@@ -2,6 +2,7 @@
 **/*.tsbuildinfo
 **/package-lock.json
 *-cache/
+.claude/
 .cspellcache
 .eslintcache
 .knipcache

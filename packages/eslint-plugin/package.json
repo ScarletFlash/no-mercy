@@ -47,6 +47,7 @@
     "@types/node": "catalog:stack",
     "@typescript-eslint/parser": "catalog:stack",
     "@typescript-eslint/rule-tester": "catalog:stack",
+    "@typescript-eslint/typescript-estree": "catalog:stack",
     "arkregex": "catalog:stack",
     "change-case": "catalog:stack",
     "eslint": "catalog:codebase",

@@ -1,6 +1,6 @@
 import { defineConfig } from '@rstest/core';
 
 export default defineConfig({
-  include: ['src/**/*.test.ts'],
+  include: ['src/**/*.spec.ts'],
   setupFiles: ['./tests/setup.ts']
 });

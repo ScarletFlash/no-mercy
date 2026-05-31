@@ -1,26 +1,84 @@
-import { AST_NODE_TYPES, type TSESTree } from '@typescript-eslint/utils';
+import { AST_NODE_TYPES, ESLintUtils, type TSESLint, type TSESTree } from '@typescript-eslint/utils';
 import { getRule } from '../../utilities/get-rule.utility';
+import { isTerminatable } from '../../utilities/is-terminatable.utility';
+import { isWithSideEffects } from '../../utilities/is-with-side-effects.utility';
 import { MessageId } from './no-else.message-id';
 
-export const noElse = getRule({
+interface Options {
+  readonly allowSideEffects?: boolean;
+}
+
+const TOP_LEVEL_LEXICAL_DECLARATION_NODE_TYPES: ReadonlySet<AST_NODE_TYPES> = new Set<AST_NODE_TYPES>([
+  AST_NODE_TYPES.VariableDeclaration,
+  AST_NODE_TYPES.FunctionDeclaration,
+  AST_NODE_TYPES.ClassDeclaration
+]);
+
+export const noElse = getRule<readonly [Options], MessageId>({
   name: 'no-else',
   meta: {
     type: 'suggestion',
+    fixable: 'code',
     docs: {
       description: 'Disallow `else` clauses. Use early returns or guard clauses instead.'
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          allowSideEffects: { type: 'boolean', default: false }
+        }
+      }
+    ],
     messages: {
       [MessageId.NoElse]: 'Avoid using "else". Use early returns or guard clauses instead.'
     }
   },
-  defaultOptions: [],
-  create(context) {
+  defaultOptions: [{ allowSideEffects: false }],
+  create(context, [rawOptions]) {
+    const { allowSideEffects = false } = rawOptions ?? {};
+
     return {
-      IfStatement: ({ alternate }: TSESTree.IfStatement) => {
-        if (alternate?.type === AST_NODE_TYPES.BlockStatement) {
-          context.report({ node: alternate, messageId: MessageId.NoElse });
+      IfStatement: (node: TSESTree.IfStatement): void => {
+        const { consequent, alternate } = node;
+        if (
+          alternate?.type !== AST_NODE_TYPES.BlockStatement ||
+          (allowSideEffects &&
+            isWithSideEffects({
+              block: alternate,
+              sourceCode: context.sourceCode,
+              parserServices: ESLintUtils.getParserServices(context)
+            }))
+        ) {
+          return;
         }
+
+        if (
+          consequent.type !== AST_NODE_TYPES.BlockStatement ||
+          !isTerminatable(consequent) ||
+          alternate.body.some(({ type }: TSESTree.Statement) => TOP_LEVEL_LEXICAL_DECLARATION_NODE_TYPES.has(type))
+        ) {
+          context.report({ node: alternate, messageId: MessageId.NoElse });
+          return;
+        }
+
+        context.report({
+          node: alternate,
+          messageId: MessageId.NoElse,
+          fix: (fixer: TSESLint.RuleFixer): readonly TSESLint.RuleFix[] => {
+            const openBraceToken = context.sourceCode.getFirstToken(alternate);
+            const closeBraceToken = context.sourceCode.getLastToken(alternate);
+            if (openBraceToken === null || closeBraceToken === null) {
+              return [];
+            }
+
+            const [_, consequentEndPosition] = consequent.range;
+            const [__, elseBraceEndPosition] = openBraceToken.range;
+
+            return [fixer.removeRange([consequentEndPosition, elseBraceEndPosition]), fixer.remove(closeBraceToken)];
+          }
+        });
       }
     };
   }
