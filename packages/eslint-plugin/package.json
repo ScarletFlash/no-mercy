@@ -33,11 +33,11 @@
     "test__units:watch": "rstest watch"
   },
   "peerDependencies": {
-    "eslint": "^8.57.0 || ^9.0.0 || ^10.0.0",
-    "typescript": ">=4.8.4 <6.1.0"
-  },
-  "dependencies": {
-    "@typescript-eslint/utils": "catalog:stack"
+    "@typescript-eslint/parser": "^8.0.0",
+    "@typescript-eslint/typescript-estree": "^8.0.0",
+    "@typescript-eslint/utils": "^8.0.0",
+    "eslint": ">=9.0.0 <10.0.0",
+    "typescript": ">=6.0.0 <7.0.0"
   },
   "devDependencies": {
     "@no-mercy/configs": "workspace:*",
@@ -48,6 +48,7 @@
     "@typescript-eslint/parser": "catalog:stack",
     "@typescript-eslint/rule-tester": "catalog:stack",
     "@typescript-eslint/typescript-estree": "catalog:stack",
+    "@typescript-eslint/utils": "catalog:stack",
     "arkregex": "catalog:stack",
     "change-case": "catalog:stack",
     "eslint": "catalog:codebase",
