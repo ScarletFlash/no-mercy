@@ -40,11 +40,9 @@
       "persistent": false
     },
     "//#formatter__fix:root": {
-      "cache": true,
+      "cache": false,
       "dependsOn": ["@no-mercy/configs#build"],
-      "inputs": ["./*.*", "!turbo.json"],
       "outputLogs": "errors-only",
-      "outputs": ["./*.*", "!turbo.json"],
       "persistent": false
     },
     "//#spell-checker__check:root": {
@@ -124,11 +122,9 @@
       "persistent": false
     },
     "formatter__fix": {
-      "cache": true,
+      "cache": false,
       "dependsOn": ["@no-mercy/configs#build", "//#formatter__fix:root"],
-      "inputs": ["./**/*.{js,mjs,ts,mts,tsx,html,yaml,yml,json,md}", "!./out-tsc/", "!./dist/", "!./coverage/"],
       "outputLogs": "errors-only",
-      "outputs": ["./**/*.{js,mjs,ts,mts,tsx,html,yaml,yml,json,md}", "!./out-tsc/", "!./dist/", "!./coverage/"],
       "persistent": false
     },
     "linter__check": {
@@ -139,11 +135,9 @@
       "persistent": false
     },
     "linter__fix": {
-      "cache": true,
+      "cache": false,
       "dependsOn": ["@no-mercy/configs#build"],
-      "inputs": ["./**/*.{js,mjs,ts,mts,tsx,html}", "!./out-tsc/", "!./dist/", "!./coverage/"],
       "outputLogs": "errors-only",
-      "outputs": ["./**/*.{js,mjs,ts,mts,tsx,html}", "!./out-tsc/", "!./dist/", "!./coverage/"],
       "persistent": false
     },
     "spell-checker__check": {

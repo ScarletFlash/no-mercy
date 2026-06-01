@@ -20,7 +20,10 @@ export default defineConfig({
   output: {
     target: 'node',
     legalComments: 'none',
-    minify: true
+    minify: true,
+    externals: {
+      '../../eslint-plugin/dist/index': '../eslint-plugin/dist/index.mjs'
+    }
   },
   tools: {
     rspack: {

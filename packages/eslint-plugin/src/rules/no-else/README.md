@@ -89,7 +89,7 @@ The fix is applied only when both of the following hold:
 
 - The `if` branch ends with `return`, `throw`, `break`, or `continue` — guaranteeing the `else` body would not run if
   the branch took the `if` path.
-- The `else` body does not introduce top-level lexical bindings (`let`, `const`, `var`, `function`, `class`) — otherwise
+- The `else` body does not introduce top-level declarations (`let`, `const`, `var`, `function`, `class`) — otherwise
   unwrapping would leak those names into the surrounding scope.
 
 Indentation of the unwrapped statements is intentionally not adjusted by the fixer; rely on your formatter (Prettier or
