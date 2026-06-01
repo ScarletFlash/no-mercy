@@ -4,6 +4,7 @@
   "tasks": {
     "build": {
       "cache": true,
+      "dependsOn": ["eslint-plugin-no-mercy#build"],
       "inputs": ["./src/**/*.ts", "./rslib.config.ts", "./tsconfig.*.json", "./package.json"],
       "outputLogs": "errors-only",
       "outputs": ["./eslint.mjs", "./eslint.d.ts", "./prettier.mjs", "./prettier.d.ts"],
@@ -25,18 +26,14 @@
       "inputs": ["./src/**/*.ts", "./typescript/**/*.json", "./cspell/**/*.json", "./*.{ts,mjs,json}", "!./out-tsc/**"]
     },
     "formatter__fix": {
-      "dependsOn": ["build"],
-      "inputs": ["./src/**/*.ts", "./typescript/**/*.json", "./cspell/**/*.json", "./*.{ts,mjs,json}", "!./out-tsc/**"],
-      "outputs": ["./src/**/*.ts", "./typescript/**/*.json", "./cspell/**/*.json", "./*.{ts,mjs,json}", "!./out-tsc/**"]
+      "dependsOn": ["build"]
     },
     "linter__check": {
       "dependsOn": ["build"],
       "inputs": ["./src/**/*.ts", "./*.config.ts", "./eslint.config.mjs", "./eslint.mjs"]
     },
     "linter__fix": {
-      "dependsOn": ["build"],
-      "inputs": ["./src/**/*.ts", "./*.config.ts", "./eslint.config.mjs", "./eslint.mjs"],
-      "outputs": ["./src/**/*.ts", "./*.config.ts"]
+      "dependsOn": ["build"]
     }
   }
 }

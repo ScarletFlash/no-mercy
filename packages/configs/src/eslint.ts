@@ -5,6 +5,7 @@ import { default as functionalPlugin } from 'eslint-plugin-functional';
 import { importX as importPlugin } from 'eslint-plugin-import-x';
 import { default as unicornPlugin } from 'eslint-plugin-unicorn';
 import { default as TS_ESlint } from 'typescript-eslint';
+import { plugin as noMercyPlugin } from '../../eslint-plugin/dist/index';
 
 export const RULES: Partial<Linter.RulesRecord> = {
   curly: 'error',
@@ -279,45 +280,55 @@ export const RULES: Partial<Linter.RulesRecord> = {
   'unicorn/prefer-array-flat-map': 'error'
 };
 
-export const ESSENTIAL_CONFIG = defineConfig(
-  {
-    languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      parser: TS_ESlint.parser,
-      parserOptions: {
-        projectService: true,
+export const ESSENTIAL_CONFIG = [
+  ...defineConfig(
+    {
+      languageOptions: {
+        ecmaVersion: 'latest',
         sourceType: 'module',
-        ecmaFeatures: {
-          jsx: true
+        parser: TS_ESlint.parser,
+        parserOptions: {
+          projectService: true,
+          sourceType: 'module',
+          ecmaFeatures: {
+            jsx: true
+          }
+        }
+      },
+      plugins: {
+        functional: functionalPlugin,
+        unicorn: unicornPlugin
+      },
+      files: ['**/*.ts', '**/*.tsx'],
+      extends: [
+        ESLint.configs.recommended,
+        importPlugin.flatConfigs.recommended,
+        importPlugin.flatConfigs.typescript,
+        ...TS_ESlint.configs.strictTypeChecked,
+        ...TS_ESlint.configs.stylisticTypeChecked
+      ],
+      rules: RULES,
+      linterOptions: {
+        reportUnusedDisableDirectives: 'error'
+      },
+      settings: {
+        'import-x/resolver': {
+          typescript: {
+            alwaysTryTypes: true
+          }
         }
       }
     },
-    plugins: {
-      functional: functionalPlugin,
-      unicorn: unicornPlugin
-    },
-    files: ['**/*.ts', '**/*.tsx'],
-    extends: [
-      ESLint.configs.recommended,
-      importPlugin.flatConfigs.recommended,
-      importPlugin.flatConfigs.typescript,
-      ...TS_ESlint.configs.strictTypeChecked,
-      ...TS_ESlint.configs.stylisticTypeChecked
-    ],
-    rules: RULES,
-    linterOptions: {
-      reportUnusedDisableDirectives: 'error'
-    },
-    settings: {
-      'import-x/resolver': {
-        typescript: {
-          alwaysTryTypes: true
-        }
-      }
+    {
+      ignores: ['**/*.d.ts', '**/dist/**', '**/coverage/**', '**/node_modules/**']
     }
-  },
+  ),
   {
-    ignores: ['**/*.d.ts', '**/dist/**', '**/coverage/**', '**/node_modules/**']
+    files: ['**/*.ts', '**/*.tsx'],
+    plugins: { 'no-mercy': noMercyPlugin },
+    rules: {
+      'no-mercy/no-else': 'error',
+      'no-mercy/no-else-if': 'error'
+    }
   }
-);
+];
