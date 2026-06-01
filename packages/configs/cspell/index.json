@@ -40,6 +40,7 @@
     "rspack",
     "rstest",
     "Thenables",
+    "terminatable",
     "TSES",
     "tseslint",
     "turborepo"

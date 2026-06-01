@@ -100,10 +100,3 @@ similar) to reflow.
 `allowSideEffects: true` performs type-aware analysis via TypeScript's checker and therefore requires the parser to be
 configured with type information — `parserOptions.projectService` or `parserOptions.project`. Without it, the rule
 throws a clear ESLint error pointing to the missing setup.
-
-## Notes
-
-The side-effect detector uses a deliberate conservative bias: any call whose callee is declared only in ambient `.d.ts`
-files (builtins from `lib.*.d.ts`, DOM APIs, external libraries) is treated as a side-effect — including provably pure
-helpers such as `Math.max` or `Array.isArray`. If this conserva-bias proves painful in a particular project, wrap those
-calls in local helpers that the analyser can see end-to-end.

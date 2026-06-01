@@ -180,10 +180,6 @@ importers:
         version: 10.0.0
 
   packages/eslint-plugin:
-    dependencies:
-      '@typescript-eslint/utils':
-        specifier: catalog:stack
-        version: 8.59.1(eslint@10.2.1(jiti@2.6.1))(typescript@6.0.3)
     devDependencies:
       '@no-mercy/configs':
         specifier: workspace:*
@@ -209,6 +205,9 @@ importers:
       '@typescript-eslint/typescript-estree':
         specifier: catalog:stack
         version: 8.59.1(typescript@6.0.3)
+      '@typescript-eslint/utils':
+        specifier: catalog:stack
+        version: 8.59.1(eslint@10.2.1(jiti@2.6.1))(typescript@6.0.3)
       arkregex:
         specifier: catalog:stack
         version: 0.0.5
