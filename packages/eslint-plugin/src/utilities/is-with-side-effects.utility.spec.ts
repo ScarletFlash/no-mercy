@@ -166,7 +166,7 @@ describe('isWithSideEffects', () => {
     ).toBe(false);
   });
 
-  it.fails('should ignore external mutation of block-local data', () => {
+  it('should ignore external mutation of block-local data', () => {
     const { ast, sourceCode, parserServices } = getParsedCode(ts`
       function mutate(target: number[]): void {
         target.push(1);
@@ -179,5 +179,65 @@ describe('isWithSideEffects', () => {
     expect(
       isWithSideEffects({ block: getFunctionBlock({ ast, functionName: FUNCTION_NAME }), sourceCode, parserServices })
     ).toBe(false);
+  });
+
+  it('should ignore a call to a function that mutates only its own local', () => {
+    const { ast, sourceCode, parserServices } = getParsedCode(ts`
+      function helper(): void {
+        const scoped: number[] = [];
+        scoped.push(1);
+      }
+      function ${FUNCTION_NAME}(): void {
+        helper();
+      }
+    `);
+    expect(
+      isWithSideEffects({ block: getFunctionBlock({ ast, functionName: FUNCTION_NAME }), sourceCode, parserServices })
+    ).toBe(false);
+  });
+
+  it('should ignore a nested function call that mutates a variable local to the analysed function', () => {
+    const { ast, sourceCode, parserServices } = getParsedCode(ts`
+      function ${FUNCTION_NAME}(): void {
+        let local = 0;
+        function helper(): void {
+          local = 1;
+        }
+        helper();
+      }
+    `);
+    expect(
+      isWithSideEffects({ block: getFunctionBlock({ ast, functionName: FUNCTION_NAME }), sourceCode, parserServices })
+    ).toBe(false);
+  });
+
+  it('should flag a call to a function that mutates an outer variable', () => {
+    const { ast, sourceCode, parserServices } = getParsedCode(ts`
+      let outer = 0;
+      function helper(): void {
+        outer = 1;
+      }
+      function ${FUNCTION_NAME}(): void {
+        helper();
+      }
+    `);
+    expect(
+      isWithSideEffects({ block: getFunctionBlock({ ast, functionName: FUNCTION_NAME }), sourceCode, parserServices })
+    ).toBe(true);
+  });
+
+  it('should flag external mutation of outer data through an argument', () => {
+    const { ast, sourceCode, parserServices } = getParsedCode(ts`
+      const outerArray: number[] = [];
+      function mutate(target: number[]): void {
+        target.push(1);
+      }
+      function ${FUNCTION_NAME}(): void {
+        mutate(outerArray);
+      }
+    `);
+    expect(
+      isWithSideEffects({ block: getFunctionBlock({ ast, functionName: FUNCTION_NAME }), sourceCode, parserServices })
+    ).toBe(true);
   });
 });

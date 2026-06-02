@@ -1,14 +1,15 @@
 import {
   ASTUtils,
   AST_NODE_TYPES,
+  TSESLint,
   type ParserServicesWithTypeInformation,
-  type TSESLint,
   type TSESTree
 } from '@typescript-eslint/utils';
 import * as TS_API from 'typescript';
 import { getChildren } from './get-children.utility';
 
 type Scope = TSESLint.Scope.Scope;
+type Variable = TSESLint.Scope.Variable;
 type FunctionNode = TSESTree.FunctionDeclaration | TSESTree.FunctionExpression | TSESTree.ArrowFunctionExpression;
 type ParserServices = ParserServicesWithTypeInformation;
 
@@ -22,9 +23,8 @@ interface SideEffectCheckerParams {
   readonly sourceCode: TSESLint.SourceCode;
   readonly parserServices: ParserServices;
   readonly typeChecker: TS_API.TypeChecker;
-  readonly innerScopes: ReadonlySet<Scope>;
-  readonly currentlyAnalysedFunctionSymbols?: Set<TS_API.Symbol>;
-  readonly isWithSideEffectsByFunctionSymbol?: Map<TS_API.Symbol | undefined, boolean>;
+  readonly innerVariables?: ReadonlySet<Variable>;
+  readonly currentlyAnalysedFunctionSymbols?: ReadonlySet<TS_API.Symbol>;
   readonly node: TSESTree.Node;
   readonly scope: Scope;
 }
@@ -51,13 +51,25 @@ interface GetDeclarationsParams {
   readonly node: TSESTree.Node;
 }
 
+interface IsCalleeWithSideEffectsParams {
+  readonly declaration: TS_API.Declaration;
+  readonly node: TSESTree.Node;
+  readonly scope: Scope;
+}
+
+interface GetCalleeInnerVariablesParams {
+  readonly functionNode: FunctionNode;
+  readonly calleeScope: Scope;
+  readonly node: TSESTree.Node;
+  readonly scope: Scope;
+}
+
 class SideEffectChecker {
   readonly #sourceCode: TSESLint.SourceCode;
   readonly #parserServices: ParserServices;
   readonly #typeChecker: TS_API.TypeChecker;
-  readonly #innerScopes: ReadonlySet<Scope>;
-  readonly #currentlyAnalysedFunctionSymbols: Set<TS_API.Symbol>;
-  readonly #isWithSideEffectsByFunctionSymbol: Map<TS_API.Symbol | undefined, boolean>;
+  readonly #innerVariables: ReadonlySet<Variable>;
+  readonly #currentlyAnalysedFunctionSymbols: ReadonlySet<TS_API.Symbol>;
   readonly #node: TSESTree.Node;
   readonly #scope: Scope;
 
@@ -122,23 +134,21 @@ class SideEffectChecker {
     sourceCode,
     parserServices,
     typeChecker,
-    innerScopes,
+    innerVariables,
     currentlyAnalysedFunctionSymbols = new Set<TS_API.Symbol>(),
-    isWithSideEffectsByFunctionSymbol = new Map<TS_API.Symbol | undefined, boolean>(),
     node,
     scope
   }: SideEffectCheckerParams) {
     this.#sourceCode = sourceCode;
     this.#parserServices = parserServices;
     this.#typeChecker = typeChecker;
-    this.#innerScopes = innerScopes;
+    this.#innerVariables = innerVariables ?? SideEffectChecker.#getInnerVariables(scope);
     this.#currentlyAnalysedFunctionSymbols = currentlyAnalysedFunctionSymbols;
-    this.#isWithSideEffectsByFunctionSymbol = isWithSideEffectsByFunctionSymbol;
     this.#node = node;
     this.#scope = scope;
   }
 
-  readonly #isCallWithSideEffects: MutationChecker = ({ node }: MutationCheckParams) => {
+  readonly #isCallWithSideEffects: MutationChecker = ({ node, scope }: MutationCheckParams) => {
     const templateTag = node.type === AST_NODE_TYPES.TaggedTemplateExpression ? node.tag : null;
     const callee =
       node.type === AST_NODE_TYPES.CallExpression || node.type === AST_NODE_TYPES.NewExpression ? node.callee : null;
@@ -148,18 +158,17 @@ class SideEffectChecker {
     }
 
     const declarations = this.#getDeclarations({ invokedExpression, node });
-    if (declarations.length === 0) {
-      return true;
+    const isResolvable =
+      declarations.length > 0 &&
+      !declarations.some((declaration: TS_API.Declaration) => declaration.getSourceFile().isDeclarationFile);
+    if (isResolvable) {
+      return declarations.some((declaration: TS_API.Declaration) =>
+        this.#isCalleeWithSideEffects({ declaration, node, scope })
+      );
     }
 
-    const isWithAmbientDeclaration = declarations.some(
-      (declaration: TS_API.Declaration) => declaration.getSourceFile().isDeclarationFile
-    );
-    if (isWithAmbientDeclaration) {
-      return true;
-    }
-
-    return declarations.some((declaration: TS_API.Declaration) => this.#isCallWithMutation(declaration));
+    const receiver = SideEffectChecker.#getCallReceiver(invokedExpression);
+    return receiver === null || this.#isOuterTarget({ target: receiver, scope });
   };
 
   #getDeclarations({ invokedExpression, node }: GetDeclarationsParams): readonly TS_API.Declaration[] {
@@ -189,17 +198,13 @@ class SideEffectChecker {
   }
 
   #isOuterTarget({ target, scope }: IsOuterTargetParams): boolean {
-    // eslint-disable-next-line functional/no-let
-    let mutationRoot = SideEffectChecker.#getUnwrappedInvokedExpression(target);
-    while (mutationRoot.type === AST_NODE_TYPES.MemberExpression) {
-      mutationRoot = SideEffectChecker.#getUnwrappedInvokedExpression(mutationRoot.object);
-    }
+    const mutationRoot = SideEffectChecker.#getRootExpression(target);
 
     if (mutationRoot.type !== AST_NODE_TYPES.Identifier) {
       return mutationRoot.type === AST_NODE_TYPES.ThisExpression || mutationRoot.type === AST_NODE_TYPES.Super;
     }
     const variable = ASTUtils.findVariable(scope, mutationRoot.name);
-    return variable === null || !this.#innerScopes.has(variable.scope);
+    return variable === null || !this.#innerVariables.has(variable);
   }
 
   #getChild({ node, scope }: GetChildParams): SideEffectChecker {
@@ -207,15 +212,14 @@ class SideEffectChecker {
       sourceCode: this.#sourceCode,
       parserServices: this.#parserServices,
       typeChecker: this.#typeChecker,
-      innerScopes: this.#innerScopes,
+      innerVariables: this.#innerVariables,
       currentlyAnalysedFunctionSymbols: this.#currentlyAnalysedFunctionSymbols,
-      isWithSideEffectsByFunctionSymbol: this.#isWithSideEffectsByFunctionSymbol,
       node,
       scope
     });
   }
 
-  #isCallWithMutation(declaration: TS_API.Declaration): boolean {
+  #isCalleeWithSideEffects({ declaration, node, scope }: IsCalleeWithSideEffectsParams): boolean {
     const esDeclaration = this.#parserServices.tsNodeToESTreeNodeMap.get(declaration);
 
     const functionNode = esDeclaration === undefined ? null : SideEffectChecker.#getFunctionNode(esDeclaration);
@@ -226,30 +230,109 @@ class SideEffectChecker {
     const functionSymbol = this.#typeChecker.getSymbolAtLocation(
       this.#parserServices.esTreeNodeToTSNodeMap.get(functionNode)
     );
-
-    const isFunctionWithSideEffects = this.#isWithSideEffectsByFunctionSymbol.get(functionSymbol);
-    if (isFunctionWithSideEffects !== undefined) {
-      return isFunctionWithSideEffects;
-    }
-
     if (functionSymbol !== undefined && this.#currentlyAnalysedFunctionSymbols.has(functionSymbol)) {
       return false;
     }
 
-    if (functionSymbol !== undefined) {
-      this.#currentlyAnalysedFunctionSymbols.add(functionSymbol);
-    }
+    const calleeScope = this.#sourceCode.getScope(functionNode);
 
-    const isBodyWithSideEffects = this.#getChild({
+    return new SideEffectChecker({
+      sourceCode: this.#sourceCode,
+      parserServices: this.#parserServices,
+      typeChecker: this.#typeChecker,
+      innerVariables: this.#getCalleeInnerVariables({ functionNode, calleeScope, node, scope }),
+      currentlyAnalysedFunctionSymbols:
+        functionSymbol === undefined
+          ? this.#currentlyAnalysedFunctionSymbols
+          : new Set<TS_API.Symbol>([...this.#currentlyAnalysedFunctionSymbols, functionSymbol]),
       node: functionNode.body,
-      scope: this.#sourceCode.getScope(functionNode)
+      scope: calleeScope
     }).isWithSideEffects;
-    if (functionSymbol !== undefined) {
-      this.#currentlyAnalysedFunctionSymbols.delete(functionSymbol);
-      this.#isWithSideEffectsByFunctionSymbol.set(functionSymbol, isBodyWithSideEffects);
+  }
+
+  #getCalleeInnerVariables({
+    functionNode,
+    calleeScope,
+    node,
+    scope
+  }: GetCalleeInnerVariablesParams): ReadonlySet<Variable> {
+    const localVariables = new Set<Variable>([
+      ...this.#innerVariables,
+      ...SideEffectChecker.#getInnerVariables(calleeScope)
+    ]);
+
+    const argumentExpressions: readonly TSESTree.Node[] =
+      node.type === AST_NODE_TYPES.CallExpression || node.type === AST_NODE_TYPES.NewExpression ? node.arguments : [];
+    const hasSpreadArgument = argumentExpressions.some(
+      (argument: TSESTree.Node) => argument.type === AST_NODE_TYPES.SpreadElement
+    );
+    if (hasSpreadArgument) {
+      return localVariables;
     }
 
-    return isBodyWithSideEffects;
+    const innerParameterVariables = functionNode.params.flatMap(
+      (parameter: TSESTree.Parameter, index: number): readonly Variable[] => {
+        const argument = argumentExpressions.at(index);
+        if (
+          parameter.type !== AST_NODE_TYPES.Identifier ||
+          argument === undefined ||
+          this.#isOuterTarget({ target: argument, scope })
+        ) {
+          return [];
+        }
+        const parameterVariable = ASTUtils.findVariable(calleeScope, parameter.name);
+        return parameterVariable === null ? [] : [parameterVariable];
+      }
+    );
+    return new Set<Variable>([...localVariables, ...innerParameterVariables]);
+  }
+
+  static #getInnerVariables(rootScope: Scope): ReadonlySet<Variable> {
+    const innerVariables = new Set<Variable>();
+    const visitedScopes = new Set<Scope>();
+    const scopeStack = [rootScope];
+
+    while (scopeStack.length > 0) {
+      const currentScope = scopeStack.pop();
+      if (currentScope === undefined) {
+        throw new Error('Unexpected undefined scope in the stack');
+      }
+      if (visitedScopes.has(currentScope)) {
+        continue;
+      }
+
+      visitedScopes.add(currentScope);
+      currentScope.variables
+        .filter((variable: Variable) => !SideEffectChecker.#isParameter(variable))
+        .forEach((variable: Variable) => innerVariables.add(variable));
+      scopeStack.push(
+        ...currentScope.childScopes.filter(({ type }: Scope) => type !== TSESLint.Scope.ScopeType.function)
+      );
+    }
+
+    return innerVariables;
+  }
+
+  static #isParameter(variable: Variable): boolean {
+    return variable.defs.some(
+      (definition: TSESLint.Scope.Definition) => definition.type === TSESLint.Scope.DefinitionType.Parameter
+    );
+  }
+
+  static #getCallReceiver(invokedExpression: TSESTree.Node): TSESTree.Node | null {
+    const unwrappedInvokedExpression = SideEffectChecker.#getUnwrappedInvokedExpression(invokedExpression);
+    return unwrappedInvokedExpression.type === AST_NODE_TYPES.MemberExpression
+      ? unwrappedInvokedExpression.object
+      : null;
+  }
+
+  static #getRootExpression(expression: TSESTree.Node): TSESTree.Node {
+    // eslint-disable-next-line functional/no-let
+    let rootExpression = SideEffectChecker.#getUnwrappedInvokedExpression(expression);
+    while (rootExpression.type === AST_NODE_TYPES.MemberExpression) {
+      rootExpression = SideEffectChecker.#getUnwrappedInvokedExpression(rootExpression.object);
+    }
+    return rootExpression;
   }
 
   static #getUnwrappedInvokedExpression(expression: TSESTree.Node): TSESTree.Node {
@@ -287,32 +370,11 @@ class SideEffectChecker {
 }
 
 export function isWithSideEffects({ block, sourceCode, parserServices }: IsWithSideEffectsParams): boolean {
-  const blockScope = sourceCode.getScope(block);
-
-  const innerScopes = new Set<Scope>();
-
-  const scopeStack = [blockScope];
-
-  while (scopeStack.length > 0) {
-    const currentScope = scopeStack.pop();
-    if (currentScope === undefined) {
-      throw new Error('Unexpected undefined scope in the stack');
-    }
-
-    if (innerScopes.has(currentScope)) {
-      continue;
-    }
-
-    innerScopes.add(currentScope);
-    scopeStack.push(...currentScope.childScopes);
-  }
-
   return new SideEffectChecker({
     sourceCode,
     parserServices,
     typeChecker: parserServices.program.getTypeChecker(),
-    innerScopes,
     node: block,
-    scope: blockScope
+    scope: sourceCode.getScope(block)
   }).isWithSideEffects;
 }
