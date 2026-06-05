@@ -19,6 +19,7 @@
     "pnpm-*.yaml",
     "turbo.json"
   ],
+  "globalPassThroughEnv": ["GITHUB_TOKEN"],
   "tasks": {
     "//#dependencies-checker__check": {
       "cache": true,
@@ -71,6 +72,11 @@
     "build": {
       "cache": false,
       "outputLogs": "errors-only",
+      "persistent": false
+    },
+    "bump-version": {
+      "cache": false,
+      "dependsOn": ["^build"],
       "persistent": false
     },
     "check-all": {

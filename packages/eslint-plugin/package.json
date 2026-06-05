@@ -14,6 +14,7 @@
     "_check-all": "",
     "_fix-all": "",
     "build": "rslib build",
+    "bump-version": "tsx scripts/bump-version.script.ts",
     "compiler__check": "",
     "compiler__check__configs": "tsc --project tsconfig.configs.json --noEmit",
     "compiler__check__lib": "tsc --project tsconfig.lib.json --noEmit",

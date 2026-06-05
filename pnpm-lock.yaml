@@ -238,16 +238,19 @@ importers:
 
   packages/scripts:
     dependencies:
+      '@no-mercy/configs':
+        specifier: workspace:*
+        version: link:../configs
       '@pnpm/read-package-json':
         specifier: catalog:codebase
         version: 1000.1.8
       arkregex:
         specifier: catalog:stack
         version: 0.0.5
+      prettier:
+        specifier: catalog:codebase
+        version: 3.8.3
     devDependencies:
-      '@no-mercy/configs':
-        specifier: workspace:*
-        version: link:../configs
       '@pnpm/types':
         specifier: catalog:codebase
         version: 1001.3.0
@@ -260,9 +263,6 @@ importers:
       eslint:
         specifier: catalog:codebase
         version: 10.2.1(jiti@2.6.1)
-      prettier:
-        specifier: catalog:codebase
-        version: 3.8.3
       typescript:
         specifier: catalog:stack
         version: 6.0.3

@@ -16,16 +16,16 @@
     "spell-checker__check": "cspell lint --config ./node_modules/@no-mercy/configs/cspell/index.json --cache --no-progress ."
   },
   "dependencies": {
+    "@no-mercy/configs": "workspace:*",
     "@pnpm/read-package-json": "catalog:codebase",
-    "arkregex": "catalog:stack"
+    "arkregex": "catalog:stack",
+    "prettier": "catalog:codebase"
   },
   "devDependencies": {
-    "@no-mercy/configs": "workspace:*",
     "@pnpm/types": "catalog:codebase",
     "@types/node": "catalog:stack",
     "cspell": "catalog:codebase",
     "eslint": "catalog:codebase",
-    "prettier": "catalog:codebase",
     "typescript": "catalog:stack"
   },
   "type": "module"
