@@ -27,6 +27,8 @@
     "📚": "Documentation",
     "doc:update": "pnpm run turbo-run doc:update",
     "doc:lint": "pnpm run turbo-run doc:lint",
+    "📦": "Releasing",
+    "bump-version": "pnpm run turbo-run bump-version",
     "⚙️": "Tools configuration",
     "changeset": "changeset",
     "turbo": "turbo --color --no-update-notifier",
