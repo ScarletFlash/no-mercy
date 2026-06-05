@@ -1,5 +1,13 @@
 # eslint-plugin-no-mercy
 
+## 0.0.2
+
+### Patch Changes
+
+- [#8](https://github.com/ScarletFlash/no-mercy/pull/8)
+  [`734cd22`](https://github.com/ScarletFlash/no-mercy/commit/734cd2250f96ab6f8889bf82ba65110e584ddf81) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - feat: autofixable no-else rule
+
 ## 0.0.1
 
 ### Patch Changes
