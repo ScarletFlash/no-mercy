@@ -1,5 +1,13 @@
 # eslint-plugin-no-mercy
 
+## 0.0.3
+
+### Patch Changes
+
+- [#14](https://github.com/ScarletFlash/no-mercy/pull/14)
+  [`5c411e1`](https://github.com/ScarletFlash/no-mercy/commit/5c411e1061c723201317d5d3f1024573cde93b84) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - build: support TS v.5
+
 ## 0.0.2
 
 ### Patch Changes
