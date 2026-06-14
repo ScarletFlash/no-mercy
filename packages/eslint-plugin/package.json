@@ -40,6 +40,10 @@
     "eslint": ">=9.0.0 <11.0.0",
     "typescript": ">=5.0.0 <7.0.0"
   },
+  "dependencies": {
+    "change-case": "catalog:stack",
+    "compromise": "catalog:stack"
+  },
   "devDependencies": {
     "@no-mercy/configs": "workspace:*",
     "@no-mercy/scripts": "workspace:*",
@@ -51,7 +55,6 @@
     "@typescript-eslint/typescript-estree": "catalog:stack",
     "@typescript-eslint/utils": "catalog:stack",
     "arkregex": "catalog:stack",
-    "change-case": "catalog:stack",
     "eslint": "catalog:codebase",
     "eslint-doc-generator": "catalog:codebase",
     "jiti": "catalog:stack",
