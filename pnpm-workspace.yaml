@@ -32,6 +32,7 @@ catalogs:
     '@typescript-eslint/utils': ^8.59.1
     'arkregex': ^0.0.5
     'change-case': ^5.4.4
+    compromise: ^14.15.1
     jiti: ^2.0.0
     tsx: ^4.22.3
     turbo: ^2.9.0

@@ -85,6 +85,9 @@ catalogs:
     change-case:
       specifier: ^5.4.4
       version: 5.4.4
+    compromise:
+      specifier: ^14.15.1
+      version: 14.15.1
     jiti:
       specifier: ^2.0.0
       version: 2.6.1
@@ -180,6 +183,13 @@ importers:
         version: 10.0.0
 
   packages/eslint-plugin:
+    dependencies:
+      change-case:
+        specifier: catalog:stack
+        version: 5.4.4
+      compromise:
+        specifier: catalog:stack
+        version: 14.15.1
     devDependencies:
       '@no-mercy/configs':
         specifier: workspace:*
@@ -211,9 +221,6 @@ importers:
       arkregex:
         specifier: catalog:stack
         version: 0.0.5
-      change-case:
-        specifier: catalog:stack
-        version: 5.4.4
       eslint:
         specifier: catalog:codebase
         version: 10.2.1(jiti@2.6.1)
@@ -1673,6 +1680,10 @@ packages:
     resolution: {integrity: sha512-ObxuY6vnbWTN6Od72xfwN9DbzC7Y2vv8u1Soi9ahRKL37gb6y1qk6/dgjs+3JWuXJHWvsg3BXIwzd/rkmAwavg==}
     engines: {node: '>= 12.0.0'}
 
+  compromise@14.15.1:
+    resolution: {integrity: sha512-9F3UkUaEU1PPz2fgStkE/TI4tk++0wHxS8xfWq9PQWL/v28dy8bEcPVVSLh3dISIRD7PEhJ8YTzHRKF8y9tnLA==}
+    engines: {node: '>=12.0.0'}
+
   core-js-compat@3.49.0:
     resolution: {integrity: sha512-VQXt1jr9cBz03b331DFDCCP90b3fanciLkgiOoy8SBHy06gNf+vQ1A3WFLqG7I8TipYIKeYK9wxd0tUrvHcOZA==}
 
@@ -1781,6 +1792,10 @@ packages:
     resolution: {integrity: sha512-T0ix8GhtxyKVfUFEcvdNDt3YGqlwkFHbD4/5bgFUDgFmxhI/cSRAeJ87/Sz//Cq8Eam6JX/e23RkoFO71P7aAA==}
     engines: {node: '>=20'}
     hasBin: true
+
+  efrt@2.7.0:
+    resolution: {integrity: sha512-/RInbCy1d4P6Zdfa+TMVsf/ufZVotat5hCw3QXmWtjU+3pFEOvOQ7ibo3aIxyCJw2leIeAMjmPj+1SLJiCpdrQ==}
+    engines: {node: '>=12.0.0'}
 
   electron-to-chromium@1.5.344:
     resolution: {integrity: sha512-4MxfbmNDm+KPh066EZy+eUnkcDPcZ35wNmOWzFuh/ijvHsve6kbLTLURy88uCNK5FbpN+yk2nQY6BYh1GEt+wg==}
@@ -2055,6 +2070,10 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  grad-school@0.0.5:
+    resolution: {integrity: sha512-rXunEHF9M9EkMydTBux7+IryYXEZinRk6g8OBOGDBzo/qWJjhTxy86i5q7lQYpCLHN8Sqv1XX3OIOc7ka2gtvQ==}
+    engines: {node: '>=8.0.0'}
 
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
@@ -2549,6 +2568,9 @@ packages:
   strip-json-comments@5.0.3:
     resolution: {integrity: sha512-1tB5mhVo7U+ETBKNf92xT4hrQa3pm0MZ0PQvuDnWgAAGHDsfp4lPSpiS6psrSiet87wyGPh9ft6wmhOMQ0hDiw==}
     engines: {node: '>=14.16'}
+
+  suffix-thumb@5.0.2:
+    resolution: {integrity: sha512-I5PWXAFKx3FYnI9a+dQMWNqTxoRt6vdBdb0O+BJ1sxXCWtSoQCusc13E58f+9p4MYx/qCnEMkD5jac6K2j3dgA==}
 
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
@@ -3979,6 +4001,12 @@ snapshots:
 
   comment-parser@1.4.6: {}
 
+  compromise@14.15.1:
+    dependencies:
+      efrt: 2.7.0
+      grad-school: 0.0.5
+      suffix-thumb: 5.0.2
+
   core-js-compat@3.49.0:
     dependencies:
       browserslist: 4.28.2
@@ -4120,6 +4148,8 @@ snapshots:
       commander: 14.0.3
       minimatch: 10.2.5
       semver: 7.7.4
+
+  efrt@2.7.0: {}
 
   electron-to-chromium@1.5.344: {}
 
@@ -4457,6 +4487,8 @@ snapshots:
       slash: 3.0.0
 
   graceful-fs@4.2.11: {}
+
+  grad-school@0.0.5: {}
 
   has-flag@4.0.0: {}
 
@@ -4924,6 +4956,8 @@ snapshots:
   strip-indent@4.1.1: {}
 
   strip-json-comments@5.0.3: {}
+
+  suffix-thumb@5.0.2: {}
 
   supports-color@7.2.0:
     dependencies:
