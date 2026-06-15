@@ -77,7 +77,7 @@ jobs:
         uses: changesets/action@v1
         with:
           version: pnpm run bump-version
-          publish: pnpm --recursive --no-git-checks publish
+          publish: pnpm run changeset publish
           createGithubReleases: true
           commit: 'chore: update package versions'
           title: 'chore: update package versions'

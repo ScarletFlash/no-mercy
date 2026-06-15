@@ -22,7 +22,7 @@ export default defineConfig({
     legalComments: 'none',
     minify: true,
     externals: {
-      '../../eslint-plugin/dist/index': '../eslint-plugin/dist/index.mjs'
+      '../../eslint-plugin/dist/index': '../eslint-plugin/dist/index.js'
     }
   },
   tools: {

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": []
+  },
+  "extends": "@no-mercy/configs/typescript/node.json",
+  "include": ["*.config.ts"]
+}

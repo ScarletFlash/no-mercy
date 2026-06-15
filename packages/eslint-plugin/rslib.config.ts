@@ -12,5 +12,5 @@ export default defineConfig({
       dts: true
     }
   ],
-  output: { distPath: { root: './dist' }, filename: { js: '[name].mjs' }, target: 'node' }
+  output: { distPath: { root: './dist' }, target: 'node' }
 });

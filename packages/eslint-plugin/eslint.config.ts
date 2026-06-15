@@ -1,5 +1,6 @@
 import { ESSENTIAL_CONFIG } from '@no-mercy/configs/eslint';
-import { getMergedOptions, PARTS_OF_SPEECH_DEFAULT } from './dist/index.mjs';
+import { type ConfigArray } from 'typescript-eslint';
+import { PARTS_OF_SPEECH_DEFAULT, getMergedOptions } from './dist/index.js';
 
 export default [
   ...ESSENTIAL_CONFIG,
@@ -18,4 +19,4 @@ export default [
       ]
     }
   }
-];
+] satisfies ConfigArray;

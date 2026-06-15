@@ -33,6 +33,19 @@
       ],
       "persistent": false
     },
+    "//#compiler__check:root": {
+      "cache": true,
+      "dependsOn": ["@no-mercy/configs#build"],
+      "inputs": [
+        "./eslint.config.ts",
+        "./prettier.config.ts",
+        "./tsconfig.configs.json",
+        "./tsconfig.json",
+        "./package.json"
+      ],
+      "outputLogs": "errors-only",
+      "persistent": false
+    },
     "//#formatter__check:root": {
       "cache": true,
       "dependsOn": ["@no-mercy/configs#build"],
@@ -94,6 +107,7 @@
     },
     "compiler__check": {
       "cache": true,
+      "dependsOn": ["//#compiler__check:root"],
       "inputs": [
         "./**/*.{js,ts,tsx,mjs}",
         "./**/tsconfig.*",

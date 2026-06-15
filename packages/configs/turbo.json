@@ -11,15 +11,24 @@
       "persistent": false
     },
     "compiler__check": {
+      "cache": false,
+      "dependsOn": ["compiler__check__configs", "compiler__check__lib"],
+      "outputLogs": "errors-only",
+      "persistent": false
+    },
+    "compiler__check__configs": {
+      "cache": true,
       "dependsOn": ["build"],
-      "inputs": [
-        "./src/**/*.ts",
-        "./*.config.ts",
-        "./tsconfig.json",
-        "./tsconfig.*.json",
-        "./typescript/*.json",
-        "./package.json"
-      ]
+      "inputs": ["./src/**/*.ts", "./*.config.ts", "./tsconfig.configs.json", "./typescript/*.json", "./package.json"],
+      "outputLogs": "errors-only",
+      "persistent": false
+    },
+    "compiler__check__lib": {
+      "cache": true,
+      "dependsOn": ["build"],
+      "inputs": ["./src/**/*.ts", "./tsconfig.lib.json", "./typescript/*.json", "./package.json"],
+      "outputLogs": "errors-only",
+      "persistent": false
     },
     "formatter__check": {
       "dependsOn": ["build"],
@@ -30,7 +39,7 @@
     },
     "linter__check": {
       "dependsOn": ["build"],
-      "inputs": ["./src/**/*.ts", "./*.config.ts", "./eslint.config.mjs", "./eslint.mjs"]
+      "inputs": ["./src/**/*.ts", "./*.config.ts"]
     },
     "linter__fix": {
       "dependsOn": ["build"]
