@@ -8,7 +8,8 @@
       "prettier": { "config": ["prettier.mjs"] }
     },
     "packages/eslint-plugin": {
-      "entry": ["src/**/*.ts!", "tests/**/*.ts", "scripts/**/*.ts", "*.config.*", ".eslint-doc-generatorrc.mjs"]
+      "entry": ["src/**/*.ts!", "tests/**/*.ts", "scripts/**/*.ts", "*.config.*", ".eslint-doc-generatorrc.ts"],
+      "ignore": ["eslint.config.ts"]
     },
     "packages/scripts": {
       "entry": ["src/public-api.ts!"]

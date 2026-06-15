@@ -88,9 +88,6 @@ catalogs:
     compromise:
       specifier: ^14.15.1
       version: 14.15.1
-    jiti:
-      specifier: ^2.0.0
-      version: 2.6.1
     tsx:
       specifier: ^4.22.3
       version: 4.22.3
@@ -227,9 +224,6 @@ importers:
       eslint-doc-generator:
         specifier: catalog:codebase
         version: 3.3.2(eslint@10.2.1(jiti@2.6.1))(prettier@3.8.3)(typescript@6.0.3)
-      jiti:
-        specifier: catalog:stack
-        version: 2.6.1
       prettier:
         specifier: catalog:codebase
         version: 3.8.3

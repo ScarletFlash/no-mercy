@@ -4,5 +4,5 @@
     "types": ["node"]
   },
   "extends": "./typescript/node.json",
-  "include": ["rslib.config.ts"]
+  "include": ["*.config.ts"]
 }

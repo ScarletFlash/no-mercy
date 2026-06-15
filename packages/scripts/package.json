@@ -8,11 +8,12 @@
     "_fix-all": "",
     "build": "",
     "compiler__check": "",
-    "compiler__check:sources": "tsc --project tsconfig.sources.json --noEmit",
+    "compiler__check__configs": "tsc --project tsconfig.configs.json --noEmit",
+    "compiler__check__sources": "tsc --project tsconfig.sources.json --noEmit",
     "formatter__check": "prettier --config ./node_modules/@no-mercy/configs/prettier.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --check .",
     "formatter__fix": "prettier --config ./node_modules/@no-mercy/configs/prettier.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --write .",
-    "linter__check": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content .",
-    "linter__fix": "eslint --quiet --config ./eslint.config.mjs --cache --cache-strategy content . --fix",
+    "linter__check": "eslint --flag unstable_native_nodejs_ts_config --quiet --config ./eslint.config.ts --cache --cache-strategy content .",
+    "linter__fix": "eslint --flag unstable_native_nodejs_ts_config --quiet --config ./eslint.config.ts --cache --cache-strategy content . --fix",
     "spell-checker__check": "cspell lint --config ./node_modules/@no-mercy/configs/cspell/index.json --cache --no-progress ."
   },
   "dependencies": {

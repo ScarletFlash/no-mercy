@@ -22,8 +22,15 @@
     },
     "compiler__check__configs": {
       "cache": true,
-      "dependsOn": ["@no-mercy/configs#build"],
-      "inputs": ["./rslib.config.ts", "./rstest.config.ts", "./tsconfig.configs.json", "./package.json"],
+      "dependsOn": ["build", "@no-mercy/configs#build"],
+      "inputs": [
+        "./rslib.config.ts",
+        "./rstest.config.ts",
+        "./eslint.config.ts",
+        "./.eslint-doc-generatorrc.ts",
+        "./tsconfig.configs.json",
+        "./package.json"
+      ],
       "outputLogs": "errors-only",
       "persistent": false
     },
@@ -49,6 +56,12 @@
       "outputLogs": "errors-only",
       "outputs": ["./out-tsc/test.tsbuildinfo"],
       "persistent": false
+    },
+    "linter__check": {
+      "dependsOn": ["build", "@no-mercy/configs#build"]
+    },
+    "linter__fix": {
+      "dependsOn": ["build", "@no-mercy/configs#build"]
     }
   }
 }

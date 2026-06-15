@@ -1,6 +1,7 @@
 {
   "name": "@no-mercy/root",
   "private": true,
+  "type": "module",
   "scripts": {
     "🚀": "One-liners",
     "check-all": "pnpm run turbo-run _check-all",
@@ -9,7 +10,7 @@
     "build": "pnpm run turbo-run build",
     "🏗️": "Compiling",
     "compiler__check": "pnpm run turbo-run compiler__check",
-    "compiler__check:root": "tsc --project ./tsconfig.json --noEmit",
+    "compiler__check:root": "tsc --project ./tsconfig.configs.json --noEmit",
     "🧪": "Testing",
     "test__units": "pnpm run turbo-run test__units",
     "🛂": "Code analysis",
@@ -18,9 +19,9 @@
     "dependencies-checker__check": "knip --strict --cache --cache-location .knipcache",
     "🎨": "Formatting",
     "formatter__check": "pnpm run turbo-run formatter__check",
-    "formatter__check:root": "prettier --config .prettierrc.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --ignore-path ./.fix-root.prettierignore --cache --cache-location .prettiercache --cache-strategy content --check './*.*'",
+    "formatter__check:root": "prettier --config prettier.config.ts --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --ignore-path ./.fix-root.prettierignore --cache --cache-location .prettiercache --cache-strategy content --check './*.*'",
     "formatter__fix": "pnpm run turbo-run formatter__fix",
-    "formatter__fix:root": "prettier --config .prettierrc.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --ignore-path ./.fix-root.prettierignore --cache --cache-location .prettiercache --cache-strategy content --write './*.*'",
+    "formatter__fix:root": "prettier --config prettier.config.ts --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --ignore-path ./.fix-root.prettierignore --cache --cache-location .prettiercache --cache-strategy content --write './*.*'",
     "📖": "Word spelling",
     "spell-checker__check": "pnpm run turbo-run spell-checker__check",
     "spell-checker__check:root": "cspell lint --config .cspell.json --cache --no-progress ./*.*",

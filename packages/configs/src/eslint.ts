@@ -4,7 +4,7 @@ import { defineConfig } from 'eslint/config';
 import { default as functionalPlugin } from 'eslint-plugin-functional';
 import { importX as importPlugin } from 'eslint-plugin-import-x';
 import { default as unicornPlugin } from 'eslint-plugin-unicorn';
-import { default as TS_ESlint } from 'typescript-eslint';
+import { default as TS_ESlint, type ConfigArray } from 'typescript-eslint';
 import { plugin as noMercyPlugin } from '../../eslint-plugin/dist/index';
 
 export const RULES: Partial<Linter.RulesRecord> = {
@@ -280,7 +280,7 @@ export const RULES: Partial<Linter.RulesRecord> = {
   'unicorn/prefer-array-flat-map': 'error'
 };
 
-export const ESSENTIAL_CONFIG = [
+export const ESSENTIAL_CONFIG: ConfigArray = [
   ...defineConfig(
     {
       languageOptions: {

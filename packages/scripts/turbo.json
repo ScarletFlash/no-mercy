@@ -1,0 +1,26 @@
+{
+  "$schema": "../../node_modules/turbo/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "compiler__check": {
+      "cache": false,
+      "dependsOn": ["compiler__check__configs", "compiler__check__sources"],
+      "outputLogs": "errors-only",
+      "persistent": false
+    },
+    "compiler__check__configs": {
+      "cache": true,
+      "dependsOn": ["@no-mercy/configs#build"],
+      "inputs": ["./eslint.config.ts", "./tsconfig.configs.json", "./package.json"],
+      "outputLogs": "errors-only",
+      "persistent": false
+    },
+    "compiler__check__sources": {
+      "cache": true,
+      "dependsOn": ["@no-mercy/configs#build"],
+      "inputs": ["./src/**/*.ts", "./tsconfig.sources.json", "./package.json"],
+      "outputLogs": "errors-only",
+      "persistent": false
+    }
+  }
+}
