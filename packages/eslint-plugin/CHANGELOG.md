@@ -1,5 +1,13 @@
 # eslint-plugin-no-mercy
 
+## 0.0.4
+
+### Patch Changes
+
+- [#16](https://github.com/ScarletFlash/no-mercy/pull/16)
+  [`3984adf`](https://github.com/ScarletFlash/no-mercy/commit/3984adf7f47341a9ad0b505df9ee87c9983f0e47) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - feat: boolean-prefix & parts-of-speech rules
+
 ## 0.0.3
 
 ### Patch Changes
