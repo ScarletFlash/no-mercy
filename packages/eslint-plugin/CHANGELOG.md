@@ -1,5 +1,13 @@
 # eslint-plugin-no-mercy
 
+## 0.0.7
+
+### Patch Changes
+
+- [#25](https://github.com/ScarletFlash/no-mercy/pull/25)
+  [`cbddaa0`](https://github.com/ScarletFlash/no-mercy/commit/cbddaa0660578e3b7cf89ddb03ebd1ab8eaa73ef) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - fix: type assertions are treated as redundant
+
 ## 0.0.6
 
 ### Patch Changes
