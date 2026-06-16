@@ -88,7 +88,7 @@ export const booleanPrefix = getRule<readonly [Options], MessageId>({
     }
   },
   defaultOptions: [BOOLEAN_PREFIX_DEFAULT],
-  create: (context, [rawOptions]) => {
+  create: (context: RuleContext, [rawOptions]: readonly [Options]) => {
     const options = rawOptions ?? {};
     const scope: RuleScope = {
       context,

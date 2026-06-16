@@ -616,7 +616,7 @@ export const preferParameterObject = getRule<readonly [Options], MessageId>({
     }
   },
   defaultOptions: [PREFER_PARAMETER_OBJECT_DEFAULT],
-  create: (context, [rawOptions]) => {
+  create: (context: RuleContext, [rawOptions]: readonly [Options]) => {
     const options = rawOptions ?? {};
     const scope: RuleScope = {
       context,

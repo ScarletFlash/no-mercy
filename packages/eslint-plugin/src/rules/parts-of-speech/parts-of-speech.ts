@@ -171,8 +171,8 @@ function check({ scope, id, declarationType }: CheckParams): void {
     if (key === DEFAULT_PATTERN) {
       return false;
     }
-    const matcher = TYPE_CONDITION_PREDICATES.get(key);
-    return matcher === undefined ? getRegExp(key).test(name) : matcher(typeInfo);
+    const isMatch = TYPE_CONDITION_PREDICATES.get(key);
+    return isMatch === undefined ? getRegExp(key).test(name) : isMatch(typeInfo);
   });
   const policy = matchedKey === undefined ? patternMap[DEFAULT_PATTERN] : patternMap[matchedKey];
   if (policy === undefined) {
@@ -237,7 +237,7 @@ export const partsOfSpeech = getRule<readonly [Options], MessageId>({
     }
   },
   defaultOptions: [PARTS_OF_SPEECH_DEFAULT],
-  create: (context, [rawOptions]) => {
+  create: (context: RuleContext, [rawOptions]: readonly [Options]) => {
     const scope: RuleScope = {
       context,
       parserServices: ESLintUtils.getParserServices(context),

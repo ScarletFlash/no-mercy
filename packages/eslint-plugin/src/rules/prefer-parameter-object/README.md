@@ -88,7 +88,16 @@ no autofix is offered.
 
 A map from a regular-expression source to the suffix used for the generated interface name. The patterns are tested
 against the function name **in declaration order**, and the first match wins; the `default` key is the fallback. The
-default value routes PascalCase names (React components) to `Props` and everything else to `Params`:
+default routes every name to `Params`:
+
+```jsonc
+{
+  "default": "Params" // createUser -> CreateUserParams
+}
+```
+
+To route PascalCase names (React components) to `Props` and everything else to `Params`, add a pattern before the
+fallback:
 
 ```jsonc
 {

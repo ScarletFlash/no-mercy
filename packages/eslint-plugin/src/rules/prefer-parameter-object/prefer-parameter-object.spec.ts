@@ -62,6 +62,7 @@ runRuleTests({
       },
       {
         name: 'A PascalCase function should use the Props suffix',
+        options: [{ typeSuffix: { '^[A-Z]': 'Props', default: 'Params' } }],
         code: ts`function Button(label: string, onClick: () => void): void {}`,
         errors: [{ messageId: MessageId.PreferParameterObject }],
         output: ts`
