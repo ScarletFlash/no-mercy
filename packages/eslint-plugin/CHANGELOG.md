@@ -1,5 +1,13 @@
 # eslint-plugin-no-mercy
 
+## 0.0.6
+
+### Patch Changes
+
+- [#23](https://github.com/ScarletFlash/no-mercy/pull/23)
+  [`45a1c60`](https://github.com/ScarletFlash/no-mercy/commit/45a1c6046822e80dd1f1e3d06bcb628e85c8e2dc) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - fix: no-redundant-types correctness
+
 ## 0.0.5
 
 ### Patch Changes
