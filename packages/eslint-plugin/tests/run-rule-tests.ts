@@ -59,13 +59,19 @@ const tsConfigs = (
     return { path: join(FIXTURES_DIR, name), scope: match.groups.scope };
   });
 
-export function runRuleTests<MessageIds extends string, Options extends readonly unknown[]>(
-  testName: string,
-  rule: TSESLint.RuleModule<MessageIds, Options>,
-  cases: RuleTests<MessageIds, Options>
-): void {
+interface RunRuleTestsParams<MessageIds extends string, Options extends readonly unknown[]> {
+  readonly ruleName: string;
+  readonly rule: TSESLint.RuleModule<MessageIds, Options>;
+  readonly cases: RuleTests<MessageIds, Options>;
+}
+
+export function runRuleTests<MessageIds extends string, Options extends readonly unknown[]>({
+  ruleName,
+  rule,
+  cases
+}: RunRuleTestsParams<MessageIds, Options>): void {
   tsConfigs.forEach(({ path, scope }: TsConfig) => {
-    const prefix = `${sentenceCase(scope)} ▷ ${testName}`;
+    const prefix = `${sentenceCase(scope)} ▷ ${ruleName}`;
 
     const reportingCases = cases.invalid.filter(
       ({ output }: ReportingCase<MessageIds, Options>) => typeof output !== 'string'
@@ -93,9 +99,9 @@ export function runRuleTests<MessageIds extends string, Options extends readonly
         it(name ?? code, async () => {
           const config: TSESLint.FlatConfig.Config = {
             files: ['**/*.ts'],
-            plugins: { local: { rules: { [testName]: rule } } },
+            plugins: { local: { rules: { [ruleName]: rule } } },
             rules: {
-              [`local/${testName}`]: [
+              [`local/${ruleName}`]: [
                 'error',
                 ...(options === undefined ? [] : [...options])
               ] satisfies TSESLint.FlatConfig.RuleLevelAndOptions

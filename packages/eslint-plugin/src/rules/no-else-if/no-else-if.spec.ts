@@ -3,45 +3,49 @@ import { ts } from '../../../tests/ts.template-tag';
 import { noElseIf } from './no-else-if';
 import { MessageId } from './no-else-if.message-id';
 
-runRuleTests('no-else-if', noElseIf, {
-  valid: [
-    {
-      name: 'Two separate Ifs',
-      code: ts`
-        const randomValue = Math.random();
-        if (randomValue < 0.5) {
-          return;
-        }
+runRuleTests({
+  ruleName: 'no-else-if',
+  rule: noElseIf,
+  cases: {
+    valid: [
+      {
+        name: 'Two separate Ifs',
+        code: ts`
+          const randomValue = Math.random();
+          if (randomValue < 0.5) {
+            return;
+          }
 
-        if (randomValue >= 0.5) {
-          return;
-        }
-      `
-    },
-    {
-      name: 'If with Else',
-      code: ts`
-        const randomValue = Math.random();
-        if (randomValue < 0.5) {
-          return;
-        } else {
-          return;
-        }
-      `
-    }
-  ],
-  invalid: [
-    {
-      name: 'If with Else If',
-      code: ts`
-        const randomValue = Math.random();
-        if (randomValue < 0.5) {
-          return;
-        } else if (randomValue >= 0.5) {
-          return;
-        }
-      `,
-      errors: [{ messageId: MessageId.NoElseIf }]
-    }
-  ]
+          if (randomValue >= 0.5) {
+            return;
+          }
+        `
+      },
+      {
+        name: 'If with Else',
+        code: ts`
+          const randomValue = Math.random();
+          if (randomValue < 0.5) {
+            return;
+          } else {
+            return;
+          }
+        `
+      }
+    ],
+    invalid: [
+      {
+        name: 'If with Else If',
+        code: ts`
+          const randomValue = Math.random();
+          if (randomValue < 0.5) {
+            return;
+          } else if (randomValue >= 0.5) {
+            return;
+          }
+        `,
+        errors: [{ messageId: MessageId.NoElseIf }]
+      }
+    ]
+  }
 });

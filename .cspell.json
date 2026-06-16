@@ -1,5 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json",
   "import": ["@no-mercy/configs/cspell"],
-  "words": ["allowsideeffects", "scarletflash", "TSES", "tseslint", "Usakov"]
+  "words": ["allowsideeffects", "refactorable", "scarletflash", "TSES", "tseslint", "Usakov"]
 }

@@ -13,7 +13,12 @@ export default [
           base: PARTS_OF_SPEECH_DEFAULT,
           override: {
             globalPatterns: { nouns: ['^variable$'] },
-            declarationPolicies: { variable: { function: { patterns: { verbs: ['^ts$'] } } } }
+            declarationPolicies: {
+              variable: {
+                function: { patterns: { verbs: ['^ts$'] } },
+                '^(preferParameterObject|PREFER_PARAMETER_OBJECT_DEFAULT)$': {}
+              }
+            }
           }
         })
       ]
