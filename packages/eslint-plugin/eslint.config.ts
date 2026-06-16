@@ -12,11 +12,10 @@ export default [
         getMergedOptions({
           base: PARTS_OF_SPEECH_DEFAULT,
           override: {
-            globalPatterns: { nouns: ['^variable$'] },
+            globalPatterns: { nouns: ['^variable$', '^(prefer|require)$'] },
             declarationPolicies: {
               variable: {
-                function: { patterns: { verbs: ['^ts$'] } },
-                '^(preferParameterObject|PREFER_PARAMETER_OBJECT_DEFAULT)$': {}
+                function: { patterns: { verbs: ['^ts$'] } }
               }
             }
           }

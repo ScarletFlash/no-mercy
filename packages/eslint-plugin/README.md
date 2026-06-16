@@ -27,12 +27,13 @@ pnpm add -D eslint-plugin-no-mercy
 ✅ Set in the `recommended` [configuration](https://github.com/ScarletFlash/no-mercy#configs).\
 🔧 Automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/user-guide/command-line-interface#--fix).
 
-| Name                                                         | Description                                                                                                 | 💼  | 🔧  |
-| :----------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- | :-- | :-- |
-| [boolean-prefix](src/rules/boolean-prefix/README.md)         | Require boolean variables and boolean-returning functions to start with a configurable prefix.              | ✅  |     |
-| [no-else](src/rules/no-else/README.md)                       | Disallow `else` clauses. Use early returns or guard clauses instead.                                        | ✅  |     |
-| [no-else-if](src/rules/no-else-if/README.md)                 | Disallow `else if`. Use early returns or guard clauses instead.                                             | ✅  |     |
-| [no-redundant-types](src/rules/no-redundant-types/README.md) | Disallow explicit type annotations that TypeScript can infer from the assigned value.                       | ✅  | 🔧  |
-| [parts-of-speech](src/rules/parts-of-speech/README.md)       | Require or restrict parts of speech in declaration names, configured per declaration kind and name pattern. | ✅  |     |
+| Name                                                                   | Description                                                                                                 | 💼  | 🔧  |
+| :--------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- | :-- | :-- |
+| [boolean-prefix](src/rules/boolean-prefix/README.md)                   | Require boolean variables and boolean-returning functions to start with a configurable prefix.              | ✅  |     |
+| [no-else](src/rules/no-else/README.md)                                 | Disallow `else` clauses. Use early returns or guard clauses instead.                                        | ✅  |     |
+| [no-else-if](src/rules/no-else-if/README.md)                           | Disallow `else if`. Use early returns or guard clauses instead.                                             | ✅  |     |
+| [no-redundant-types](src/rules/no-redundant-types/README.md)           | Disallow explicit type annotations that TypeScript can infer from the assigned value.                       | ✅  | 🔧  |
+| [parts-of-speech](src/rules/parts-of-speech/README.md)                 | Require or restrict parts of speech in declaration names, configured per declaration kind and name pattern. | ✅  |     |
+| [prefer-parameter-object](src/rules/prefer-parameter-object/README.md) | Require functions with more than one parameter to accept a single object parameter.                         | ✅  | 🔧  |
 
 <!-- end auto-generated rules list -->

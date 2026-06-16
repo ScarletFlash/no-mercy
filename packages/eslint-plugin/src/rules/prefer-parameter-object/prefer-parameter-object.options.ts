@@ -1,4 +1,4 @@
-export interface TypeSuffix {
+interface TypeSuffix {
   readonly [pattern: string]: string;
   readonly default: string;
 }

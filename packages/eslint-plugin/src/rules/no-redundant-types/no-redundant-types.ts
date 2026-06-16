@@ -39,7 +39,7 @@ interface ContextFreeInitializerParams {
   readonly parserServices: ParserServicesWithTypeInformation;
 }
 
-interface NonGenericCallParams {
+interface ContextFreeCallParams {
   readonly node: TSESTree.CallExpression | TSESTree.NewExpression;
   readonly parserServices: ParserServicesWithTypeInformation;
 }
@@ -73,7 +73,7 @@ const CONTEXT_FREE_NODE_TYPES: ReadonlySet<AST_NODE_TYPES> = new Set<AST_NODE_TY
   AST_NODE_TYPES.UnaryExpression
 ]);
 
-function isNonGenericCall({ node, parserServices }: NonGenericCallParams): boolean {
+function isContextFreeCall({ node, parserServices }: ContextFreeCallParams): boolean {
   if (node.typeArguments !== undefined) {
     return true;
   }
@@ -89,7 +89,7 @@ function isContextFreeInitializer({ node, parserServices }: ContextFreeInitializ
   }
 
   if (node.type === AST_NODE_TYPES.CallExpression || node.type === AST_NODE_TYPES.NewExpression) {
-    return isNonGenericCall({ node, parserServices });
+    return isContextFreeCall({ node, parserServices });
   }
 
   if (node.type === AST_NODE_TYPES.LogicalExpression) {

@@ -24,7 +24,7 @@ interface GetDeclarationTypeInfoParams {
 export function getDeclarationTypeInfo({ node, parserServices }: GetDeclarationTypeInfoParams): DeclarationTypeInfo {
   const typeChecker = parserServices.program.getTypeChecker();
   const type = typeChecker.getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(node));
-  const callSignatures = type.getCallSignatures();
+  const callSignatures = typeChecker.getNonNullableType(type).getCallSignatures();
   const isCallable = callSignatures.length > 0;
   const isReturningBoolean =
     isCallable && callSignatures.every((signature: TS_API.Signature) => isBooleanType(signature.getReturnType()));
