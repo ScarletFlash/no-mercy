@@ -1,4 +1,11 @@
-import { AST_NODE_TYPES, ESLintUtils, type JSONSchema, type TSESTree } from '@typescript-eslint/utils';
+import {
+  AST_NODE_TYPES,
+  ESLintUtils,
+  type JSONSchema,
+  type ParserServicesWithTypeInformation,
+  type TSESLint,
+  type TSESTree
+} from '@typescript-eslint/utils';
 import { noCase } from 'change-case';
 import { getDeclarationTypeInfo } from '../../utilities/get-declaration-type-info.utility';
 import { getRegExp } from '../../utilities/get-regexp.utility';
@@ -8,6 +15,20 @@ import { MessageId } from './boolean-prefix.message-id';
 import { type Options } from './boolean-prefix.options';
 
 type Target = NonNullable<Options['variables']>;
+type RuleContext = Readonly<TSESLint.RuleContext<MessageId, readonly [Options]>>;
+
+interface RuleScope {
+  readonly context: RuleContext;
+  readonly parserServices: ParserServicesWithTypeInformation;
+  readonly options: Options;
+  readonly globalPrefixes: readonly string[];
+  readonly globalIgnore: readonly string[];
+}
+
+interface CheckParams {
+  readonly scope: RuleScope;
+  readonly id: TSESTree.Identifier;
+}
 
 const STRING_ARRAY_SCHEMA: JSONSchema.JSONSchema4 = { type: 'array', items: { type: 'string' } };
 const TARGET_SCHEMA: JSONSchema.JSONSchema4 = {
@@ -15,6 +36,34 @@ const TARGET_SCHEMA: JSONSchema.JSONSchema4 = {
   additionalProperties: false,
   properties: { prefixes: STRING_ARRAY_SCHEMA, ignore: STRING_ARRAY_SCHEMA }
 };
+
+function check({ scope, id }: CheckParams): void {
+  const { context, parserServices, options, globalPrefixes, globalIgnore } = scope;
+  const { isBoolean, isCallable } = getDeclarationTypeInfo({ node: id, parserServices });
+  if (!isBoolean) {
+    return;
+  }
+
+  const target: Target = (isCallable ? options.functions : options.variables) ?? {};
+  const prefixes = target.prefixes ?? globalPrefixes;
+  const ignoredPatterns = [...globalIgnore, ...(target.ignore ?? [])];
+  const { name } = id;
+
+  if (ignoredPatterns.some((source: string) => getRegExp(source).test(name))) {
+    return;
+  }
+
+  const [firstWord] = noCase(name).split(' ');
+  if (firstWord !== undefined && prefixes.some((prefix: string) => prefix.toLowerCase() === firstWord)) {
+    return;
+  }
+
+  context.report({
+    node: id,
+    messageId: MessageId.MissingBooleanPrefix,
+    data: { name, prefixes: prefixes.join(', ') }
+  });
+}
 
 export const booleanPrefix = getRule<readonly [Options], MessageId>({
   name: 'boolean-prefix',
@@ -39,48 +88,25 @@ export const booleanPrefix = getRule<readonly [Options], MessageId>({
     }
   },
   defaultOptions: [BOOLEAN_PREFIX_DEFAULT],
-  create(context, [rawOptions]) {
+  create: (context, [rawOptions]) => {
     const options = rawOptions ?? {};
-    const parserServices = ESLintUtils.getParserServices(context);
-    const globalPrefixes: readonly string[] = options.default?.prefixes ?? [];
-    const globalIgnore: readonly string[] = options.default?.ignore ?? [];
-
-    const check = (id: TSESTree.Identifier): void => {
-      const { isBoolean, isCallable } = getDeclarationTypeInfo({ node: id, parserServices });
-      if (!isBoolean) {
-        return;
-      }
-
-      const target: Target = (isCallable ? options.functions : options.variables) ?? {};
-      const prefixes = target.prefixes ?? globalPrefixes;
-      const ignoredPatterns = [...globalIgnore, ...(target.ignore ?? [])];
-      const { name } = id;
-
-      if (ignoredPatterns.some((source: string) => getRegExp(source).test(name))) {
-        return;
-      }
-
-      const [firstWord] = noCase(name).split(' ');
-      if (firstWord !== undefined && prefixes.some((prefix: string) => prefix.toLowerCase() === firstWord)) {
-        return;
-      }
-
-      context.report({
-        node: id,
-        messageId: MessageId.MissingBooleanPrefix,
-        data: { name, prefixes: prefixes.join(', ') }
-      });
+    const scope: RuleScope = {
+      context,
+      parserServices: ESLintUtils.getParserServices(context),
+      options,
+      globalPrefixes: options.default?.prefixes ?? [],
+      globalIgnore: options.default?.ignore ?? []
     };
 
     return {
       VariableDeclarator: ({ id }: TSESTree.VariableDeclarator): void => {
         if (id.type === AST_NODE_TYPES.Identifier) {
-          check(id);
+          check({ scope, id });
         }
       },
       FunctionDeclaration: ({ id }: TSESTree.FunctionDeclaration): void => {
         if (id !== null) {
-          check(id);
+          check({ scope, id });
         }
       }
     };

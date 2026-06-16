@@ -1,4 +1,11 @@
-import { AST_NODE_TYPES, ESLintUtils, type JSONSchema, type TSESTree } from '@typescript-eslint/utils';
+import {
+  AST_NODE_TYPES,
+  ESLintUtils,
+  type JSONSchema,
+  type ParserServicesWithTypeInformation,
+  type TSESLint,
+  type TSESTree
+} from '@typescript-eslint/utils';
 import { noCase } from 'change-case';
 import nlp from 'compromise';
 import { DECLARATION_TYPE } from '../../constants/declaration-type.constant';
@@ -18,6 +25,7 @@ type DeclarationType = keyof DeclarationPolicies;
 type PatternMap = NonNullable<DeclarationPolicies[DeclarationType]>;
 type Policy = PatternMap[string];
 type PartOfSpeech = NonNullable<Policy['required']>[number];
+type RuleContext = Readonly<TSESLint.RuleContext<MessageId, readonly [Options]>>;
 
 const CANON_PART_OF_SPEECH: Readonly<Record<string, PartOfSpeech>> = {
   Singular: PART_OF_SPEECH.Noun,
@@ -138,9 +146,71 @@ const DECLARATION_POLICIES_SCHEMA: JSONSchema.JSONSchema4 = {
   )
 };
 
+interface RuleScope {
+  readonly context: RuleContext;
+  readonly parserServices: ParserServicesWithTypeInformation;
+  readonly options: Options;
+}
+
 interface CheckParams {
+  readonly scope: RuleScope;
   readonly id: TSESTree.Identifier;
   readonly declarationType: DeclarationType;
+}
+
+function check({ scope, id, declarationType }: CheckParams): void {
+  const { context, parserServices, options } = scope;
+  const patternMap = options.declarationPolicies?.[declarationType];
+  if (patternMap === undefined) {
+    return;
+  }
+
+  const { name } = id;
+  const typeInfo = getDeclarationTypeInfo({ node: id, parserServices });
+  const matchedKey = Object.keys(patternMap).find((key: string) => {
+    if (key === DEFAULT_PATTERN) {
+      return false;
+    }
+    const matcher = TYPE_CONDITION_PREDICATES.get(key);
+    return matcher === undefined ? getRegExp(key).test(name) : matcher(typeInfo);
+  });
+  const policy = matchedKey === undefined ? patternMap[DEFAULT_PATTERN] : patternMap[matchedKey];
+  if (policy === undefined) {
+    return;
+  }
+
+  const wordPatterns: WordPatterns = Object.fromEntries(
+    Object.values(PART_OF_SPEECH).map((partOfSpeech: PartOfSpeech): [`${PartOfSpeech}s`, readonly string[]] => [
+      `${partOfSpeech}s`,
+      [...(options.globalPatterns?.[`${partOfSpeech}s`] ?? []), ...(policy.patterns?.[`${partOfSpeech}s`] ?? [])]
+    ])
+  );
+  const isCallable = typeInfo.isCallable;
+  const cacheKey = `${name} ${isCallable} ${JSON.stringify(wordPatterns)}`;
+  const nameParts = partsOfSpeechByKey.get(cacheKey) ?? getPartsOfSpeech({ name, isCallable, wordPatterns });
+  partsOfSpeechByKey.set(cacheKey, nameParts);
+
+  const presentParts = new Set(nameParts);
+  const missingParts = (policy.required ?? []).filter((partOfSpeech: PartOfSpeech) => !presentParts.has(partOfSpeech));
+  if (missingParts.length > 0) {
+    context.report({
+      node: id,
+      messageId: MessageId.MissingRequiredPartOfSpeech,
+      data: { name, partsOfSpeech: missingParts.join(', ') }
+    });
+    return;
+  }
+
+  const violatingParts = (policy.restricted ?? []).filter((partOfSpeech: PartOfSpeech) =>
+    presentParts.has(partOfSpeech)
+  );
+  if (violatingParts.length > 0) {
+    context.report({
+      node: id,
+      messageId: MessageId.RestrictedPartOfSpeech,
+      data: { name, partsOfSpeech: violatingParts.join(', ') }
+    });
+  }
 }
 
 export const partsOfSpeech = getRule<readonly [Options], MessageId>({
@@ -167,90 +237,37 @@ export const partsOfSpeech = getRule<readonly [Options], MessageId>({
     }
   },
   defaultOptions: [PARTS_OF_SPEECH_DEFAULT],
-  create(context, [rawOptions]) {
-    const options = rawOptions ?? {};
-    const parserServices = ESLintUtils.getParserServices(context);
-
-    const check = ({ id, declarationType }: CheckParams): void => {
-      const patternMap = options.declarationPolicies?.[declarationType];
-      if (patternMap === undefined) {
-        return;
-      }
-
-      const { name } = id;
-      const typeInfo = getDeclarationTypeInfo({ node: id, parserServices });
-      const matchedKey = Object.keys(patternMap).find((key: string) => {
-        if (key === DEFAULT_PATTERN) {
-          return false;
-        }
-        const matcher = TYPE_CONDITION_PREDICATES.get(key);
-        return matcher === undefined ? getRegExp(key).test(name) : matcher(typeInfo);
-      });
-      const policy = matchedKey === undefined ? patternMap[DEFAULT_PATTERN] : patternMap[matchedKey];
-      if (policy === undefined) {
-        return;
-      }
-
-      const wordPatterns: WordPatterns = Object.fromEntries(
-        Object.values(PART_OF_SPEECH).map((partOfSpeech: PartOfSpeech): [`${PartOfSpeech}s`, readonly string[]] => [
-          `${partOfSpeech}s`,
-          [...(options.globalPatterns?.[`${partOfSpeech}s`] ?? []), ...(policy.patterns?.[`${partOfSpeech}s`] ?? [])]
-        ])
-      );
-      const isCallable = typeInfo.isCallable;
-      const cacheKey = `${name} ${isCallable} ${JSON.stringify(wordPatterns)}`;
-      const nameParts = partsOfSpeechByKey.get(cacheKey) ?? getPartsOfSpeech({ name, isCallable, wordPatterns });
-      partsOfSpeechByKey.set(cacheKey, nameParts);
-
-      const presentParts = new Set(nameParts);
-      const missingParts = (policy.required ?? []).filter(
-        (partOfSpeech: PartOfSpeech) => !presentParts.has(partOfSpeech)
-      );
-      if (missingParts.length > 0) {
-        context.report({
-          node: id,
-          messageId: MessageId.MissingRequiredPartOfSpeech,
-          data: { name, partsOfSpeech: missingParts.join(', ') }
-        });
-        return;
-      }
-
-      const violatingParts = (policy.restricted ?? []).filter((partOfSpeech: PartOfSpeech) =>
-        presentParts.has(partOfSpeech)
-      );
-      if (violatingParts.length > 0) {
-        context.report({
-          node: id,
-          messageId: MessageId.RestrictedPartOfSpeech,
-          data: { name, partsOfSpeech: violatingParts.join(', ') }
-        });
-      }
+  create: (context, [rawOptions]) => {
+    const scope: RuleScope = {
+      context,
+      parserServices: ESLintUtils.getParserServices(context),
+      options: rawOptions ?? {}
     };
 
     return {
       VariableDeclarator: ({ id }: TSESTree.VariableDeclarator): void => {
         if (id.type === AST_NODE_TYPES.Identifier) {
-          check({ id, declarationType: DECLARATION_TYPE.Variable });
+          check({ scope, id, declarationType: DECLARATION_TYPE.Variable });
         }
       },
       FunctionDeclaration: ({ id }: TSESTree.FunctionDeclaration): void => {
         if (id !== null) {
-          check({ id, declarationType: DECLARATION_TYPE.Function });
+          check({ scope, id, declarationType: DECLARATION_TYPE.Function });
         }
       },
       ClassDeclaration: ({ id }: TSESTree.ClassDeclaration): void => {
         if (id !== null) {
-          check({ id, declarationType: DECLARATION_TYPE.Class });
+          check({ scope, id, declarationType: DECLARATION_TYPE.Class });
         }
       },
       TSInterfaceDeclaration: ({ id }: TSESTree.TSInterfaceDeclaration): void => {
-        check({ id, declarationType: DECLARATION_TYPE.Interface });
+        check({ scope, id, declarationType: DECLARATION_TYPE.Interface });
       },
       TSTypeAliasDeclaration: ({ id }: TSESTree.TSTypeAliasDeclaration): void => {
-        check({ id, declarationType: DECLARATION_TYPE.Type });
+        check({ scope, id, declarationType: DECLARATION_TYPE.Type });
       },
       TSEnumDeclaration: ({ id }: TSESTree.TSEnumDeclaration): void => {
-        check({ id, declarationType: DECLARATION_TYPE.Enum });
+        check({ scope, id, declarationType: DECLARATION_TYPE.Enum });
       }
     };
   }

@@ -1,6 +1,5 @@
 import { AST_NODE_TYPES, ESLintUtils, type TSESLint, type TSESTree } from '@typescript-eslint/utils';
 import { getRule } from '../../utilities/get-rule.utility';
-import { isTerminatable } from '../../utilities/is-terminatable.utility';
 import { isWithSideEffects } from '../../utilities/is-with-side-effects.utility';
 import { MessageId } from './no-else.message-id';
 
@@ -13,6 +12,18 @@ const TOP_LEVEL_LEXICAL_DECLARATION_NODE_TYPES: ReadonlySet<AST_NODE_TYPES> = ne
   AST_NODE_TYPES.FunctionDeclaration,
   AST_NODE_TYPES.ClassDeclaration
 ]);
+
+const TERMINATABLE_STATEMENT_TYPES: ReadonlySet<AST_NODE_TYPES> = new Set<AST_NODE_TYPES>([
+  AST_NODE_TYPES.ReturnStatement,
+  AST_NODE_TYPES.ThrowStatement,
+  AST_NODE_TYPES.BreakStatement,
+  AST_NODE_TYPES.ContinueStatement
+]);
+
+function isTerminatable(block: TSESTree.BlockStatement): boolean {
+  const lastStatement = block.body.at(-1);
+  return lastStatement !== undefined && TERMINATABLE_STATEMENT_TYPES.has(lastStatement.type);
+}
 
 export const noElse = getRule<readonly [Options], MessageId>({
   name: 'no-else',
@@ -36,7 +47,7 @@ export const noElse = getRule<readonly [Options], MessageId>({
     }
   },
   defaultOptions: [{ allowSideEffects: false }],
-  create(context, [rawOptions]) {
+  create: (context, [rawOptions]) => {
     const { allowSideEffects = false } = rawOptions ?? {};
 
     return {
