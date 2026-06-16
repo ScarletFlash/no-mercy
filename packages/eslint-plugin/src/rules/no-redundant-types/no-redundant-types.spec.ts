@@ -65,6 +65,27 @@ runRuleTests({
           declare function make<Value>(): Value;
           const made: string = make();
         `
+      },
+      {
+        name: 'Primitive annotation widening a const literal should be allowed',
+        code: ts`const aIndex: number = 0;`
+      },
+      {
+        name: 'Primitive annotation widening a readonly field literal should be allowed',
+        code: ts`
+          class Holder {
+            readonly name: string = 'Holder';
+          }
+        `
+      },
+      {
+        name: 'Annotation on an assertion-function target should be allowed',
+        code: ts`
+          declare function assertString(value: unknown): asserts value is string;
+          declare const source: string;
+          const value: string = source;
+          assertString(value);
+        `
       }
     ],
     invalid: [
@@ -75,10 +96,26 @@ runRuleTests({
         output: ts`const letterByIndex = new Map<number, string>();`
       },
       {
-        name: 'Type inferable from a numeric literal should be reported and removed',
-        code: ts`const aIndex: number = 0;`,
+        name: 'Type widening a numeric literal in a mutable binding should be reported and removed',
+        code: ts`let aIndex: number = 0;`,
         errors: [{ messageId: MessageId.RedundantType }],
-        output: ts`const aIndex = 0;`
+        output: ts`let aIndex = 0;`
+      },
+      {
+        name: 'Annotation on a non-assertion call argument should be reported and removed',
+        code: ts`
+          declare function use(value: string): void;
+          declare const source: string;
+          const value: string = source;
+          use(value);
+        `,
+        errors: [{ messageId: MessageId.RedundantType }],
+        output: ts`
+          declare function use(value: string): void;
+          declare const source: string;
+          const value = source;
+          use(value);
+        `
       },
       {
         name: 'Type matching a referenced value should be reported and removed',
