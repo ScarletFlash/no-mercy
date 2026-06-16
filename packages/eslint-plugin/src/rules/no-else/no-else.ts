@@ -4,7 +4,7 @@ import { isWithSideEffects } from '../../utilities/is-with-side-effects.utility'
 import { MessageId } from './no-else.message-id';
 
 interface Options {
-  readonly allowSideEffects?: boolean;
+  readonly areSideEffectsAllowed?: boolean;
 }
 
 const TOP_LEVEL_LEXICAL_DECLARATION_NODE_TYPES: ReadonlySet<AST_NODE_TYPES> = new Set<AST_NODE_TYPES>([
@@ -38,7 +38,7 @@ export const noElse = getRule<readonly [Options], MessageId>({
         type: 'object',
         additionalProperties: false,
         properties: {
-          allowSideEffects: { type: 'boolean', default: false }
+          areSideEffectsAllowed: { type: 'boolean', default: false }
         }
       }
     ],
@@ -46,16 +46,16 @@ export const noElse = getRule<readonly [Options], MessageId>({
       [MessageId.NoElse]: 'Avoid using "else". Use early returns or guard clauses instead.'
     }
   },
-  defaultOptions: [{ allowSideEffects: false }],
+  defaultOptions: [{ areSideEffectsAllowed: false }],
   create: (context, [rawOptions]) => {
-    const { allowSideEffects = false } = rawOptions ?? {};
+    const { areSideEffectsAllowed = false } = rawOptions ?? {};
 
     return {
       IfStatement: (node: TSESTree.IfStatement): void => {
         const { consequent, alternate } = node;
         if (
           alternate?.type !== AST_NODE_TYPES.BlockStatement ||
-          (allowSideEffects &&
+          (areSideEffectsAllowed &&
             isWithSideEffects({
               block: alternate,
               sourceCode: context.sourceCode,

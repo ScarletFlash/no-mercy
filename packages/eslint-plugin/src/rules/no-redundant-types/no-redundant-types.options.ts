@@ -1,4 +1,4 @@
 export interface Options {
-  readonly ignoreParameters?: boolean;
-  readonly ignoreDestructuring?: boolean;
+  readonly areParametersIgnored?: boolean;
+  readonly isDestructuringIgnored?: boolean;
 }

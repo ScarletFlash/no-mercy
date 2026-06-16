@@ -32,7 +32,7 @@ interface MutableFile {
 interface RuleScope {
   readonly context: RuleContext;
   readonly parserServices: ParserServicesWithTypeInformation;
-  readonly ignoreTypeGuards: boolean;
+  readonly areTypeGuardsIgnored: boolean;
   readonly typeSuffix: Readonly<Record<string, string>>;
 }
 
@@ -563,7 +563,7 @@ function checkImplementation({ scope, node }: ImplementationParams): void {
   if (!hasMultipleParameters(node)) {
     return;
   }
-  if (isTypeGuard(node) && !scope.ignoreTypeGuards) {
+  if (isTypeGuard(node) && !scope.areTypeGuardsIgnored) {
     report({ scope, node, fixText: undefined });
     return;
   }
@@ -581,7 +581,7 @@ function checkSignature({ scope, node }: SignatureParams): void {
   if (!hasMultipleParameters(node)) {
     return;
   }
-  if (isTypeGuard(node) && scope.ignoreTypeGuards) {
+  if (isTypeGuard(node) && scope.areTypeGuardsIgnored) {
     return;
   }
   report({ scope, node, fixText: undefined });
@@ -600,7 +600,7 @@ export const preferParameterObject = getRule<readonly [Options], MessageId>({
         type: 'object',
         additionalProperties: false,
         properties: {
-          ignoreTypeGuards: { type: 'boolean', default: true },
+          areTypeGuardsIgnored: { type: 'boolean', default: true },
           typeSuffix: {
             type: 'object',
             additionalProperties: { type: 'string' },
@@ -621,7 +621,7 @@ export const preferParameterObject = getRule<readonly [Options], MessageId>({
     const scope: RuleScope = {
       context,
       parserServices: ESLintUtils.getParserServices(context),
-      ignoreTypeGuards: options.ignoreTypeGuards ?? true,
+      areTypeGuardsIgnored: options.areTypeGuardsIgnored ?? true,
       typeSuffix: options.typeSuffix ?? {}
     };
 

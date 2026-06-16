@@ -4,6 +4,6 @@ interface TypeSuffix {
 }
 
 export interface Options {
-  readonly ignoreTypeGuards?: boolean;
+  readonly areTypeGuardsIgnored?: boolean;
   readonly typeSuffix?: TypeSuffix;
 }

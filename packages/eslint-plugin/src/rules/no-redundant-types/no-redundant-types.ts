@@ -19,8 +19,8 @@ const TYPE_FORMAT_FLAGS = TS_API.TypeFormatFlags.NoTruncation;
 interface RuleScope {
   readonly context: RuleContext;
   readonly parserServices: ParserServicesWithTypeInformation;
-  readonly ignoreParameters: boolean;
-  readonly ignoreDestructuring: boolean;
+  readonly areParametersIgnored: boolean;
+  readonly isDestructuringIgnored: boolean;
 }
 
 interface ReportParams {
@@ -184,7 +184,7 @@ function checkInferredFromValue({
 }
 
 function checkParameters({ scope, functionNode }: CheckParametersParams): void {
-  if (scope.ignoreParameters) {
+  if (scope.areParametersIgnored) {
     return;
   }
 
@@ -229,8 +229,8 @@ export const noRedundantTypes = getRule<readonly [Options], MessageId>({
         type: 'object',
         additionalProperties: false,
         properties: {
-          ignoreParameters: { type: 'boolean', default: true },
-          ignoreDestructuring: { type: 'boolean', default: true }
+          areParametersIgnored: { type: 'boolean', default: true },
+          isDestructuringIgnored: { type: 'boolean', default: true }
         }
       }
     ],
@@ -240,12 +240,12 @@ export const noRedundantTypes = getRule<readonly [Options], MessageId>({
   },
   defaultOptions: [NO_REDUNDANT_TYPES_DEFAULT],
   create: (context, [rawOptions]) => {
-    const { ignoreParameters = true, ignoreDestructuring = true } = rawOptions ?? {};
+    const { areParametersIgnored = true, isDestructuringIgnored = true } = rawOptions ?? {};
     const scope: RuleScope = {
       context,
       parserServices: ESLintUtils.getParserServices(context),
-      ignoreParameters,
-      ignoreDestructuring
+      areParametersIgnored,
+      isDestructuringIgnored
     };
 
     return {
@@ -256,7 +256,7 @@ export const noRedundantTypes = getRule<readonly [Options], MessageId>({
         }
 
         if (
-          !ignoreDestructuring &&
+          !isDestructuringIgnored &&
           (id.type === AST_NODE_TYPES.ObjectPattern || id.type === AST_NODE_TYPES.ArrayPattern)
         ) {
           checkInferredFromValue({ scope, annotatedNode: id, typeAnnotation: id.typeAnnotation, initializer: init });

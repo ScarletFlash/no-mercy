@@ -34,11 +34,11 @@ doY();
 
 ```ts
 type Options = {
-  allowSideEffects?: boolean;
+  areSideEffectsAllowed?: boolean;
 };
 ```
 
-### `allowSideEffects`
+### `areSideEffectsAllowed`
 
 Default: `false`.
 
@@ -46,7 +46,7 @@ When `true`, the rule does not report an `else` block if its body has a side-eff
 — a mutation of data declared outside the `else`, including method calls on outer objects.
 
 ```ts
-// allowSideEffects: true — not reported
+// areSideEffectsAllowed: true — not reported
 const outerArr: number[] = [];
 if (cond) {
   return;
@@ -56,7 +56,7 @@ if (cond) {
 ```
 
 ```ts
-// allowSideEffects: true — still reported (only local mutations)
+// areSideEffectsAllowed: true — still reported (only local mutations)
 if (cond) {
   return;
 } else {
@@ -97,6 +97,6 @@ similar) to reflow.
 
 ## Requirements
 
-`allowSideEffects: true` performs type-aware analysis via TypeScript's checker and therefore requires the parser to be
-configured with type information — `parserOptions.projectService` or `parserOptions.project`. Without it, the rule
+`areSideEffectsAllowed: true` performs type-aware analysis via TypeScript's checker and therefore requires the parser to
+be configured with type information — `parserOptions.projectService` or `parserOptions.project`. Without it, the rule
 throws a clear ESLint error pointing to the missing setup.
