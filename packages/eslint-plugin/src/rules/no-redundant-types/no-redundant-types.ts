@@ -29,9 +29,10 @@ interface ReportParams {
 }
 
 interface IsRedundantTypeAnnotationParams {
-  readonly annotatedNode: TSESTree.Node;
+  readonly declaredType: TS_API.Type;
   readonly valueType: TS_API.Type;
   readonly isWideningContext: boolean;
+  readonly isFreshLiteral: boolean;
   readonly parserServices: ParserServicesWithTypeInformation;
 }
 
@@ -43,6 +44,26 @@ interface IsAssertionTargetParams {
 
 interface IsAssertedReferenceParams {
   readonly reference: TSESLint.Scope.Reference;
+  readonly typeChecker: TS_API.TypeChecker;
+  readonly parserServices: ParserServicesWithTypeInformation;
+}
+
+interface CallPredicateParams {
+  readonly call: TSESTree.CallExpression;
+  readonly typeChecker: TS_API.TypeChecker;
+  readonly parserServices: ParserServicesWithTypeInformation;
+}
+
+interface AssertedArgumentParams {
+  readonly identifier: TSESTree.Identifier;
+  readonly call: TSESTree.CallExpression;
+  readonly typeChecker: TS_API.TypeChecker;
+  readonly parserServices: ParserServicesWithTypeInformation;
+}
+
+interface AssertedReceiverParams {
+  readonly identifier: TSESTree.Identifier;
+  readonly member: TSESTree.MemberExpression;
   readonly typeChecker: TS_API.TypeChecker;
   readonly parserServices: ParserServicesWithTypeInformation;
 }
@@ -65,7 +86,6 @@ interface ContextualParameterTypeParams {
 
 interface CheckInferredFromValueParams {
   readonly scope: RuleScope;
-  readonly annotatedNode: TSESTree.Node;
   readonly typeAnnotation: TSESTree.TSTypeAnnotation | undefined;
   readonly initializer: TSESTree.Expression | null;
   readonly isWideningContext: boolean;
@@ -132,28 +152,75 @@ function isWideningKind(kind: TSESTree.VariableDeclaration['kind']): boolean {
   return kind === 'let' || kind === 'var';
 }
 
+function isFreshLiteralInitializer(node: TSESTree.Expression): boolean {
+  if (node.type === AST_NODE_TYPES.Literal || node.type === AST_NODE_TYPES.TemplateLiteral) {
+    return true;
+  }
+
+  if (node.type === AST_NODE_TYPES.UnaryExpression || node.type === AST_NODE_TYPES.AwaitExpression) {
+    return isFreshLiteralInitializer(node.argument);
+  }
+
+  if (node.type === AST_NODE_TYPES.ConditionalExpression) {
+    return isFreshLiteralInitializer(node.consequent) || isFreshLiteralInitializer(node.alternate);
+  }
+
+  if (node.type === AST_NODE_TYPES.LogicalExpression) {
+    return isFreshLiteralInitializer(node.left) || isFreshLiteralInitializer(node.right);
+  }
+
+  return false;
+}
+
 function isRedundantTypeAnnotation({
-  annotatedNode,
+  declaredType,
   valueType,
   isWideningContext,
+  isFreshLiteral,
   parserServices
 }: IsRedundantTypeAnnotationParams): boolean {
   const typeChecker = parserServices.program.getTypeChecker();
-  const declaredType = typeChecker.typeToString(
-    typeChecker.getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(annotatedNode)),
-    undefined,
-    TYPE_FORMAT_FLAGS
-  );
-  const rawType = typeChecker.typeToString(valueType, undefined, TYPE_FORMAT_FLAGS);
-  if (!isWideningContext) {
-    return declaredType === rawType;
+  const declaredText = typeChecker.typeToString(declaredType, undefined, TYPE_FORMAT_FLAGS);
+  const rawText = typeChecker.typeToString(valueType, undefined, TYPE_FORMAT_FLAGS);
+  if (!isWideningContext || !isFreshLiteral) {
+    return declaredText === rawText;
   }
 
-  const widenedType = valueType.isUnion()
-    ? rawType
+  const widenedText = valueType.isUnion()
+    ? rawText
     : typeChecker.typeToString(typeChecker.getBaseTypeOfLiteralType(valueType), undefined, TYPE_FORMAT_FLAGS);
 
-  return declaredType === rawType || declaredType === widenedType;
+  return declaredText === rawText || declaredText === widenedText;
+}
+
+function getCallPredicate({
+  call,
+  typeChecker,
+  parserServices
+}: CallPredicateParams): TS_API.TypePredicate | undefined {
+  const signature = typeChecker.getResolvedSignature(parserServices.esTreeNodeToTSNodeMap.get(call));
+  return signature === undefined ? undefined : typeChecker.getTypePredicateOfSignature(signature);
+}
+
+function isAssertedArgument({ identifier, call, typeChecker, parserServices }: AssertedArgumentParams): boolean {
+  const argumentIndex = call.arguments.indexOf(identifier);
+  if (argumentIndex === -1) {
+    return false;
+  }
+
+  const typePredicate = getCallPredicate({ call, typeChecker, parserServices });
+  return (
+    typePredicate?.kind === TS_API.TypePredicateKind.AssertsIdentifier && typePredicate.parameterIndex === argumentIndex
+  );
+}
+
+function isAssertedReceiver({ identifier, member, typeChecker, parserServices }: AssertedReceiverParams): boolean {
+  const { object, parent } = member;
+  if (object !== identifier || parent.type !== AST_NODE_TYPES.CallExpression || parent.callee !== member) {
+    return false;
+  }
+
+  return getCallPredicate({ call: parent, typeChecker, parserServices })?.kind === TS_API.TypePredicateKind.AssertsThis;
 }
 
 function isAssertedReference({ reference, typeChecker, parserServices }: IsAssertedReferenceParams): boolean {
@@ -162,25 +229,16 @@ function isAssertedReference({ reference, typeChecker, parserServices }: IsAsser
     return false;
   }
 
-  const call = identifier.parent;
-  if (call.type !== AST_NODE_TYPES.CallExpression) {
-    return false;
+  const { parent } = identifier;
+  if (parent.type === AST_NODE_TYPES.CallExpression) {
+    return isAssertedArgument({ identifier, call: parent, typeChecker, parserServices });
   }
 
-  const argumentIndex = call.arguments.indexOf(identifier);
-  if (argumentIndex === -1) {
-    return false;
+  if (parent.type === AST_NODE_TYPES.MemberExpression) {
+    return isAssertedReceiver({ identifier, member: parent, typeChecker, parserServices });
   }
 
-  const signature = typeChecker.getResolvedSignature(parserServices.esTreeNodeToTSNodeMap.get(call));
-  if (signature === undefined) {
-    return false;
-  }
-
-  const typePredicate = typeChecker.getTypePredicateOfSignature(signature);
-  return (
-    typePredicate?.kind === TS_API.TypePredicateKind.AssertsIdentifier && typePredicate.parameterIndex === argumentIndex
-  );
+  return false;
 }
 
 function isAssertionTarget({ declarator, context, parserServices }: IsAssertionTargetParams): boolean {
@@ -225,7 +283,6 @@ function report({ context, typeAnnotation }: ReportParams): void {
 
 function checkInferredFromValue({
   scope,
-  annotatedNode,
   typeAnnotation,
   initializer,
   isWideningContext,
@@ -240,10 +297,19 @@ function checkInferredFromValue({
     return;
   }
 
-  const valueType = parserServices.program
-    .getTypeChecker()
-    .getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(initializer));
-  if (!isRedundantTypeAnnotation({ annotatedNode, valueType, isWideningContext, parserServices })) {
+  const typeChecker = parserServices.program.getTypeChecker();
+  const declaredType = typeChecker.getTypeAtLocation(
+    parserServices.esTreeNodeToTSNodeMap.get(typeAnnotation.typeAnnotation)
+  );
+  const valueType = typeChecker.getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(initializer));
+  const isRedundant = isRedundantTypeAnnotation({
+    declaredType,
+    valueType,
+    isWideningContext,
+    isFreshLiteral: isFreshLiteralInitializer(initializer),
+    parserServices
+  });
+  if (!isRedundant) {
     return;
   }
 
@@ -264,7 +330,6 @@ function checkParameters({ scope, functionNode }: CheckParametersParams): void {
     if (parameter.type === AST_NODE_TYPES.AssignmentPattern && parameter.left.type === AST_NODE_TYPES.Identifier) {
       checkInferredFromValue({
         scope,
-        annotatedNode: parameter.left,
         typeAnnotation: parameter.left.typeAnnotation,
         initializer: parameter.right,
         isWideningContext: true
@@ -282,9 +347,21 @@ function checkParameters({ scope, functionNode }: CheckParametersParams): void {
 
     const { typeAnnotation } = parameter;
     const valueType = getContextualParameterType({ functionNode, parameterIndex, parserServices });
+    if (valueType === undefined) {
+      return;
+    }
+
+    const declaredType = parserServices.program
+      .getTypeChecker()
+      .getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(typeAnnotation.typeAnnotation));
     if (
-      valueType !== undefined &&
-      isRedundantTypeAnnotation({ annotatedNode: parameter, valueType, isWideningContext: false, parserServices })
+      isRedundantTypeAnnotation({
+        declaredType,
+        valueType,
+        isWideningContext: false,
+        isFreshLiteral: false,
+        parserServices
+      })
     ) {
       report({ context, typeAnnotation });
     }
@@ -330,7 +407,6 @@ export const noRedundantTypes = getRule<readonly [Options], MessageId>({
         if (id.type === AST_NODE_TYPES.Identifier) {
           checkInferredFromValue({
             scope,
-            annotatedNode: id,
             typeAnnotation: id.typeAnnotation,
             initializer: init,
             isWideningContext,
@@ -345,17 +421,15 @@ export const noRedundantTypes = getRule<readonly [Options], MessageId>({
         ) {
           checkInferredFromValue({
             scope,
-            annotatedNode: id,
             typeAnnotation: id.typeAnnotation,
             initializer: init,
             isWideningContext
           });
         }
       },
-      PropertyDefinition: ({ key, typeAnnotation, value, readonly }: TSESTree.PropertyDefinition): void => {
+      PropertyDefinition: ({ typeAnnotation, value, readonly }: TSESTree.PropertyDefinition): void => {
         checkInferredFromValue({
           scope,
-          annotatedNode: key,
           typeAnnotation,
           initializer: value,
           isWideningContext: !readonly
