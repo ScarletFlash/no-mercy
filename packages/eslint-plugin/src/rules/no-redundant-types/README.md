@@ -46,29 +46,29 @@ const counts: Map<number, string> = new Map();
 
 ```ts
 type Options = {
-  ignoreParameters?: boolean; // default: true
-  ignoreDestructuring?: boolean; // default: true
+  areParametersIgnored?: boolean; // default: true
+  isDestructuringIgnored?: boolean; // default: true
 };
 ```
 
-### `ignoreParameters`
+### `areParametersIgnored`
 
 Default: `true`. When `false`, function-parameter annotations are reported when redundant — either a parameter whose
 type repeats its default value, or a parameter whose type is already provided by the surrounding call's contextual
 signature.
 
 ```ts
-// ignoreParameters: false — reported, the contextual signature of `map` already types `item` as `number`
+// areParametersIgnored: false — reported, the contextual signature of `map` already types `item` as `number`
 [1, 2, 3].map((item: number) => {});
 ```
 
-### `ignoreDestructuring`
+### `isDestructuringIgnored`
 
 Default: `true`. When `false`, annotations on destructuring patterns are reported when they merely restate the type of
 the destructured value.
 
 ```ts
-// ignoreDestructuring: false — reported, `input` is already `KeyValue`
+// isDestructuringIgnored: false — reported, `input` is already `KeyValue`
 const { key }: KeyValue = input;
 ```
 

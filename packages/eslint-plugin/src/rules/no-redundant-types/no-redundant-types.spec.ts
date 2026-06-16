@@ -108,14 +108,14 @@ runRuleTests({
       },
       {
         name: 'Contextually inferable parameter should be reported and removed with checked parameters',
-        options: [{ ignoreParameters: false }],
+        options: [{ areParametersIgnored: false }],
         code: ts`[1, 2, 3].map((item: number) => {});`,
         errors: [{ messageId: MessageId.RedundantType }],
         output: ts`[1, 2, 3].map((item) => {});`
       },
       {
         name: 'Parameter default duplicating its type should be reported and removed with checked parameters',
-        options: [{ ignoreParameters: false }],
+        options: [{ areParametersIgnored: false }],
         code: ts`
           function increment(step: number = 1): number {
             return step;
@@ -130,7 +130,7 @@ runRuleTests({
       },
       {
         name: 'Redundant destructuring annotation should be reported and removed with checked destructuring',
-        options: [{ ignoreDestructuring: false }],
+        options: [{ isDestructuringIgnored: false }],
         code: ts`
           interface KeyValue {
             key: string;

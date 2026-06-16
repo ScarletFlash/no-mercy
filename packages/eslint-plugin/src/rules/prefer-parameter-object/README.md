@@ -73,12 +73,12 @@ class Store extends Map<string, number> {
 
 ```ts
 type Options = {
-  ignoreTypeGuards?: boolean; // default: true
+  areTypeGuardsIgnored?: boolean; // default: true
   typeSuffix?: Record<string, string>; // default: { "^[A-Z]": "Props", "default": "Params" }
 };
 ```
 
-### `ignoreTypeGuards`
+### `areTypeGuardsIgnored`
 
 Default: `true`. Type-guard functions (those returning `value is T`) keep their parameters positional, because the
 predicate references a parameter by name and could not survive the wrapping. When set to `false`, they are reported, but

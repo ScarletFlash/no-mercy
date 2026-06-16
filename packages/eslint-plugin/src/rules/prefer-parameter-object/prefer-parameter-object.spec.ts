@@ -158,7 +158,7 @@ runRuleTests({
       },
       {
         name: 'A type guard should be reported without a fix when type guards are not ignored',
-        options: [{ ignoreTypeGuards: false }],
+        options: [{ areTypeGuardsIgnored: false }],
         code: ts`
           function isPair(value: unknown, other: unknown): value is [unknown, unknown] {
             return Array.isArray(value) && other !== undefined;

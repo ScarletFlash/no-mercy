@@ -33,8 +33,8 @@ runRuleTests({
         `
       },
       {
-        name: 'ELSE assigning an outer variable should be allowed with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE assigning an outer variable should be allowed with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           let outerVar = 0;
           if (Math.random() < 0.5) {
@@ -45,8 +45,8 @@ runRuleTests({
         `
       },
       {
-        name: 'ELSE assigning an outer member should be allowed with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE assigning an outer member should be allowed with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           const outerObj = { prop: 0 };
           if (Math.random() < 0.5) {
@@ -57,8 +57,8 @@ runRuleTests({
         `
       },
       {
-        name: 'ELSE updating an outer counter should be allowed with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE updating an outer counter should be allowed with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           let outerCounter = 0;
           if (Math.random() < 0.5) {
@@ -69,8 +69,8 @@ runRuleTests({
         `
       },
       {
-        name: 'ELSE deleting an outer member should be allowed with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE deleting an outer member should be allowed with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           const outerObj: Record<string, number> = {};
           if (Math.random() < 0.5) {
@@ -81,8 +81,8 @@ runRuleTests({
         `
       },
       {
-        name: 'ELSE mutating an outer array should be allowed with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE mutating an outer array should be allowed with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           const outerArr: number[] = [];
           if (Math.random() < 0.5) {
@@ -93,8 +93,8 @@ runRuleTests({
         `
       },
       {
-        name: 'ELSE mutating an outer set should be allowed with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE mutating an outer set should be allowed with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           const outerSet = new Set<number>();
           if (Math.random() < 0.5) {
@@ -105,8 +105,8 @@ runRuleTests({
         `
       },
       {
-        name: 'ELSE calling console.log should be allowed with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE calling console.log should be allowed with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           if (Math.random() < 0.5) {
             return;
@@ -116,8 +116,8 @@ runRuleTests({
         `
       },
       {
-        name: 'ELSE calling a function that mutates an outer arg should be allowed with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE calling a function that mutates an outer arg should be allowed with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           function mutate(arr: number[]): void {
             arr.push(1);
@@ -131,8 +131,8 @@ runRuleTests({
         `
       },
       {
-        name: 'ELSE calling mutually recursive side-effecting functions should be allowed with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE calling mutually recursive side-effecting functions should be allowed with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           const outerCounter: { value: number } = { value: 0 };
           function a(): void {
@@ -190,8 +190,8 @@ runRuleTests({
         `
       },
       {
-        name: 'ELSE with only local mutation should be reported with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE with only local mutation should be reported with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           if (Math.random() < 0.5) {
             return;
@@ -204,8 +204,8 @@ runRuleTests({
         output: null
       },
       {
-        name: 'ELSE calling a pure function should be reported with allowSideEffects',
-        options: [{ allowSideEffects: true }],
+        name: 'ELSE calling a pure function should be reported with areSideEffectsAllowed',
+        options: [{ areSideEffectsAllowed: true }],
         code: ts`
           function pure(x: number): number {
             return x + 1;
