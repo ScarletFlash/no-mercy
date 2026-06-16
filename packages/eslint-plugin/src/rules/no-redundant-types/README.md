@@ -15,11 +15,17 @@ Type-aware. Reports a type annotation only when it is **identical** to the type 
 once the annotation is removed, so the annotation only adds noise.
 
 Identity is what matters, not similarity. Removing an annotation can change the type through **widening**, and widening
-only happens in a **mutable** binding — `let`/`var`, a non-`readonly` class field, or a parameter default. There a
-literal widens to its primitive (`let a = 0` is `number`), so `let a: number = 0` is reported. An **immutable** binding
-— a `const` variable or a `readonly` field — keeps the literal (`const a = 0` is `0`, not `number`), so
-`const a: number = 0` **widens** `0` to `number` and is left alone. Likewise `let value: number | null = null` is kept,
-because `null` alone never infers `number | null`.
+only happens when a **fresh** literal — one written directly, like `0` — lands in a **mutable** binding (`let`/`var`, a
+non-`readonly` class field, or a parameter default). There the literal widens to its primitive (`let a = 0` is
+`number`), so `let a: number = 0` is reported. Two things stop widening, and both keep the annotation:
+
+- An **immutable** binding — a `const` variable or a `readonly` field — keeps the literal (`const a = 0` is `0`, not
+  `number`), so `const a: number = 0` **widens** `0` to `number` and is left alone.
+- A **non-fresh** literal — one reached through a reference or `as const` — stays a literal even in a mutable binding
+  (`const SEED = 0 as const; let a = SEED` infers `0`), so `let a: number = SEED` **widens** `0` to `number` and is left
+  alone.
+
+Likewise `let value: number | null = null` is kept, because `null` alone never infers `number | null`.
 
 ### Incorrect
 
@@ -44,6 +50,10 @@ const aIndex: number = 0;
 class Marker {
   readonly name: string = 'Marker';
 }
+
+// A non-fresh literal (via `as const`) does not widen; `: number` widens it — keep it.
+const SEED = 0 as const;
+let seeded: number = SEED;
 
 // The annotation is wider than the value type — keep it.
 let value: number | null = null;
@@ -98,16 +108,18 @@ To stay sound, the rule only inspects values whose type does not depend on the a
 property accesses, type assertions, arithmetic/logical/comparison results (`a + b`, `!ready`), `await` of such a value,
 and `new`/call expressions that either carry explicit type arguments or resolve to a non-generic signature. Logical
 (`??`, `||`, `&&`) and conditional (`?:`) expressions are inspected only when every value-producing operand is itself
-context-free, so `a ?? b` between two references is reported while `a ?? []` is left alone. In a mutable binding the
-annotation is reported when it equals either the value's type or its widened base; in an immutable binding (`const`,
-`readonly`) the literal is kept, so the annotation must equal the value's type exactly — `const a: 0 = 0` is flagged
-while `const a: number = 0` is not.
+context-free, so `a ?? b` between two references is reported while `a ?? []` is left alone. The annotation is reported
+only when it equals the type the binding would infer on its own: the value's type as-is, except for a fresh literal in a
+mutable binding, where it widens to its base. So `const a: 0 = 0` is flagged while `const a: number = 0`,
+`let a: number = SEED`, and `readonly a: string = 'x'` are not.
 
 Values whose type is shaped by their context — array and object literals, arrow and function expressions, and generic
 calls without type arguments (where the type may be inferred from the annotation, e.g. `const x: string = make()` for
 `make<T>(): T`) — are skipped, because removing the annotation there could change the inferred type. A variable that is
-later passed to an assertion function (`asserts value is T`) is also left alone: TypeScript requires such a target to
-carry an explicit annotation, so removing it would not compile.
+later used as the target of an assertion call is also left alone — whether passed as the asserted argument
+(`assert(value)` for `asserts value is T`) or used as the receiver of an assertion method (`value.assert()` for
+`asserts this is T`) — because TypeScript requires such a target to carry an explicit annotation, so removing it would
+not compile.
 
 ## Requirements
 

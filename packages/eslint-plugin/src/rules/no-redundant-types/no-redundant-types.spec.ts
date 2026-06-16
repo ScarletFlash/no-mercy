@@ -86,6 +86,35 @@ runRuleTests({
           const value: string = source;
           assertString(value);
         `
+      },
+      {
+        name: 'Annotation on an assertion-method receiver should be allowed',
+        code: ts`
+          declare class Viewport {
+            assertContent(): asserts this is Viewport;
+          }
+          declare const current: Viewport;
+          function use(): void {
+            const viewport: Viewport = current;
+            viewport.assertContent();
+          }
+        `
+      },
+      {
+        name: 'Primitive annotation widening a non-fresh literal mutable field should be allowed',
+        code: ts`
+          const SEED = 0 as const;
+          class Counter {
+            #value: number = SEED;
+          }
+        `
+      },
+      {
+        name: 'Primitive annotation widening a non-fresh literal mutable binding should be allowed',
+        code: ts`
+          const SEED = 0 as const;
+          let value: number = SEED;
+        `
       }
     ],
     invalid: [
@@ -115,6 +144,26 @@ runRuleTests({
           declare const source: string;
           const value = source;
           use(value);
+        `
+      },
+      {
+        name: 'Annotation on a non-assertion method receiver should be reported and removed',
+        code: ts`
+          declare class Viewport {
+            render(): void;
+          }
+          declare const current: Viewport;
+          const viewport: Viewport = current;
+          viewport.render();
+        `,
+        errors: [{ messageId: MessageId.RedundantType }],
+        output: ts`
+          declare class Viewport {
+            render(): void;
+          }
+          declare const current: Viewport;
+          const viewport = current;
+          viewport.render();
         `
       },
       {
