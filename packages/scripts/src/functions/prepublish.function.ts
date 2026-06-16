@@ -51,7 +51,7 @@ export async function prepublish(packageRootPath: string): Promise<void> {
 
   const publishingManifest: PackageManifest = {
     ...filteredManifestFields,
-    main: main.replace(SOURCE_ENTRY_POINT_PATTERN, './dist/$1.mjs'),
+    main: main.replace(SOURCE_ENTRY_POINT_PATTERN, './dist/$1.js'),
     types: types.replace(SOURCE_ENTRY_POINT_PATTERN, './dist/$1.d.ts'),
     name,
     version,
