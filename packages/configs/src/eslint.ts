@@ -330,6 +330,7 @@ export const ESSENTIAL_CONFIG: ConfigArray = [
       'no-mercy/boolean-prefix': 'error',
       'no-mercy/no-else': 'error',
       'no-mercy/no-else-if': 'error',
+      'no-mercy/no-redundant-types': 'error',
       'no-mercy/parts-of-speech': 'error'
     }
   }

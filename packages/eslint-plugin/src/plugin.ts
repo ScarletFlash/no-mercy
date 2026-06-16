@@ -3,6 +3,7 @@ import packageJson from '../package.json' with { type: 'json' };
 import { booleanPrefix } from './rules/boolean-prefix/boolean-prefix';
 import { noElse } from './rules/no-else/no-else';
 import { noElseIf } from './rules/no-else-if/no-else-if';
+import { noRedundantTypes } from './rules/no-redundant-types/no-redundant-types';
 import { partsOfSpeech } from './rules/parts-of-speech/parts-of-speech';
 
 const meta = { name: packageJson.name, version: packageJson.version };
@@ -11,6 +12,7 @@ const rules = {
   'boolean-prefix': booleanPrefix,
   'no-else': noElse,
   'no-else-if': noElseIf,
+  'no-redundant-types': noRedundantTypes,
   'parts-of-speech': partsOfSpeech
 };
 
@@ -25,6 +27,7 @@ export const plugin: TSESLint.FlatConfig.Plugin = {
           'no-mercy/boolean-prefix': 'error',
           'no-mercy/no-else': 'error',
           'no-mercy/no-else-if': 'error',
+          'no-mercy/no-redundant-types': 'error',
           'no-mercy/parts-of-speech': 'error'
         }
       }

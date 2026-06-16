@@ -15,13 +15,11 @@ export const noElseIf = getRule({
     }
   },
   defaultOptions: [],
-  create(context) {
-    return {
-      IfStatement: ({ alternate }: TSESTree.IfStatement) => {
-        if (alternate?.type === AST_NODE_TYPES.IfStatement) {
-          context.report({ node: alternate, messageId: MessageId.NoElseIf });
-        }
+  create: (context) => ({
+    IfStatement: ({ alternate }: TSESTree.IfStatement) => {
+      if (alternate?.type === AST_NODE_TYPES.IfStatement) {
+        context.report({ node: alternate, messageId: MessageId.NoElseIf });
       }
-    };
-  }
+    }
+  })
 });
