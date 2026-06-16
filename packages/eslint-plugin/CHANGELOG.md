@@ -1,5 +1,26 @@
 # eslint-plugin-no-mercy
 
+## 0.0.5
+
+### Patch Changes
+
+- [#22](https://github.com/ScarletFlash/no-mercy/pull/22)
+  [`7186691`](https://github.com/ScarletFlash/no-mercy/commit/71866915eb5c156d77b6cd84dd48cac4368d5738) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - feat: boolean-prefix now also checks class/interface methods and
+  properties (including private `#`/`_`) and function parameters
+
+- [#20](https://github.com/ScarletFlash/no-mercy/pull/20)
+  [`f319462`](https://github.com/ScarletFlash/no-mercy/commit/f319462a3b745853ce36d2889f41a522e7757d37) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - feat: no-redundant-types
+
+- [#20](https://github.com/ScarletFlash/no-mercy/pull/20)
+  [`e6ca5a4`](https://github.com/ScarletFlash/no-mercy/commit/e6ca5a4b1319b3cd1210d2eaaf82da4dfc9d7625) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - fix: published package.json entrypoint
+
+- [#20](https://github.com/ScarletFlash/no-mercy/pull/20)
+  [`e6ca5a4`](https://github.com/ScarletFlash/no-mercy/commit/e6ca5a4b1319b3cd1210d2eaaf82da4dfc9d7625) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - feat: prefer-parameter-object
+
 ## 0.0.4
 
 ### Patch Changes
