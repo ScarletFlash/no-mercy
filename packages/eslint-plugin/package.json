@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-no-mercy",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "private": false,
   "repository": {
     "directory": "packages/eslint-plugin",
