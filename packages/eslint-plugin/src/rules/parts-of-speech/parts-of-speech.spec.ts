@@ -10,7 +10,11 @@ runRuleTests({
     valid: [
       {
         name: 'Variable containing a noun should be allowed by the default policy',
-        code: ts`const userProfile = { id: 1 };`
+        code: ts`const userPayload = { id: 1 };`
+      },
+      {
+        name: 'Variable leading with a verb-homonym should be allowed because the homonym can also be a noun',
+        code: ts`const requestPayload = { id: 1 };`
       },
       {
         name: 'Function leading with a verb should be allowed by the default policy',
@@ -56,11 +60,22 @@ runRuleTests({
         `
       },
       {
-        name: 'Word pinned by a verb allowlist should be allowed by a verb requirement',
+        name: 'Word pinned by a verb dictionary should be allowed by a verb requirement',
         options: [
-          { declarationPolicies: { enum: { default: { required: ['verb'], patterns: { verbs: ['^status$'] } } } } }
+          { dictionary: { verb: ['status'] }, declarationPolicies: { enum: { default: { required: ['verb'] } } } }
         ],
         code: ts`enum Status {}`
+      },
+      {
+        name: 'Callable PascalCase variable should be allowed by its name pattern over the callable type policy',
+        options: [
+          {
+            declarationPolicies: {
+              variable: { '^[A-Z]': { required: ['noun'] }, default: { required: ['noun'], restricted: ['verb'] } }
+            }
+          }
+        ],
+        code: ts`const UserCard = (): null => null;`
       }
     ],
     invalid: [
@@ -68,6 +83,11 @@ runRuleTests({
         name: 'Variable holding only a verb should be reported by the default policy',
         code: ts`const calculate = 1;`,
         errors: [{ messageId: MessageId.MissingRequiredPartOfSpeech }]
+      },
+      {
+        name: 'Variable leading with a verb-only word should be reported by the default restricted policy',
+        code: ts`const calculatePayload = 1;`,
+        errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
       },
       {
         name: 'Function holding only a noun should be reported by the default policy',
@@ -82,11 +102,6 @@ runRuleTests({
         name: 'Class holding only an adjective should be reported by the default policy',
         code: ts`class Active {}`,
         errors: [{ messageId: MessageId.MissingRequiredPartOfSpeech }]
-      },
-      {
-        name: 'Variable containing a verb should be reported by the default restricted policy',
-        code: ts`const calculateTotal = 1;`,
-        errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
       },
       {
         name: 'Predicate-named non-boolean variable should be reported by the default policy',
@@ -104,6 +119,21 @@ runRuleTests({
           }
         `,
         errors: [{ messageId: MessageId.MissingRequiredPartOfSpeech }]
+      },
+      {
+        name: 'Labelled policy should report with its application name in the message',
+        options: [
+          {
+            declarationPolicies: {
+              variable: {
+                '^[A-Z]': { required: ['noun'], appliesTo: 'React Component' },
+                default: { required: ['noun'], restricted: ['verb'] }
+              }
+            }
+          }
+        ],
+        code: ts`const Active = (): null => null;`,
+        errors: [{ messageId: MessageId.MissingRequiredPartOfSpeechForApplication }]
       }
     ]
   }
