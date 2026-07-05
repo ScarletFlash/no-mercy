@@ -28,7 +28,8 @@ const MODIFIER_TAGS = ['#Gerund', '#PastTense', '#Adjective'];
 
 const NOUN_CONTEXT = 'the';
 
-const partsOfSpeechByCacheKey = new Map<string, ReadonlySet<PartOfSpeech>>();
+const dictionaryKeyByDictionary = new WeakMap<Dictionary, string>();
+const partsOfSpeechByWordByDictionaryKey = new Map<string, Map<string, ReadonlySet<PartOfSpeech>>>();
 const singularByWord = new Map<string, string>();
 
 function getSingular(word: string): string {
@@ -52,8 +53,13 @@ interface GetPartsOfSpeechParams {
 }
 
 export function getPartsOfSpeech({ word, dictionary }: GetPartsOfSpeechParams): ReadonlySet<PartOfSpeech> {
-  const cacheKey = `${word} ${JSON.stringify(dictionary)}`;
-  const cachedPartsOfSpeech = partsOfSpeechByCacheKey.get(cacheKey);
+  const dictionaryKey = dictionaryKeyByDictionary.get(dictionary) ?? JSON.stringify(dictionary);
+  dictionaryKeyByDictionary.set(dictionary, dictionaryKey);
+  const partsOfSpeechByWord =
+    partsOfSpeechByWordByDictionaryKey.get(dictionaryKey) ?? new Map<string, ReadonlySet<PartOfSpeech>>();
+  partsOfSpeechByWordByDictionaryKey.set(dictionaryKey, partsOfSpeechByWord);
+
+  const cachedPartsOfSpeech = partsOfSpeechByWord.get(word);
   if (cachedPartsOfSpeech !== undefined) {
     return cachedPartsOfSpeech;
   }
@@ -91,6 +97,6 @@ export function getPartsOfSpeech({ word, dictionary }: GetPartsOfSpeechParams): 
     partsOfSpeech.add(PART_OF_SPEECH.Noun);
   }
 
-  partsOfSpeechByCacheKey.set(cacheKey, partsOfSpeech);
+  partsOfSpeechByWord.set(word, partsOfSpeech);
   return partsOfSpeech;
 }

@@ -6,7 +6,7 @@ import {
   type TSESLint,
   type TSESTree
 } from '@typescript-eslint/utils';
-import { noCase } from 'change-case';
+import { split } from 'change-case';
 import { DECLARATION_TYPE } from '../../constants/declaration-type.constant';
 import { PART_OF_SPEECH } from '../../constants/part-of-speech.constant';
 import { TYPE_CONDITION } from '../../constants/type-condition.constant';
@@ -137,6 +137,8 @@ function reportViolation({
   });
 }
 
+const wordsByName = new Map<string, readonly string[]>();
+
 function check({ scope, id, declarationType }: CheckParams): void {
   const { context, parserServices, options, matcher } = scope;
   const patternMap = options.declarationPolicies?.[declarationType];
@@ -144,7 +146,7 @@ function check({ scope, id, declarationType }: CheckParams): void {
     return;
   }
 
-  const { name } = id;
+  const { name }: TSESTree.Identifier = id;
   const typeInfo = getDeclarationTypeInfo({ node: id, parserServices });
   const policy = getMatchingPolicy({ patternMap, name, typeInfo });
   if (policy === undefined) {
@@ -152,9 +154,8 @@ function check({ scope, id, declarationType }: CheckParams): void {
   }
 
   const { appliesTo: application, required, restricted } = policy;
-  const words = noCase(name)
-    .split(' ')
-    .filter((word: string) => word.length > 0);
+  const words = wordsByName.get(name) ?? split(name).map((word: string) => word.toLowerCase());
+  wordsByName.set(name, words);
   const result = matcher.match({ words, required: required ?? [], restricted: restricted ?? [] });
   if (result.isMatching) {
     return;
