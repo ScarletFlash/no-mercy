@@ -2,4 +2,4 @@
 'eslint-plugin-no-mercy': patch
 ---
 
-feat: more accurate parts of speach detection
+feat: more accurate parts of speech detection
