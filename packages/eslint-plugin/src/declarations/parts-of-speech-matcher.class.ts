@@ -52,6 +52,10 @@ export class PartsOfSpeechMatcher {
   }
 
   public match({ words, required, restricted }: MatchParams): MatchResult {
+    if (required.length === 0 && restricted.length === 0) {
+      return { isMatching: true };
+    }
+
     const partsOfSpeechByWordIndex: PartsOfSpeechByWordIndex = new Map(
       words.map((word: string, index: number): [number, ReadonlySet<PartOfSpeech>] => [
         index,
