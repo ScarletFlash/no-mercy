@@ -6,9 +6,10 @@ type DeepPartialValue<T> = T extends readonly unknown[]
     ? { readonly [Key in keyof T]?: DeepPartialValue<T[Key]> }
     : T;
 
-interface MergeValuesParams {
-  readonly baseValue: unknown;
-  readonly overrideValue: unknown;
+interface MergeFrame {
+  readonly baseRecord: Readonly<Record<string, unknown>>;
+  readonly overrideRecord: Readonly<Record<string, unknown>>;
+  readonly target: Record<string, unknown>;
 }
 
 interface MergeOptionsParams<OptionsType extends object> {
@@ -16,25 +17,34 @@ interface MergeOptionsParams<OptionsType extends object> {
   readonly override: DeepPartialValue<OptionsType>;
 }
 
-function getMerged({ baseValue, overrideValue }: MergeValuesParams): unknown {
-  if (Array.isArray(baseValue) && Array.isArray(overrideValue)) {
-    return baseValue.concat(overrideValue);
-  }
-
-  if (isRecord(baseValue) && isRecord(overrideValue)) {
-    const keys = [...new Set([...Object.keys(baseValue), ...Object.keys(overrideValue)])];
-    return Object.fromEntries(
-      keys.map((key: string) => [key, getMerged({ baseValue: baseValue[key], overrideValue: overrideValue[key] })])
-    );
-  }
-
-  return overrideValue ?? baseValue;
-}
-
 export function getMergedOptions<OptionsType extends object>({
   base,
   override
 }: MergeOptionsParams<OptionsType>): OptionsType {
-  const mergedValue = getMerged({ baseValue: base, overrideValue: override });
-  return { ...base, ...(isRecord(mergedValue) ? mergedValue : {}) };
+  const mergedRecord: Record<string, unknown> = {};
+  const frames: MergeFrame[] =
+    isRecord(base) && isRecord(override) ? [{ baseRecord: base, overrideRecord: override, target: mergedRecord }] : [];
+  while (frames.length > 0) {
+    const frame = frames.pop();
+    if (frame === undefined) {
+      break;
+    }
+    const { baseRecord, overrideRecord, target } = frame;
+    const keys = new Set(Object.keys(baseRecord).concat(Object.keys(overrideRecord)));
+    keys.forEach((key: string) => {
+      const baseValue = baseRecord[key];
+      const overrideValue = overrideRecord[key];
+      if (isRecord(baseValue) && isRecord(overrideValue)) {
+        const childTarget: Record<string, unknown> = {};
+        target[key] = childTarget;
+        frames.push({ baseRecord: baseValue, overrideRecord: overrideValue, target: childTarget });
+        return;
+      }
+      target[key] =
+        Array.isArray(baseValue) && Array.isArray(overrideValue)
+          ? baseValue.concat(overrideValue)
+          : (overrideValue ?? baseValue);
+    });
+  }
+  return { ...base, ...mergedRecord };
 }

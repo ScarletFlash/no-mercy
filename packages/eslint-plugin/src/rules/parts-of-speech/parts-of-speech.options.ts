@@ -1,15 +1,12 @@
 import { type DECLARATION_TYPE } from '../../constants/declaration-type.constant';
-import { type PART_OF_SPEECH } from '../../constants/part-of-speech.constant';
+import { type PartOfSpeech } from '../../declarations/part-of-speech.type';
 
-type PartOfSpeech = (typeof PART_OF_SPEECH)[keyof typeof PART_OF_SPEECH];
 type DeclarationType = (typeof DECLARATION_TYPE)[keyof typeof DECLARATION_TYPE];
-
-type WordPatterns = Partial<Readonly<Record<`${PartOfSpeech}s`, readonly string[]>>>;
 
 interface Policy {
   readonly required?: readonly PartOfSpeech[];
   readonly restricted?: readonly PartOfSpeech[];
-  readonly patterns?: WordPatterns;
+  readonly appliesTo?: string;
 }
 
 interface PatternMap {
@@ -18,6 +15,6 @@ interface PatternMap {
 }
 
 export interface Options {
-  readonly globalPatterns?: WordPatterns;
+  readonly dictionary?: Partial<Readonly<Record<PartOfSpeech, readonly string[]>>>;
   readonly declarationPolicies?: Partial<Readonly<Record<DeclarationType, PatternMap>>>;
 }
