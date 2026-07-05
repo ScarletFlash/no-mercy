@@ -1,5 +1,13 @@
 # eslint-plugin-no-mercy
 
+## 0.0.8
+
+### Patch Changes
+
+- [#27](https://github.com/ScarletFlash/no-mercy/pull/27)
+  [`f1e578e`](https://github.com/ScarletFlash/no-mercy/commit/f1e578ea8d11a7df98d673d76783766319a1059b) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - feat: more accurate parts of speech detection
+
 ## 0.0.7
 
 ### Patch Changes
