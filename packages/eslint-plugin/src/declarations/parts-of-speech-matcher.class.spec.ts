@@ -85,6 +85,33 @@ describe('PartsOfSpeechMatcher', () => {
     });
   });
 
+  it('should not forbid a verb that follows "to" after a noun', () => {
+    const matcher = new PartsOfSpeechMatcher({});
+    expect(matcher.match({ words: ['fields', 'to', 'keep'], required: [], restricted: [Verb] })).toStrictEqual({
+      isMatching: true
+    });
+  });
+
+  it('should forbid a verb that follows "to" without a noun before it', () => {
+    const matcher = new PartsOfSpeechMatcher({});
+    expect(matcher.match({ words: ['to', 'keep'], required: [], restricted: [Verb] })).toStrictEqual({
+      isMatching: false,
+      forbidden: [Verb],
+      missing: []
+    });
+  });
+
+  it('should forbid a verb that follows "to" after a noun when adjectives are restricted too', () => {
+    const matcher = new PartsOfSpeechMatcher({});
+    expect(
+      matcher.match({ words: ['fields', 'to', 'keep'], required: [], restricted: [Verb, Adjective] })
+    ).toStrictEqual({
+      isMatching: false,
+      forbidden: [Verb, Adjective],
+      missing: []
+    });
+  });
+
   it('should serve different policies with the same instance', () => {
     const matcher = new PartsOfSpeechMatcher({});
     expect(matcher.match({ words: ['calculate'], required: [Verb], restricted: [] })).toStrictEqual({

@@ -1,3 +1,4 @@
+import { PART_OF_SPEECH } from '../constants/part-of-speech.constant';
 import { getPartsOfSpeech } from '../utilities/get-parts-of-speech.utility';
 import { type PartOfSpeech } from './part-of-speech.type';
 
@@ -18,6 +19,14 @@ interface MatchParams {
 }
 
 type PartsOfSpeechByWordIndex = ReadonlyMap<number, ReadonlySet<PartOfSpeech>>;
+
+const INFINITIVE_MARKER = 'to';
+
+interface IsInfinitiveModifierParams {
+  readonly words: readonly string[];
+  readonly taggedPartsOfSpeech: readonly ReadonlySet<PartOfSpeech>[];
+  readonly index: number;
+}
 
 interface GetMissingParams {
   readonly required: readonly PartOfSpeech[];
@@ -56,11 +65,16 @@ export class PartsOfSpeechMatcher {
       return { isMatching: true };
     }
 
+    const taggedPartsOfSpeech = words.map((word: string) => getPartsOfSpeech({ word, dictionary: this.#dictionary }));
     const partsOfSpeechByWordIndex: PartsOfSpeechByWordIndex = new Map(
-      words.map((word: string, index: number): [number, ReadonlySet<PartOfSpeech>] => [
-        index,
-        getPartsOfSpeech({ word, dictionary: this.#dictionary })
-      ])
+      taggedPartsOfSpeech.map(
+        (partsOfSpeech: ReadonlySet<PartOfSpeech>, index: number): [number, ReadonlySet<PartOfSpeech>] => [
+          index,
+          this.#isInfinitiveModifier({ words, taggedPartsOfSpeech, index })
+            ? partsOfSpeech.union(new Set([PART_OF_SPEECH.Adjective]))
+            : partsOfSpeech
+        ]
+      )
     );
 
     const missingPartsOfSpeech = this.#getMissing({ required, partsOfSpeechByWordIndex });
@@ -69,6 +83,14 @@ export class PartsOfSpeechMatcher {
       return { isMatching: true };
     }
     return { isMatching: false, forbidden: forbiddenPartsOfSpeech, missing: missingPartsOfSpeech };
+  }
+
+  #isInfinitiveModifier({ words, taggedPartsOfSpeech, index }: IsInfinitiveModifierParams): boolean {
+    return (
+      words[index - 1] === INFINITIVE_MARKER &&
+      taggedPartsOfSpeech[index - 2]?.has(PART_OF_SPEECH.Noun) === true &&
+      taggedPartsOfSpeech[index]?.has(PART_OF_SPEECH.Verb) === true
+    );
   }
 
   #getForbidden({ restricted, partsOfSpeechByWordIndex }: GetForbiddenParams): readonly PartOfSpeech[] {

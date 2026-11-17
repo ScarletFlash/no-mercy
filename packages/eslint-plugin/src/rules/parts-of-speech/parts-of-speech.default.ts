@@ -137,7 +137,8 @@ export const PARTS_OF_SPEECH_DEFAULT: Options = {
       'read',
       'mismatch',
       'retry',
-      'copy'
+      'copy',
+      'process'
     ]
   },
   declarationPolicies: {
