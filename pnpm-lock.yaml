@@ -80,8 +80,8 @@ catalogs:
       specifier: ^8.59.1
       version: 8.59.1
     arkregex:
-      specifier: ^0.0.5
-      version: 0.0.5
+      specifier: ^0.0.14
+      version: 0.0.14
     change-case:
       specifier: ^5.4.4
       version: 5.4.4
@@ -217,7 +217,7 @@ importers:
         version: 8.59.1(eslint@10.2.1(jiti@2.6.1))(typescript@6.0.3)
       arkregex:
         specifier: catalog:stack
-        version: 0.0.5
+        version: 0.0.14
       eslint:
         specifier: catalog:codebase
         version: 10.2.1(jiti@2.6.1)
@@ -247,7 +247,7 @@ importers:
         version: 1000.1.8
       arkregex:
         specifier: catalog:stack
-        version: 0.0.5
+        version: 0.0.14
       prettier:
         specifier: catalog:codebase
         version: 3.8.3
@@ -270,8 +270,8 @@ importers:
 
 packages:
 
-  '@ark/util@0.56.0':
-    resolution: {integrity: sha512-BghfRC8b9pNs3vBoDJhcta0/c1J1rsoS1+HgVUreMFPdhz/CRAKReAu57YEllNaSy98rWAdY1gE+gFup7OXpgA==}
+  '@ark/util@0.56.8':
+    resolution: {integrity: sha512-XLiQyGfpJcws1zCtp2Cva8s1oheCdFn1Rt6JSyC4NnkDrpwCJnlaiawuuOc1Z97vMH+jEzW5vyyf0xOju5wUQA==}
 
   '@ast-grep/napi-darwin-arm64@0.37.0':
     resolution: {integrity: sha512-QAiIiaAbLvMEg/yBbyKn+p1gX2/FuaC0SMf7D7capm/oG4xGMzdeaQIcSosF4TCxxV+hIH4Bz9e4/u7w6Bnk3Q==}
@@ -1570,8 +1570,8 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
-  arkregex@0.0.5:
-    resolution: {integrity: sha512-ncYjBdLlh5/QnVsAA8De16Tc9EqmYM7y/WU9j+236KcyYNUXogpz3sC4ATIZYzzLxwI+0sEOaQLEmLmRleaEXw==}
+  arkregex@0.0.14:
+    resolution: {integrity: sha512-G3I/uCtWE0IKQiPh0qqmmAFDdtjZKZQ5mNPR6gJBeAMZ7VqYCpoaDeXnLju2Zo6ywExtmxZJELeVFb0MPDjPyA==}
 
   array-timsort@1.0.3:
     resolution: {integrity: sha512-/+3GRL7dDAGEfM6TseQk/U+mi18TU2Ms9I3UlLdUMhz2hbvGNTKdj9xniwXfUqgYhHxRx0+8UnKkvlNwVU+cWQ==}
@@ -2720,7 +2720,7 @@ packages:
 
 snapshots:
 
-  '@ark/util@0.56.0': {}
+  '@ark/util@0.56.8': {}
 
   '@ast-grep/napi-darwin-arm64@0.37.0':
     optional: true
@@ -3915,9 +3915,9 @@ snapshots:
 
   argparse@2.0.1: {}
 
-  arkregex@0.0.5:
+  arkregex@0.0.14:
     dependencies:
-      '@ark/util': 0.56.0
+      '@ark/util': 0.56.8
 
   array-timsort@1.0.3: {}
 
