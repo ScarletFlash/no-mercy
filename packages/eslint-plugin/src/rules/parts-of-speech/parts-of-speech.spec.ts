@@ -17,6 +17,14 @@ runRuleTests({
         code: ts`const requestPayload = { id: 1 };`
       },
       {
+        name: 'Variable ending with a noun tagged only as a verb should be allowed by the default dictionary',
+        code: ts`const childProcess = { id: 1 };`
+      },
+      {
+        name: 'Variable with a verb after TO describing a noun should be allowed by the default policy',
+        code: ts`const fieldsToKeep = ['main'];`
+      },
+      {
         name: 'Function leading with a verb should be allowed by the default policy',
         code: ts`
           function getUser(): object {
@@ -87,6 +95,21 @@ runRuleTests({
       {
         name: 'Variable leading with a verb-only word should be reported by the default restricted policy',
         code: ts`const calculatePayload = 1;`,
+        errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
+      },
+      {
+        name: 'Variable leading with a verb that does not follow TO should be reported by the default restricted policy',
+        code: ts`const keepFields = ['main'];`,
+        errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
+      },
+      {
+        name: 'Variable leading with a verb-only word should be reported even with a verb after TO describing a noun',
+        code: ts`const calculateTotalToKeep = 1;`,
+        errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
+      },
+      {
+        name: 'Variable with a verb after a leading TO should be reported because no noun precedes TO',
+        code: ts`const toKeep = [1];`,
         errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
       },
       {
