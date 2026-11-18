@@ -33,7 +33,7 @@ support. There are several workspace packages:
 
 | What                                         | Where                                                                                          |
 | -------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Node.js and pnpm versions                    | Root `package.json` (`packageManager` field)                                                   |
+| Node.js and pnpm versions                    | Root `package.json` (`devEngines` and `engines` fields)                                        |
 | Dependency catalogs and workspace definition | Root `pnpm-workspace.yaml`                                                                     |
 | Turbo task pipeline and concurrency          | Root `turbo.json` (packages may override with their own `turbo.json`)                          |
 | TypeScript config                            | Root `tsconfig.json` and per-package `tsconfig.json` (inherits from `@no-mercy/configs`)      |
