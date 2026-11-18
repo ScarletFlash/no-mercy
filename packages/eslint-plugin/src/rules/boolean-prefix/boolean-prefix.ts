@@ -167,9 +167,9 @@ export const booleanPrefix = getRule<readonly [Options], MessageId>({
     ],
     messages: {
       [MessageId.MissingBooleanPrefix]: 'Boolean "{{name}}" must start with one of these prefixes: {{prefixes}}.'
-    }
+    },
+    defaultOptions: [BOOLEAN_PREFIX_DEFAULT]
   },
-  defaultOptions: [BOOLEAN_PREFIX_DEFAULT],
   create: (context: RuleContext, [rawOptions]: readonly [Options]) => {
     const options = rawOptions ?? {};
     const scope: RuleScope = {

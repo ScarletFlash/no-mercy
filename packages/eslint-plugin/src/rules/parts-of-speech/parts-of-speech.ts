@@ -210,9 +210,9 @@ export const partsOfSpeech = getRule<readonly [Options], MessageId>({
       [MessageId.RestrictedPartOfSpeech]: 'Name "{{name}}" must not contain: {{partsOfSpeech}}.',
       [MessageId.RestrictedPartOfSpeechForApplication]:
         '{{application}} name "{{name}}" must not contain: {{partsOfSpeech}}.'
-    }
+    },
+    defaultOptions: [PARTS_OF_SPEECH_DEFAULT]
   },
-  defaultOptions: [PARTS_OF_SPEECH_DEFAULT],
   create: (context: RuleContext, [rawOptions]: readonly [Options]) => {
     const options = rawOptions ?? {};
     const scope: RuleScope = {

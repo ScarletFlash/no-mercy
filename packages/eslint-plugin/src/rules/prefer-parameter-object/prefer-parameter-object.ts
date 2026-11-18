@@ -613,9 +613,9 @@ export const preferParameterObject = getRule<readonly [Options], MessageId>({
     messages: {
       [MessageId.PreferParameterObject]:
         'This signature has more than one parameter. Use a single object parameter instead.'
-    }
+    },
+    defaultOptions: [PREFER_PARAMETER_OBJECT_DEFAULT]
   },
-  defaultOptions: [PREFER_PARAMETER_OBJECT_DEFAULT],
   create: (context: RuleContext, [rawOptions]: readonly [Options]) => {
     const options = rawOptions ?? {};
     const scope: RuleScope = {
