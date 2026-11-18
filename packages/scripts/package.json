@@ -8,8 +8,8 @@
     "_fix-all": "",
     "build": "",
     "compiler__check": "",
-    "compiler__check__configs": "tsc --project tsconfig.configs.json --noEmit",
-    "compiler__check__sources": "tsc --project tsconfig.sources.json --noEmit",
+    "compiler__check__configs": "tsrs --project tsconfig.configs.json --noEmit",
+    "compiler__check__sources": "tsrs --project tsconfig.sources.json --noEmit",
     "formatter__check": "prettier --config ./node_modules/@no-mercy/configs/prettier.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --check .",
     "formatter__fix": "prettier --config ./node_modules/@no-mercy/configs/prettier.mjs --ignore-path ./node_modules/@no-mercy/configs/prettier-ignore --cache --cache-location .prettiercache --cache-strategy content --write .",
     "linter__check": "eslint --flag unstable_native_nodejs_ts_config --quiet --config ./eslint.config.ts --cache --cache-strategy content .",
@@ -27,8 +27,8 @@
     "@types/node": "catalog:stack",
     "cspell": "catalog:codebase",
     "eslint": "catalog:codebase",
-    "typescript": "catalog:stack",
-    "typescript-7": "catalog:stack"
+    "tsrs": "catalog:stack",
+    "typescript": "catalog:stack"
   },
   "type": "module"
 }

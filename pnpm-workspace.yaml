@@ -45,10 +45,10 @@ catalogs:
     arkregex: ^0.0.15
     change-case: ^5.4.4
     compromise: ^14.20.0
+    tsrs: ^7.1.0-beta.tsrs3
     tsx: ^4.23.15
     turbo: ^2.11.13
     typescript: npm:@typescript/typescript6@^6.0.2
-    typescript-7: npm:typescript@^7.0.2
 
 color: always
 
