@@ -89,8 +89,8 @@ catalogs:
       specifier: ^14.20.0
       version: 14.20.0
     tsx:
-      specifier: ^4.22.3
-      version: 4.22.3
+      specifier: ^4.23.15
+      version: 4.23.15
     turbo:
       specifier: ^2.9.0
       version: 2.9.6
@@ -229,7 +229,7 @@ importers:
         version: 3.8.3
       tsx:
         specifier: catalog:stack
-        version: 4.22.3
+        version: 4.23.15
       typescript:
         specifier: catalog:stack
         version: 6.0.3
@@ -2612,8 +2612,8 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  tsx@4.22.3:
-    resolution: {integrity: sha512-mdoNxBC/cSQObGGVQ5Bpn5i+yv7j68gk3Nfm3wFjcJg3Z0Mix9jzAFfP12prmm5eVGmDKtp0yyArrs0Q+8gZHg==}
+  tsx@4.23.15:
+    resolution: {integrity: sha512-Yiex1Ovn8z2xPpOWckIiysV1SSyRMY9BkLF++q0yKiDxCqRhosKfMg3janKkiLBwZ5c/YryloKwGZcrEmtwxKw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -4990,7 +4990,7 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  tsx@4.22.3:
+  tsx@4.23.15:
     dependencies:
       esbuild: 0.28.0
     optionalDependencies:
