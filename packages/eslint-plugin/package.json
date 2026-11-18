@@ -30,7 +30,7 @@
     "postpublish": "tsx scripts/postpublish.script.ts",
     "prepublishOnly": "tsx scripts/prepublish.script.ts",
     "spell-checker__check": "cspell lint --config ./node_modules/@no-mercy/configs/cspell/index.json --cache --no-progress .",
-    "test__units": "rstest run --reporter=verbose",
+    "test__units": "rstest run --reporters=verbose",
     "test__units:watch": "rstest watch"
   },
   "peerDependencies": {
