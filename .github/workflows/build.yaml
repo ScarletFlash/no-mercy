@@ -83,7 +83,7 @@ jobs:
           commit-message: 'chore: update package versions'
           pr-title: 'chore: update package versions'
         env:
-          NPM_CONFIG_PROVENANCE: 'true'
+          PNPM_CONFIG_PROVENANCE: 'true'
 
       - name: Save caches
         if: ${{ always() && steps.caches.outputs.cache-hit != 'true' }}

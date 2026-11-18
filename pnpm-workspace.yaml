@@ -1,9 +1,19 @@
 packages:
   - packages/*
 
+allowBuilds:
+  core-js: true
+  cspell: true
+  esbuild: true
+  prettier: true
+  typescript: true
+  unrs-resolver: true
+
 autoInstallPeers: false
 
 catalogMode: strict
+
+catalogPrune: true
 
 catalogs:
   codebase:
@@ -40,21 +50,17 @@ catalogs:
     typescript: npm:@typescript/typescript6@^6.0.2
     typescript-7: npm:typescript@^7.0.2
 
-cleanupUnusedCatalogs: true
+color: always
 
 disallowWorkspaceCycles: true
 
-managePackageManagerVersions: true
+engineStrict: true
 
-onlyBuiltDependencies:
-  - core-js
-  - cspell
-  - esbuild
-  - prettier
-  - typescript
-  - unrs-resolver
+minimumReleaseAge: 0
 
-packageManagerStrict: true
+nodeOptions: --max_old_space_size=9216
+
+pmOnFail: download
 
 preferFrozenLockfile: false
 
@@ -72,8 +78,12 @@ requiredScripts:
   - linter__fix
   - spell-checker__check
 
+savePrefix: ''
+
 strictDepBuilds: true
 
 strictPeerDependencies: false
+
+strictSsl: false
 
 verifyDepsBeforeRun: warn
