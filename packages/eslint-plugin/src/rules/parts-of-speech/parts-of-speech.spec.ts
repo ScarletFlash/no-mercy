@@ -96,7 +96,9 @@ runRuleTests({
         options: [
           { dictionary: { verb: ['status'] }, declarationPolicies: { enum: { default: { required: ['verb'] } } } }
         ],
-        code: ts`enum Status {}`
+        code: ts`
+          enum Status {}
+        `
       },
       {
         name: 'Callable PascalCase variable should be allowed by its name pattern over the callable type policy',
