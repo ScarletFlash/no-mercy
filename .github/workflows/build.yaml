@@ -74,15 +74,15 @@ jobs:
 
       - name: Handle package versions
         if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
-          version: pnpm run bump-version
-          publish: pnpm run changeset publish
-          createGithubReleases: true
-          commit: 'chore: update package versions'
-          title: 'chore: update package versions'
+          github-token: ${{ steps.app_token.outputs.token }}
+          version-script: pnpm run bump-version
+          publish-script: pnpm run changeset publish
+          create-github-releases: true
+          commit-message: 'chore: update package versions'
+          pr-title: 'chore: update package versions'
         env:
-          GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
           NPM_CONFIG_PROVENANCE: 'true'
 
       - name: Save caches
