@@ -10,7 +10,7 @@
     "build": "pnpm run turbo-run build",
     "🏗️": "Compiling",
     "compiler__check": "pnpm run turbo-run compiler__check",
-    "compiler__check:root": "tsc --project ./tsconfig.configs.json --noEmit",
+    "compiler__check:root": "tsrs --project ./tsconfig.configs.json --noEmit",
     "🧪": "Testing",
     "test__units": "pnpm run turbo-run test__units",
     "🛂": "Code analysis",
@@ -45,9 +45,9 @@
     "knip": "catalog:codebase",
     "prettier": "catalog:codebase",
     "prettier-plugin-sort-json": "catalog:codebase",
+    "tsrs": "catalog:stack",
     "turbo": "catalog:stack",
-    "typescript": "catalog:stack",
-    "typescript-7": "catalog:stack"
+    "typescript": "catalog:stack"
   },
   "engines": {
     "node": "26.13.1",

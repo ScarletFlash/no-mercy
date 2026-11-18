@@ -43,6 +43,7 @@
     "terminatable",
     "TSES",
     "tseslint",
+    "tsrs",
     "turborepo"
   ]
 }
