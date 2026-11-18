@@ -6,7 +6,7 @@ import {
   type TSESTree
 } from '@typescript-eslint/utils';
 import { pascalCase } from 'change-case';
-import * as TS_API from 'typescript';
+import TS_API from 'typescript';
 import { getRegExp } from '../../utilities/get-regexp.utility';
 import { getRule } from '../../utilities/get-rule.utility';
 import { PREFER_PARAMETER_OBJECT_DEFAULT } from './prefer-parameter-object.default';
