@@ -1,6 +1,7 @@
 import { default as ESLint } from '@eslint/js';
 import { type Linter } from 'eslint';
 import { defineConfig } from 'eslint/config';
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import { default as functionalPlugin } from 'eslint-plugin-functional';
 import { importX as importPlugin } from 'eslint-plugin-import-x';
 import { default as unicornPlugin } from 'eslint-plugin-unicorn';
@@ -312,11 +313,11 @@ export const ESSENTIAL_CONFIG: ConfigArray = [
         reportUnusedDisableDirectives: 'error'
       },
       settings: {
-        'import-x/resolver': {
-          typescript: {
+        'import-x/resolver-next': [
+          createTypeScriptImportResolver({
             alwaysTryTypes: true
-          }
-        }
+          })
+        ]
       }
     },
     {

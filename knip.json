@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "includeEntryExports": false,
   "workspaces": {
     "packages/configs": {
@@ -12,7 +12,8 @@
       "ignore": ["eslint.config.ts"]
     },
     "packages/scripts": {
-      "entry": ["src/public-api.ts!"]
+      "entry": ["src/public-api.ts!"],
+      "ignoreBinaries": ["changeset"]
     }
   }
 }

@@ -19,7 +19,7 @@ catalogs:
     eslint-plugin-functional: ^9.0.2
     eslint-plugin-import-x: ^4.16.2
     eslint-plugin-unicorn: ^64.0.0
-    knip: ^6.7.0
+    knip: ^6.45.1
     prettier: ^3.7.4
     prettier-plugin-embed: ^0.5.1
     prettier-plugin-sort-json: ^4.1.1
