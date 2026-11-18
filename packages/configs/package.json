@@ -21,7 +21,6 @@
     "eslint-plugin-functional": "catalog:codebase",
     "eslint-plugin-import-x": "catalog:codebase",
     "eslint-plugin-unicorn": "catalog:codebase",
-    "prettier": "catalog:codebase",
     "prettier-plugin-embed": "catalog:codebase",
     "prettier-plugin-sort-json": "catalog:codebase",
     "typescript": "catalog:stack",
@@ -31,6 +30,7 @@
     "@rslib/core": "catalog:stack",
     "@types/node": "catalog:stack",
     "cspell": "catalog:codebase",
+    "prettier": "catalog:codebase",
     "typescript": "catalog:stack"
   },
   "exports": {

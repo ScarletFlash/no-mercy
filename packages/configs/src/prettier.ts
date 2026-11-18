@@ -1,4 +1,6 @@
 import { type Config } from 'prettier';
+import * as embedPlugin from 'prettier-plugin-embed';
+import * as sortJsonPlugin from 'prettier-plugin-sort-json';
 
 type JsonSortOrder = Record<string, 'lexical' | null>;
 
@@ -40,7 +42,7 @@ const CONFIG: Config = {
   trailingComma: 'none',
   useTabs: false,
   vueIndentScriptAndStyle: false,
-  plugins: ['prettier-plugin-embed', 'prettier-plugin-sort-json'],
+  plugins: [embedPlugin, sortJsonPlugin],
   embeddedTsTags: ['ts'],
   embeddedTsParser: 'typescript',
   jsonRecursiveSort: true,
