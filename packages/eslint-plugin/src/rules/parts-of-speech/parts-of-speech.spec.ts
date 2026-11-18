@@ -21,6 +21,30 @@ runRuleTests({
         code: ts`const childProcess = { id: 1 };`
       },
       {
+        name: 'Variables with nouns tagged only as verbs should be allowed by the default dictionary',
+        code: ts`
+          const backgroundColor = '#fff';
+          const clone = { id: 1 };
+          const repetitionCount = 3;
+        `
+      },
+      {
+        name: 'Variables holding only nouns tagged only as adjectives should be allowed by the default dictionary',
+        code: ts`
+          const square = 4;
+          const intent = 'search';
+          const average = 2;
+        `
+      },
+      {
+        name: 'Variables holding only plural nouns tagged only as verbs should be allowed by the default dictionary',
+        code: ts`
+          const colors = ['#fff'];
+          const averages = [2];
+          const zeroes = [0];
+        `
+      },
+      {
         name: 'Variable with a verb after TO describing a noun should be allowed by the default policy',
         code: ts`const fieldsToKeep = ['main'];`
       },
