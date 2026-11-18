@@ -46,8 +46,8 @@ catalogs:
       specifier: ^6.45.1
       version: 6.45.1
     prettier:
-      specifier: ^3.7.4
-      version: 3.8.3
+      specifier: ^3.10.1
+      version: 3.10.1
     prettier-plugin-embed:
       specifier: ^0.5.1
       version: 0.5.1
@@ -122,10 +122,10 @@ importers:
         version: 6.45.1
       prettier:
         specifier: catalog:codebase
-        version: 3.8.3
+        version: 3.10.1
       prettier-plugin-sort-json:
         specifier: catalog:codebase
-        version: 4.2.0(prettier@3.8.3)
+        version: 4.2.0(prettier@3.10.1)
       turbo:
         specifier: catalog:stack
         version: 2.9.6
@@ -158,7 +158,7 @@ importers:
         version: 0.5.1
       prettier-plugin-sort-json:
         specifier: catalog:codebase
-        version: 4.2.0(prettier@3.8.3)
+        version: 4.2.0(prettier@3.10.1)
       typescript:
         specifier: catalog:stack
         version: 6.0.3
@@ -177,7 +177,7 @@ importers:
         version: 10.5.2
       prettier:
         specifier: catalog:codebase
-        version: 3.8.3
+        version: 3.10.1
 
   packages/eslint-plugin:
     dependencies:
@@ -223,10 +223,10 @@ importers:
         version: 10.2.1(jiti@2.7.0)
       eslint-doc-generator:
         specifier: catalog:codebase
-        version: 3.3.2(eslint@10.2.1(jiti@2.7.0))(prettier@3.8.3)(typescript@6.0.3)
+        version: 3.3.2(eslint@10.2.1(jiti@2.7.0))(prettier@3.10.1)(typescript@6.0.3)
       prettier:
         specifier: catalog:codebase
-        version: 3.8.3
+        version: 3.10.1
       tsx:
         specifier: catalog:stack
         version: 4.23.15
@@ -250,7 +250,7 @@ importers:
         version: 0.0.14
       prettier:
         specifier: catalog:codebase
-        version: 3.8.3
+        version: 3.10.1
     devDependencies:
       '@pnpm/types':
         specifier: catalog:codebase
@@ -2432,8 +2432,8 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.8.3:
-    resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
+  prettier@3.10.1:
+    resolution: {integrity: sha512-70vp3ZUYoPlFbF9uiTdXHUUCGEIp7d4+6p+8DYbkm2jP7x/3i/paXVF6dopSI3zd/CEitrZN1rc4i85xWmmXlg==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -4229,7 +4229,7 @@ snapshots:
 
   escape-string-regexp@5.0.0: {}
 
-  eslint-doc-generator@3.3.2(eslint@10.2.1(jiti@2.7.0))(prettier@3.8.3)(typescript@6.0.3):
+  eslint-doc-generator@3.3.2(eslint@10.2.1(jiti@2.7.0))(prettier@3.10.1)(typescript@6.0.3):
     dependencies:
       '@typescript-eslint/utils': 8.59.1(eslint@10.2.1(jiti@2.7.0))(typescript@6.0.3)
       ajv: 8.20.0
@@ -4248,7 +4248,7 @@ snapshots:
       table: 6.9.0
       type-fest: 5.6.0
     optionalDependencies:
-      prettier: 3.8.3
+      prettier: 3.10.1
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -4849,13 +4849,13 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
 
-  prettier-plugin-sort-json@4.2.0(prettier@3.8.3):
+  prettier-plugin-sort-json@4.2.0(prettier@3.10.1):
     dependencies:
-      prettier: 3.8.3
+      prettier: 3.10.1
 
   prettier@2.8.8: {}
 
-  prettier@3.8.3: {}
+  prettier@3.10.1: {}
 
   pretty-format@30.3.0:
     dependencies:
