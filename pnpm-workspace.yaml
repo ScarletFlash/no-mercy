@@ -13,12 +13,12 @@ catalogs:
     '@pnpm/pkg-manifest.reader': ^1100.0.25
     '@pnpm/types': ^1102.1.4
     cspell: ^10.5.2
-    eslint: ^10.2.1
+    eslint: ^10.15.0
     eslint-doc-generator: ^3.7.1
     eslint-import-resolver-typescript: ^4.4.5
     eslint-plugin-functional: ^10.0.1
     eslint-plugin-import-x: ^4.18.1
-    eslint-plugin-unicorn: ^64.0.0
+    eslint-plugin-unicorn: ^80.0.0
     knip: ^6.45.1
     prettier: ^3.10.1
     prettier-plugin-embed: ^0.8.2

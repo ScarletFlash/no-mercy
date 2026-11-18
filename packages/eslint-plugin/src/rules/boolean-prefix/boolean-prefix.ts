@@ -56,9 +56,7 @@ interface CheckMethodKeyParams {
 
 const METHOD_KIND = {
   constructor: 'constructor',
-  get: 'get',
-  set: 'set',
-  method: 'method'
+  set: 'set'
 } as const satisfies Record<string, TSESTree.MethodDefinition['kind']>;
 
 const STRING_ARRAY_SCHEMA: JSONSchema.JSONSchema4 = { type: 'array', items: { type: 'string' } };
