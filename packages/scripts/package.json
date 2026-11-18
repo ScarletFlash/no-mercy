@@ -27,7 +27,8 @@
     "@types/node": "catalog:stack",
     "cspell": "catalog:codebase",
     "eslint": "catalog:codebase",
-    "typescript": "catalog:stack"
+    "typescript": "catalog:stack",
+    "typescript-7": "catalog:stack"
   },
   "type": "module"
 }

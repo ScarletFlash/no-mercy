@@ -31,7 +31,8 @@
     "@types/node": "catalog:stack",
     "cspell": "catalog:codebase",
     "prettier": "catalog:codebase",
-    "typescript": "catalog:stack"
+    "typescript": "catalog:stack",
+    "typescript-7": "catalog:stack"
   },
   "exports": {
     "./cspell": "./cspell/index.json",

@@ -46,7 +46,8 @@
     "prettier": "catalog:codebase",
     "prettier-plugin-sort-json": "catalog:codebase",
     "turbo": "catalog:stack",
-    "typescript": "catalog:stack"
+    "typescript": "catalog:stack",
+    "typescript-7": "catalog:stack"
   },
   "engines": {
     "node": "24.11.1",
