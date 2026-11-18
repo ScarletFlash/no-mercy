@@ -15,7 +15,7 @@ catalogs:
     cspell: ^10.5.2
     eslint: ^10.2.1
     eslint-doc-generator: ^3.3.2
-    eslint-import-resolver-typescript: ^4.4.4
+    eslint-import-resolver-typescript: ^4.4.5
     eslint-plugin-functional: ^9.0.2
     eslint-plugin-import-x: ^4.16.2
     eslint-plugin-unicorn: ^64.0.0
