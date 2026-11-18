@@ -247,8 +247,8 @@ catalogs:
       specifier: ^8.73.0
       version: 8.73.0
     arkregex:
-      specifier: ^0.0.14
-      version: 0.0.14
+      specifier: ^0.0.15
+      version: 0.0.15
     change-case:
       specifier: ^5.4.4
       version: 5.4.4
@@ -393,7 +393,7 @@ importers:
         version: 8.73.0(@typescript/typescript6@6.0.2)(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
       arkregex:
         specifier: catalog:stack
-        version: 0.0.14
+        version: 0.0.15
       eslint:
         specifier: catalog:codebase
         version: 10.15.0(jiti@2.7.0)(supports-color@7.2.0)
@@ -426,7 +426,7 @@ importers:
         version: 1100.0.25
       arkregex:
         specifier: catalog:stack
-        version: 0.0.14
+        version: 0.0.15
       prettier:
         specifier: catalog:codebase
         version: 3.10.1
@@ -452,8 +452,8 @@ importers:
 
 packages:
 
-  '@ark/util@0.56.8':
-    resolution: {integrity: sha512-XLiQyGfpJcws1zCtp2Cva8s1oheCdFn1Rt6JSyC4NnkDrpwCJnlaiawuuOc1Z97vMH+jEzW5vyyf0xOju5wUQA==}
+  '@ark/util@0.56.9':
+    resolution: {integrity: sha512-/yA1me+AMmI75VaQ5owz1A1owopAJ0ZZFXy9SI1Q69kErJfxuglQBYjGeOTFyygJjZ9Rf4UjCtD5XTuEiNiGHw==}
 
   '@ast-grep/napi-darwin-arm64@0.51.1':
     resolution: {integrity: sha512-kc9phT4a0wpM2GAjqn+RySI/pS7hET78TOvsjTdFeEnZ7tdh887wyqjp6+J1ZxVw+/N66m7TauoSLIzkqdeR1Q==}
@@ -1919,8 +1919,8 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
-  arkregex@0.0.14:
-    resolution: {integrity: sha512-G3I/uCtWE0IKQiPh0qqmmAFDdtjZKZQ5mNPR6gJBeAMZ7VqYCpoaDeXnLju2Zo6ywExtmxZJELeVFb0MPDjPyA==}
+  arkregex@0.0.15:
+    resolution: {integrity: sha512-mu9vS4b8kTipqr2AfVIL1NYhGH47CZgPdYFzB762lu4/dsxm7hmNsN3ayDahcM9OhepOpTQc+W744yh4KE+mAw==}
 
   array-timsort@1.0.3:
     resolution: {integrity: sha512-/+3GRL7dDAGEfM6TseQk/U+mi18TU2Ms9I3UlLdUMhz2hbvGNTKdj9xniwXfUqgYhHxRx0+8UnKkvlNwVU+cWQ==}
@@ -2912,7 +2912,7 @@ packages:
 
 snapshots:
 
-  '@ark/util@0.56.8': {}
+  '@ark/util@0.56.9': {}
 
   '@ast-grep/napi-darwin-arm64@0.51.1':
     optional: true
@@ -4113,9 +4113,9 @@ snapshots:
 
   argparse@2.0.1: {}
 
-  arkregex@0.0.14:
+  arkregex@0.0.15:
     dependencies:
-      '@ark/util': 0.56.8
+      '@ark/util': 0.56.9
 
   array-timsort@1.0.3: {}
 

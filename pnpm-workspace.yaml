@@ -42,7 +42,7 @@ catalogs:
     '@typescript-eslint/rule-tester': ^8.73.0
     '@typescript-eslint/typescript-estree': ^8.73.0
     '@typescript-eslint/utils': ^8.73.0
-    arkregex: ^0.0.14
+    arkregex: ^0.0.15
     change-case: ^5.4.4
     compromise: ^14.20.0
     tsx: ^4.23.15
