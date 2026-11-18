@@ -1,6 +1,6 @@
 import { cp, rm, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { readPackageJson } from '@pnpm/read-package-json';
+import { readPackageJson } from '@pnpm/pkg-manifest.reader';
 import { type PackageManifest } from '@pnpm/types';
 import { regex } from 'arkregex';
 
