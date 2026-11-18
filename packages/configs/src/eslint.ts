@@ -248,6 +248,7 @@ export const RULES: Partial<Linter.RulesRecord> = {
       'newlines-between': 'never'
     }
   ],
+  'import-x/avoid-barrel-files': 'error',
 
   'id-length': [
     'error',
