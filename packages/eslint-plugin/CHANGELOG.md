@@ -1,5 +1,29 @@
 # eslint-plugin-no-mercy
 
+## 0.0.9
+
+### Patch Changes
+
+- [#30](https://github.com/ScarletFlash/no-mercy/pull/30)
+  [`c271c36`](https://github.com/ScarletFlash/no-mercy/commit/c271c36452018a259c39479186174ef04590a098) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - fix: parts-of-speech reads "process" as a noun and a verb after
+  "to" describing a noun as a modifier
+
+- [#30](https://github.com/ScarletFlash/no-mercy/pull/30)
+  [`4ee2a92`](https://github.com/ScarletFlash/no-mercy/commit/4ee2a92a8c3e9df49c736324448eead5147698a7) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - fix: the plugin loads with TypeScript 5.0–5.4, where a namespace
+  import of typescript exposes no API
+
+- [#30](https://github.com/ScarletFlash/no-mercy/pull/30)
+  [`f2500c9`](https://github.com/ScarletFlash/no-mercy/commit/f2500c903d24f2f5f8f243252b00a817c293a890) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - fix: rules declare their default options in `meta.defaultOptions`;
+  the `@typescript-eslint/*` peers now require 8.56.0 or newer, the first version that supports ESLint 10
+
+- [#30](https://github.com/ScarletFlash/no-mercy/pull/30)
+  [`ba21198`](https://github.com/ScarletFlash/no-mercy/commit/ba211986320cfc980d08857696051039e7e50507) Thanks
+  [@ScarletFlash](https://github.com/ScarletFlash)! - fix: type declarations import relative modules with the `.js`
+  extension, as `moduleResolution: node16` and `nodenext` require
+
 ## 0.0.8
 
 ### Patch Changes
