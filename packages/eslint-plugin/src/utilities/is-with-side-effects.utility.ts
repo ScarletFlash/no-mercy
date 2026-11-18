@@ -5,7 +5,7 @@ import {
   type ParserServicesWithTypeInformation,
   type TSESTree
 } from '@typescript-eslint/utils';
-import * as TS_API from 'typescript';
+import TS_API from 'typescript';
 import { getChildren } from './get-children.utility';
 
 type Scope = TSESLint.Scope.Scope;

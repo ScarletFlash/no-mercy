@@ -5,7 +5,7 @@ import {
   type TSESLint,
   type TSESTree
 } from '@typescript-eslint/utils';
-import * as TS_API from 'typescript';
+import TS_API from 'typescript';
 import { getRule } from '../../utilities/get-rule.utility';
 import { NO_REDUNDANT_TYPES_DEFAULT } from './no-redundant-types.default';
 import { MessageId } from './no-redundant-types.message-id';

@@ -1,5 +1,5 @@
 import { type ParserServicesWithTypeInformation, type TSESTree } from '@typescript-eslint/utils';
-import * as TS_API from 'typescript';
+import TS_API from 'typescript';
 
 interface DeclarationTypeInfo {
   readonly isBoolean: boolean;
