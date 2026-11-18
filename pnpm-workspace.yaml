@@ -25,7 +25,7 @@ catalogs:
     prettier-plugin-sort-json: ^4.2.0
     typescript-eslint: ^8.59.1
   stack:
-    '@rslib/core': ^0.21.0
+    '@rslib/core': ^1.0.7
     '@rstest/core': ^0.12.6
     '@types/node': ^24.0.0
     '@typescript-eslint/parser': ^8.59.1
