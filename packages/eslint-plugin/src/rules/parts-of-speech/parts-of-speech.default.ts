@@ -138,7 +138,14 @@ export const PARTS_OF_SPEECH_DEFAULT: Options = {
       'mismatch',
       'retry',
       'copy',
-      'process'
+      'process',
+      'color',
+      'square',
+      'intent',
+      'clone',
+      'repetition',
+      'average',
+      'zero'
     ]
   },
   declarationPolicies: {
