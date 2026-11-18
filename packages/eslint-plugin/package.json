@@ -60,6 +60,7 @@
     "prettier": "catalog:codebase",
     "tsx": "catalog:stack",
     "typescript": "catalog:stack",
+    "typescript-7": "catalog:stack",
     "typescript-eslint": "catalog:codebase"
   },
   "license": "MIT",
