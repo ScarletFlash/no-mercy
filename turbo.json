@@ -1,25 +1,31 @@
 {
   "$schema": "./node_modules/turbo/schema.json",
-  "globalDependencies": [
-    "!./node_modules/",
-    "!./packages/**/*tsbuildinfo",
-    "!./packages/**/.cspellcache",
-    "!./packages/**/.eslintcache",
-    "!./packages/**/.prettiercache",
-    "!./packages/**/.turbo/",
-    "!./packages/**/coverage/",
-    "!./packages/configs/.turbo/**/*",
-    "!./tsconfig.json",
-    "!.cspellcache",
-    "!.eslintcache",
-    "!.prettiercache",
-    "!.turbo/**/*",
-    "./packages/configs/**/*",
-    ".npmrc",
-    "pnpm-*.yaml",
-    "turbo.json"
-  ],
-  "globalPassThroughEnv": ["GITHUB_TOKEN"],
+  "futureFlags": {
+    "globalConfiguration": true
+  },
+  "global": {
+    "inputs": [
+      "!./node_modules/",
+      "!./packages/**/*tsbuildinfo",
+      "!./packages/**/.cspellcache",
+      "!./packages/**/.eslintcache",
+      "!./packages/**/.prettiercache",
+      "!./packages/**/.turbo/",
+      "!./packages/**/coverage/",
+      "!./packages/**/node_modules/",
+      "!./packages/configs/.turbo/**/*",
+      "!.cspellcache",
+      "!.eslintcache",
+      "!.prettiercache",
+      "!.turbo/**/*",
+      "./packages/configs/**/*",
+      ".npmrc",
+      "pnpm-*.yaml",
+      "turbo.json"
+    ],
+    "passThroughEnv": ["GITHUB_TOKEN"],
+    "ui": "stream"
+  },
   "tasks": {
     "//#dependencies-checker__check": {
       "cache": true,
@@ -29,7 +35,8 @@
         "./packages/**/package.json",
         "!./packages/**/out-tsc/",
         "!./packages/**/dist/",
-        "!./packages/**/coverage/"
+        "!./packages/**/coverage/",
+        "!./packages/**/node_modules/"
       ],
       "persistent": false
     },
@@ -49,7 +56,7 @@
     "//#formatter__check:root": {
       "cache": true,
       "dependsOn": ["@no-mercy/configs#build"],
-      "inputs": ["./*.*"],
+      "inputs": ["./*.*", "!./*tsbuildinfo", "!.cspellcache", "!.prettiercache"],
       "outputLogs": "errors-only",
       "persistent": false
     },
@@ -61,7 +68,7 @@
     },
     "//#spell-checker__check:root": {
       "cache": true,
-      "inputs": ["./*.*", "!.cspellcache"],
+      "inputs": ["./*.*", "!./*tsbuildinfo", "!.cspellcache", "!.prettiercache"],
       "outputLogs": "errors-only",
       "persistent": false
     },
@@ -112,9 +119,11 @@
         "./**/*.{js,ts,tsx,mjs}",
         "./**/tsconfig.*",
         "./package.json",
+        "!./**/*tsbuildinfo",
         "!./out-tsc/",
         "!./dist/",
-        "!./coverage/"
+        "!./coverage/",
+        "!./node_modules/"
       ],
       "outputLogs": "errors-only",
       "persistent": false
@@ -137,7 +146,13 @@
     "formatter__check": {
       "cache": true,
       "dependsOn": ["@no-mercy/configs#build", "//#formatter__check:root"],
-      "inputs": ["./**/*.{js,mjs,ts,mts,tsx,html,yaml,yml,json,md}", "!./out-tsc/", "!./dist/", "!./coverage/"],
+      "inputs": [
+        "./**/*.{js,mjs,ts,mts,tsx,html,yaml,yml,json,md}",
+        "!./out-tsc/",
+        "!./dist/",
+        "!./coverage/",
+        "!./node_modules/"
+      ],
       "outputLogs": "errors-only",
       "persistent": false
     },
@@ -150,7 +165,7 @@
     "linter__check": {
       "cache": true,
       "dependsOn": ["@no-mercy/configs#build"],
-      "inputs": ["./**/*.{js,mjs,ts,mts,tsx,html}", "!./out-tsc/", "!./dist/", "!./coverage/"],
+      "inputs": ["./**/*.{js,mjs,ts,mts,tsx,html}", "!./out-tsc/", "!./dist/", "!./coverage/", "!./node_modules/"],
       "outputLogs": "errors-only",
       "persistent": false
     },
@@ -163,16 +178,34 @@
     "spell-checker__check": {
       "cache": true,
       "dependsOn": ["//#spell-checker__check:root"],
-      "inputs": ["./**/*", "!./out-tsc/", "!./dist/", "!./coverage/"],
+      "inputs": [
+        "./**/*",
+        "!./**/*tsbuildinfo",
+        "!./.cspellcache",
+        "!./.eslintcache",
+        "!./.prettiercache",
+        "!./.turbo/",
+        "!./out-tsc/",
+        "!./dist/",
+        "!./coverage/",
+        "!./node_modules/"
+      ],
       "outputLogs": "errors-only",
       "persistent": false
     },
     "test__units": {
       "cache": true,
       "dependsOn": ["@no-mercy/configs#build", "^build"],
-      "inputs": ["./**/*.{js,ts,tsx,mjs}", "./**/tsconfig.*", "!./out-tsc/", "!./dist/", "!./coverage/"],
+      "inputs": [
+        "./**/*.{js,ts,tsx,mjs}",
+        "./**/tsconfig.*",
+        "!./**/*tsbuildinfo",
+        "!./out-tsc/",
+        "!./dist/",
+        "!./coverage/",
+        "!./node_modules/"
+      ],
       "persistent": false
     }
-  },
-  "ui": "stream"
+  }
 }
