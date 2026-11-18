@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@no-mercy/configs": "workspace:*",
-    "@pnpm/read-package-json": "catalog:codebase",
+    "@pnpm/pkg-manifest.reader": "catalog:codebase",
     "arkregex": "catalog:stack",
     "prettier": "catalog:codebase"
   },
