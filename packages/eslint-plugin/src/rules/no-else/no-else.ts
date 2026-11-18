@@ -44,9 +44,9 @@ export const noElse = getRule<readonly [Options], MessageId>({
     ],
     messages: {
       [MessageId.NoElse]: 'Avoid using "else". Use early returns or guard clauses instead.'
-    }
+    },
+    defaultOptions: [{ areSideEffectsAllowed: false }]
   },
-  defaultOptions: [{ areSideEffectsAllowed: false }],
   create: (context, [rawOptions]) => {
     const { areSideEffectsAllowed = false } = rawOptions ?? {};
 

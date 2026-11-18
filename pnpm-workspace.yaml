@@ -23,15 +23,15 @@ catalogs:
     prettier: ^3.10.1
     prettier-plugin-embed: ^0.8.2
     prettier-plugin-sort-json: ^4.2.0
-    typescript-eslint: ^8.59.1
+    typescript-eslint: ^8.73.0
   stack:
     '@rslib/core': ^1.0.7
     '@rstest/core': ^0.12.6
     '@types/node': ^24.0.0
-    '@typescript-eslint/parser': ^8.59.1
-    '@typescript-eslint/rule-tester': ^8.59.1
-    '@typescript-eslint/typescript-estree': ^8.59.1
-    '@typescript-eslint/utils': ^8.59.1
+    '@typescript-eslint/parser': ^8.73.0
+    '@typescript-eslint/rule-tester': ^8.73.0
+    '@typescript-eslint/typescript-estree': ^8.73.0
+    '@typescript-eslint/utils': ^8.73.0
     arkregex: ^0.0.14
     change-case: ^5.4.4
     compromise: ^14.20.0

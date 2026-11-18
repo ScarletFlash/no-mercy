@@ -388,9 +388,9 @@ export const noRedundantTypes = getRule<readonly [Options], MessageId>({
     ],
     messages: {
       [MessageId.RedundantType]: 'This type annotation is redundant. TypeScript infers the same type from the value.'
-    }
+    },
+    defaultOptions: [NO_REDUNDANT_TYPES_DEFAULT]
   },
-  defaultOptions: [NO_REDUNDANT_TYPES_DEFAULT],
   create: (context, [rawOptions]) => {
     const { areParametersIgnored = true, isDestructuringIgnored = true } = rawOptions ?? {};
     const scope: RuleScope = {

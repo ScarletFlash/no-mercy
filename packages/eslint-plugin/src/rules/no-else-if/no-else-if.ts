@@ -2,7 +2,7 @@ import { AST_NODE_TYPES, type TSESTree } from '@typescript-eslint/utils';
 import { getRule } from '../../utilities/get-rule.utility';
 import { MessageId } from './no-else-if.message-id';
 
-export const noElseIf = getRule({
+export const noElseIf = getRule<[], MessageId>({
   name: 'no-else-if',
   meta: {
     type: 'suggestion',
@@ -12,9 +12,9 @@ export const noElseIf = getRule({
     schema: [],
     messages: {
       [MessageId.NoElseIf]: 'Avoid using "else if". Use early returns or guard clauses instead.'
-    }
+    },
+    defaultOptions: []
   },
-  defaultOptions: [],
   create: (context) => ({
     IfStatement: ({ alternate }: TSESTree.IfStatement) => {
       if (alternate?.type === AST_NODE_TYPES.IfStatement) {
