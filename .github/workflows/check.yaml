@@ -25,7 +25,7 @@ jobs:
         name: Run codebase health checks
         steps:
             - name: Fetch all required Git history
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
               with:
                 fetch-depth: 2
 
@@ -47,7 +47,7 @@ jobs:
             - name: Restore caches
               if: ${{ steps.should-run.outputs.result == 'true' }}
               id: caches
-              uses: actions/cache/restore@v5
+              uses: actions/cache/restore@v6
               with:
                   path: |
                     .turbo/
@@ -64,7 +64,7 @@ jobs:
 
             - name: Setup Node.js environment
               if: ${{ steps.should-run.outputs.result == 'true' }}
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@v7
               with:
                   node-version-file: package.json
 
@@ -94,7 +94,7 @@ jobs:
             - name: Save caches
               if:
                 ${{ failure() || ( steps.should-run.outputs.result == 'true' && steps.caches.outputs.cache-hit != 'true' ) }}
-              uses: actions/cache/save@v5
+              uses: actions/cache/save@v6
               with:
                 path: |
                   .turbo/
