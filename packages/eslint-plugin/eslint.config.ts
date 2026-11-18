@@ -25,6 +25,22 @@ const CONFIG: ConfigArray = [
         })
       ]
     }
+  },
+  {
+    files: ['eslint.config.ts'],
+    rules: {
+      'import-x/extensions': [
+        'error',
+        'never',
+        { pattern: { json: 'always' }, pathGroupOverrides: [{ pattern: './dist/index.js', action: 'ignore' }] }
+      ]
+    }
+  },
+  {
+    files: ['src/index.ts'],
+    rules: {
+      'import-x/avoid-barrel-files': 'off'
+    }
   }
 ];
 
