@@ -16,6 +16,12 @@ describe('getMergedOptions', () => {
     });
   });
 
+  it('should drop array values the base already holds', () => {
+    expect(getMergedOptions({ base: { required: ['noun'] }, override: { required: ['noun', 'verb'] } })).toStrictEqual({
+      required: ['noun', 'verb']
+    });
+  });
+
   it('should let scalar overrides win', () => {
     expect(getMergedOptions({ base: { level: 'error', flag: true }, override: { level: 'warn' } })).toStrictEqual({
       level: 'warn',

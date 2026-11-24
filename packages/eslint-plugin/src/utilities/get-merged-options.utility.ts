@@ -1,10 +1,5 @@
+import { type DeepPartialValue } from '../declarations/deep-partial-value.type';
 import { isRecord } from './is-record.utility';
-
-type DeepPartialValue<T> = T extends readonly unknown[]
-  ? T
-  : T extends object
-    ? { readonly [Key in keyof T]?: DeepPartialValue<T[Key]> }
-    : T;
 
 interface MergeFrame {
   readonly baseRecord: Readonly<Record<string, unknown>>;
@@ -42,7 +37,7 @@ export function getMergedOptions<OptionsType extends object>({
       }
       target[key] =
         Array.isArray(baseValue) && Array.isArray(overrideValue)
-          ? baseValue.concat(overrideValue)
+          ? Array.from(new Set(baseValue.concat(overrideValue)))
           : (overrideValue ?? baseValue);
     });
   }

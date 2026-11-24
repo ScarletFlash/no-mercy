@@ -7,9 +7,9 @@ import {
   type TSESTree
 } from '@typescript-eslint/utils';
 import { noCase } from 'change-case';
-import { getDeclarationTypeInfo } from '../../utilities/get-declaration-type-info.utility';
 import { getRegExp } from '../../utilities/get-regexp.utility';
 import { getRule } from '../../utilities/get-rule.utility';
+import { getTypeInfo } from '../../utilities/get-type-info.utility';
 import { BOOLEAN_PREFIX_DEFAULT } from './boolean-prefix.default';
 import { MessageId } from './boolean-prefix.message-id';
 import { type Options } from './boolean-prefix.options';
@@ -68,7 +68,10 @@ const TARGET_SCHEMA: JSONSchema.JSONSchema4 = {
 
 function check({ scope, id }: CheckParams): void {
   const { context, parserServices, options, globalPrefixes, globalIgnore } = scope;
-  const { isBoolean, isCallable } = getDeclarationTypeInfo({ node: id, parserServices });
+  const { isBoolean, isCallable } = getTypeInfo({
+    type: parserServices.getTypeAtLocation(id),
+    checker: parserServices.program.getTypeChecker()
+  });
   if (!isBoolean) {
     return;
   }
@@ -82,8 +85,14 @@ function check({ scope, id }: CheckParams): void {
     return;
   }
 
-  const [firstWord] = noCase(name).split(' ');
-  if (firstWord !== undefined && prefixes.some((prefix: string) => prefix.toLowerCase() === firstWord)) {
+  const words = noCase(name).split(' ');
+  if (
+    prefixes.some((prefix: string) =>
+      noCase(prefix)
+        .split(' ')
+        .every((prefixWord: string, index: number) => words[index] === prefixWord)
+    )
+  ) {
     return;
   }
 

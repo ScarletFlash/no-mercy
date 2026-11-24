@@ -1,7 +1,6 @@
-import { type ParserServicesWithTypeInformation, type TSESTree } from '@typescript-eslint/utils';
 import TS_API from 'typescript';
 
-interface DeclarationTypeInfo {
+interface TypeInfo {
   readonly isBoolean: boolean;
   readonly isCallable: boolean;
 }
@@ -17,14 +16,13 @@ function isBooleanType(type: TS_API.Type): boolean {
   return type.flags === TS_API.TypeFlags.BooleanLiteral || type.flags === TS_API.TypeFlags.Boolean;
 }
 
-interface GetDeclarationTypeInfoParams {
-  readonly node: TSESTree.Node;
-  readonly parserServices: ParserServicesWithTypeInformation;
+interface GetTypeInfoParams {
+  readonly type: TS_API.Type;
+  readonly checker: TS_API.TypeChecker;
 }
-export function getDeclarationTypeInfo({ node, parserServices }: GetDeclarationTypeInfoParams): DeclarationTypeInfo {
-  const typeChecker = parserServices.program.getTypeChecker();
-  const type = typeChecker.getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(node));
-  const callSignatures = typeChecker.getNonNullableType(type).getCallSignatures();
+
+export function getTypeInfo({ type, checker }: GetTypeInfoParams): TypeInfo {
+  const callSignatures = checker.getNonNullableType(type).getCallSignatures();
   const isCallable = callSignatures.length > 0;
   const isReturningBoolean =
     isCallable && callSignatures.every((signature: TS_API.Signature) => isBooleanType(signature.getReturnType()));

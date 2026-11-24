@@ -9,6 +9,19 @@ possible.
 pnpm add -D eslint-plugin-no-mercy
 ```
 
+## Adopting in an existing codebase
+
+Enable the rules as `error` and freeze the violations that already exist with ESLint bulk suppressions (ESLint 9.24 or
+newer):
+
+```sh
+eslint --suppress-rule no-mercy/parts-of-speech .
+```
+
+The existing violations are recorded in `eslint-suppressions.json` and no longer fail the run, while every new one is
+reported. Do not downgrade the rules to `warn` instead: `--quiet` hides warnings, so the rules silently stop guarding
+new code.
+
 ## Configs
 
 <!-- begin auto-generated configs list -->
