@@ -72,14 +72,19 @@ type Target = {
 };
 
 type Options = {
-  default?: Target; // fallback prefixes/ignore; default prefixes: ["is", "are", "has", "have", "can"]
+  default?: Target; // fallback prefixes/ignore; default prefixes: every auxiliary and modal verb (see below)
   variables?: Target; // overrides for boolean variables
   functions?: Target; // overrides for boolean-returning functions
 };
 ```
 
+The default prefixes are the closed class of English auxiliary and modal verbs, which open a yes/no statement: `is`,
+`are`, `was`, `were`, `has`, `have`, `had`, `does`, `did`, `can`, `could`, `should`, `would`, `will`, `must`, `may`,
+`might`.
+
 A name is exempt when it matches any `ignore` regular expression (from `default` or the matching target). Prefix
-matching is case-insensitive against the first word of the name.
+matching is case-insensitive and word-wise: a prefix matches when its words open the name, so `is` matches `isReady` but
+not `island`, and a multi-word prefix such as `useIs` matches `useIsMobile`.
 
 ## Requirements
 

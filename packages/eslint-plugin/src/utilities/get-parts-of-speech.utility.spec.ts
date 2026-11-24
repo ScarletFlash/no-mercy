@@ -13,6 +13,24 @@ describe('getPartsOfSpeech', () => {
     expect(getPartsOfSpeech({ word: 'calculate', dictionary: {} })).toStrictEqual(new Set([Verb]));
   });
 
+  it('should classify a word named after an Object.prototype member without crashing', () => {
+    expect(getPartsOfSpeech({ word: 'constructor', dictionary: {} })).toStrictEqual(new Set([Noun]));
+  });
+
+  it('should give a preposition, a conjunction and a determiner no part of speech', () => {
+    expect(getPartsOfSpeech({ word: 'at', dictionary: {} })).toStrictEqual(new Set());
+    expect(getPartsOfSpeech({ word: 'and', dictionary: {} })).toStrictEqual(new Set());
+    expect(getPartsOfSpeech({ word: 'the', dictionary: {} })).toStrictEqual(new Set());
+  });
+
+  it('should read a plural as a noun when its singular is a noun', () => {
+    expect(getPartsOfSpeech({ word: 'batches', dictionary: {} })).toStrictEqual(new Set([Verb, Noun]));
+  });
+
+  it('should not read a third-person verb as a noun when its base form is only a verb', () => {
+    expect(getPartsOfSpeech({ word: 'expires', dictionary: {} })).toStrictEqual(new Set([Verb]));
+  });
+
   it('should default an unknown word to a noun', () => {
     expect(getPartsOfSpeech({ word: 'payload', dictionary: {} })).toStrictEqual(new Set([Noun]));
   });

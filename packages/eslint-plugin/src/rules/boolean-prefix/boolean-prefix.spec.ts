@@ -21,6 +21,17 @@ runRuleTests({
         `
       },
       {
+        name: 'Booleans opening with any auxiliary or modal verb should be allowed by the default prefixes',
+        code: ts`
+          const wasShown = Math.random() > 0.5;
+          const doesExist = Math.random() > 0.5;
+          const mightRetry = Math.random() > 0.5;
+          function shouldExpand(): boolean {
+            return Math.random() > 0.5;
+          }
+        `
+      },
+      {
         name: 'Boolean-returning arrow assigned to a variable should be allowed',
         code: ts`const isReady = (): boolean => Math.random() > 0.5;`
       },
@@ -43,8 +54,17 @@ runRuleTests({
       },
       {
         name: 'Boolean variable with a custom prefix should be allowed with variables prefixes',
-        options: [{ variables: { prefixes: ['should'] } }],
-        code: ts`const shouldRetry = Math.random() > 0.5;`
+        options: [{ variables: { prefixes: ['needs'] } }],
+        code: ts`const needsRetry = Math.random() > 0.5;`
+      },
+      {
+        name: 'Boolean-returning function with a multi-word prefix should be allowed with functions prefixes',
+        options: [{ functions: { prefixes: ['useIs'] } }],
+        code: ts`
+          function useIsMobile(): boolean {
+            return Math.random() > 0.5;
+          }
+        `
       },
       {
         name: 'Boolean variable with a default prefix should be allowed with only default ignore configured',
@@ -215,6 +235,21 @@ runRuleTests({
         errors: [{ messageId: MessageId.MissingBooleanPrefix }]
       },
       {
+        name: 'Boolean-returning function matching only the first word of a multi-word prefix should be reported with functions prefixes',
+        options: [{ functions: { prefixes: ['useIs'] } }],
+        code: ts`
+          function useMobile(): boolean {
+            return Math.random() > 0.5;
+          }
+        `,
+        errors: [{ messageId: MessageId.MissingBooleanPrefix }]
+      },
+      {
+        name: 'Boolean variable whose first word only starts with a prefix should be reported',
+        code: ts`const island = Math.random() > 0.5;`,
+        errors: [{ messageId: MessageId.MissingBooleanPrefix }]
+      },
+      {
         name: 'Boolean-returning function without a prefix should be reported',
         code: ts`
           function ready(): boolean {
@@ -225,7 +260,7 @@ runRuleTests({
       },
       {
         name: 'Boolean variable with a non-default prefix should be reported with default prefixes',
-        code: ts`const shouldRetry = Math.random() > 0.5;`,
+        code: ts`const needsRetry = Math.random() > 0.5;`,
         errors: [{ messageId: MessageId.MissingBooleanPrefix }]
       },
       {

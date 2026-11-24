@@ -22,18 +22,20 @@ export const plugin: TSESLint.FlatConfig.Plugin = {
   meta,
   rules,
   configs: {
-    recommended: [
-      {
-        plugins: { 'no-mercy': { meta, rules } },
-        rules: {
-          'no-mercy/boolean-prefix': 'error',
-          'no-mercy/no-else': 'error',
-          'no-mercy/no-else-if': 'error',
-          'no-mercy/no-redundant-types': 'error',
-          'no-mercy/parts-of-speech': 'error',
-          'no-mercy/prefer-parameter-object': 'error'
+    get recommended(): TSESLint.FlatConfig.ConfigArray {
+      return [
+        {
+          plugins: { 'no-mercy': plugin },
+          rules: {
+            'no-mercy/boolean-prefix': 'error',
+            'no-mercy/no-else': 'error',
+            'no-mercy/no-else-if': 'error',
+            'no-mercy/no-redundant-types': 'error',
+            'no-mercy/parts-of-speech': 'error',
+            'no-mercy/prefer-parameter-object': 'error'
+          }
         }
-      }
-    ]
+      ];
+    }
   }
 };

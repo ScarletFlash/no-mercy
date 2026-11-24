@@ -16,5 +16,6 @@ function isLexicon(value: unknown): value is Lexicon {
 
 const model = nlp.model();
 
-export const LEXICON: Lexicon =
-  isRecord(model) && isRecord(model.one) && isLexicon(model.one.lexicon) ? model.one.lexicon : {};
+export const LEXICON: ReadonlyMap<string, Tag | readonly Tag[]> = new Map(
+  isRecord(model) && isRecord(model.one) && isLexicon(model.one.lexicon) ? Object.entries(model.one.lexicon) : []
+);

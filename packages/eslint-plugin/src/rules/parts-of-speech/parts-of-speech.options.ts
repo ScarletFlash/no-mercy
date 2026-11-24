@@ -1,20 +1,42 @@
 import { type DECLARATION_TYPE } from '../../constants/declaration-type.constant';
+import { type Dictionary } from '../../declarations/dictionary.type';
 import { type PartOfSpeech } from '../../declarations/part-of-speech.type';
 
 type DeclarationType = (typeof DECLARATION_TYPE)[keyof typeof DECLARATION_TYPE];
 
-interface Policy {
+interface PackageTypeSpecifier {
+  readonly package: string;
+  readonly path?: never;
+  readonly name: string;
+  readonly typeArguments?: readonly string[];
+}
+
+interface FileTypeSpecifier {
+  readonly path: string;
+  readonly package?: never;
+  readonly name: string;
+  readonly typeArguments?: readonly string[];
+}
+
+type TypeSpecifier = PackageTypeSpecifier | FileTypeSpecifier;
+
+interface DefaultPolicy {
   readonly required?: readonly PartOfSpeech[];
   readonly restricted?: readonly PartOfSpeech[];
   readonly appliesTo?: string;
 }
 
+interface Policy extends DefaultPolicy {
+  readonly types?: readonly TypeSpecifier[];
+  readonly returnTypes?: readonly TypeSpecifier[];
+}
+
 interface PatternMap {
   readonly [pattern: string]: Policy;
-  readonly default: Policy;
+  readonly default: DefaultPolicy;
 }
 
 export interface Options {
-  readonly dictionary?: Partial<Readonly<Record<PartOfSpeech, readonly string[]>>>;
+  readonly dictionary?: Dictionary;
   readonly declarationPolicies?: Partial<Readonly<Record<DeclarationType, PatternMap>>>;
 }

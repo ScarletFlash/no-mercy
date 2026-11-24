@@ -74,7 +74,7 @@ class Store extends Map<string, number> {
 ```ts
 type Options = {
   areTypeGuardsIgnored?: boolean; // default: true
-  typeSuffix?: Record<string, string>; // default: { "^[A-Z]": "Props", "default": "Params" }
+  typeSuffix?: Record<string, string>; // default: { "default": "Params" }
 };
 ```
 

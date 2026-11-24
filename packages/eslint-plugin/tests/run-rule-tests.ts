@@ -24,7 +24,7 @@ interface TsConfig {
   readonly scope: string;
 }
 
-type ExpectedError<MessageIds extends string> = Pick<TestCaseError<MessageIds>, 'messageId'>;
+type ExpectedError<MessageIds extends string> = Pick<TestCaseError<MessageIds>, 'data' | 'messageId'>;
 
 interface ReportingCase<MessageIds extends string, Options extends readonly unknown[]> extends ValidTestCase<Options> {
   readonly errors: readonly ExpectedError<MessageIds>[];

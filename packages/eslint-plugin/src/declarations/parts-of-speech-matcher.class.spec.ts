@@ -1,8 +1,15 @@
 import { describe, expect, it } from '@rstest/core';
 import { PART_OF_SPEECH } from '../constants/part-of-speech.constant';
+import { type Dictionary } from './dictionary.type';
+import { type PartOfSpeech } from './part-of-speech.type';
 import { PartsOfSpeechMatcher } from './parts-of-speech-matcher.class';
 
 const { Noun, Verb, Adjective } = PART_OF_SPEECH;
+
+const PHRASE_DICTIONARY: Dictionary = {
+  noun: ['handle', 'checkin'],
+  verb: ['handle', 'click', 'check', 'start']
+};
 
 describe('PartsOfSpeechMatcher', () => {
   it('should match when a single word satisfies the only requirement', () => {
@@ -17,7 +24,9 @@ describe('PartsOfSpeechMatcher', () => {
     expect(matcher.match({ words: ['payload'], required: [Verb], restricted: [] })).toStrictEqual({
       isMatching: false,
       forbidden: [],
-      missing: [Verb]
+      missing: [Verb],
+      forbiddenWordIndexes: [],
+      partsOfSpeechByWordIndex: new Map([[0, new Set([Noun])]])
     });
   });
 
@@ -33,7 +42,9 @@ describe('PartsOfSpeechMatcher', () => {
     expect(matcher.match({ words: ['calculate'], required: [Verb, Noun], restricted: [] })).toStrictEqual({
       isMatching: false,
       forbidden: [],
-      missing: [Noun]
+      missing: [Noun],
+      forbiddenWordIndexes: [],
+      partsOfSpeechByWordIndex: new Map([[0, new Set([Verb])]])
     });
   });
 
@@ -49,7 +60,9 @@ describe('PartsOfSpeechMatcher', () => {
     expect(matcher.match({ words: ['request'], required: [Verb, Noun], restricted: [] })).toStrictEqual({
       isMatching: false,
       forbidden: [],
-      missing: [Noun]
+      missing: [Noun],
+      forbiddenWordIndexes: [],
+      partsOfSpeechByWordIndex: new Map([[0, new Set([Verb, Noun])]])
     });
   });
 
@@ -65,7 +78,9 @@ describe('PartsOfSpeechMatcher', () => {
     expect(matcher.match({ words: ['calculate'], required: [], restricted: [Verb] })).toStrictEqual({
       isMatching: false,
       forbidden: [Verb],
-      missing: []
+      missing: [],
+      forbiddenWordIndexes: [0],
+      partsOfSpeechByWordIndex: new Map([[0, new Set([Verb])]])
     });
   });
 
@@ -74,7 +89,9 @@ describe('PartsOfSpeechMatcher', () => {
     expect(matcher.match({ words: ['cached'], required: [], restricted: [Verb, Adjective] })).toStrictEqual({
       isMatching: false,
       forbidden: [Verb, Adjective],
-      missing: []
+      missing: [],
+      forbiddenWordIndexes: [0],
+      partsOfSpeechByWordIndex: new Map([[0, new Set([Verb, Adjective])]])
     });
   });
 
@@ -97,7 +114,12 @@ describe('PartsOfSpeechMatcher', () => {
     expect(matcher.match({ words: ['to', 'keep'], required: [], restricted: [Verb] })).toStrictEqual({
       isMatching: false,
       forbidden: [Verb],
-      missing: []
+      missing: [],
+      forbiddenWordIndexes: [1],
+      partsOfSpeechByWordIndex: new Map<number, ReadonlySet<PartOfSpeech>>([
+        [0, new Set()],
+        [1, new Set([Verb])]
+      ])
     });
   });
 
@@ -108,7 +130,138 @@ describe('PartsOfSpeechMatcher', () => {
     ).toStrictEqual({
       isMatching: false,
       forbidden: [Verb, Adjective],
-      missing: []
+      missing: [],
+      forbiddenWordIndexes: [2],
+      partsOfSpeechByWordIndex: new Map<number, ReadonlySet<PartOfSpeech>>([
+        [0, new Set([Noun])],
+        [1, new Set()],
+        [2, new Set([Verb, Adjective])]
+      ])
+    });
+  });
+
+  it('should not forbid a preposition that has no part of speech', () => {
+    const matcher = new PartsOfSpeechMatcher({});
+    expect(matcher.match({ words: ['value', 'by', 'key'], required: [], restricted: [Verb, Adjective] })).toStrictEqual(
+      {
+        isMatching: true
+      }
+    );
+  });
+
+  it('should read a participle before a trailing temporal preposition as a noun', () => {
+    const matcher = new PartsOfSpeechMatcher({});
+    expect(matcher.match({ words: ['created', 'at'], required: [Noun], restricted: [] })).toStrictEqual({
+      isMatching: true
+    });
+  });
+
+  it('should read a third-person verb before a trailing temporal preposition as a noun', () => {
+    const matcher = new PartsOfSpeechMatcher({});
+    expect(matcher.match({ words: ['expires', 'at'], required: [Noun], restricted: [Verb] })).toStrictEqual({
+      isMatching: true
+    });
+  });
+
+  it('should not read a base-form verb before a trailing temporal preposition as a noun', () => {
+    const matcher = new PartsOfSpeechMatcher({});
+    expect(matcher.match({ words: ['cancel', 'at'], required: [Noun], restricted: [Verb] })).toStrictEqual({
+      isMatching: false,
+      forbidden: [Verb],
+      missing: [Noun],
+      forbiddenWordIndexes: [0],
+      partsOfSpeechByWordIndex: new Map<number, ReadonlySet<PartOfSpeech>>([
+        [0, new Set([Verb])],
+        [1, new Set()]
+      ])
+    });
+  });
+
+  it('should not read a word before a temporal preposition as a noun when the preposition is not last', () => {
+    const matcher = new PartsOfSpeechMatcher({});
+    expect(matcher.match({ words: ['expires', 'at', 'seconds'], required: [], restricted: [Verb] })).toStrictEqual({
+      isMatching: false,
+      forbidden: [Verb],
+      missing: [],
+      forbiddenWordIndexes: [0],
+      partsOfSpeechByWordIndex: new Map<number, ReadonlySet<PartOfSpeech>>([
+        [0, new Set([Verb])],
+        [1, new Set()],
+        [2, new Set([Noun])]
+      ])
+    });
+  });
+
+  it('should read a verb before a trailing particle as a noun', () => {
+    const matcher = new PartsOfSpeechMatcher({});
+    expect(matcher.match({ words: ['add', 'in'], required: [Noun], restricted: [Verb] })).toStrictEqual({
+      isMatching: true
+    });
+  });
+
+  it('should keep the verb reading of a verb before a trailing particle', () => {
+    const matcher = new PartsOfSpeechMatcher({});
+    expect(matcher.match({ words: ['sign', 'up'], required: [Verb], restricted: [] })).toStrictEqual({
+      isMatching: true
+    });
+  });
+
+  it('should read a leading verb before an ordinary head only as a verb', () => {
+    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
+    expect(matcher.match({ words: ['handle', 'click'], required: [], restricted: [Verb] })).toMatchObject({
+      isMatching: false,
+      forbiddenWordIndexes: [0]
+    });
+  });
+
+  it('should keep the noun reading of a leading verb before an attribute head', () => {
+    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
+    expect(matcher.match({ words: ['start', 'index'], required: [Noun], restricted: [Verb] })).toStrictEqual({
+      isMatching: true
+    });
+  });
+
+  it('should read a leading verb before an adverbial preposition only as a verb', () => {
+    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
+    expect(matcher.match({ words: ['click', 'on', 'handle'], required: [], restricted: [Verb] })).toMatchObject({
+      isMatching: false,
+      forbiddenWordIndexes: [0]
+    });
+  });
+
+  it('should keep the noun reading of a leading verb before a nominal preposition', () => {
+    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
+    expect(matcher.match({ words: ['handle', 'of', 'click'], required: [], restricted: [Verb] })).toStrictEqual({
+      isMatching: true
+    });
+  });
+
+  it('should keep the noun reading of a leading verb before a conjunction', () => {
+    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
+    expect(matcher.match({ words: ['handle', 'and', 'click'], required: [], restricted: [Verb] })).toStrictEqual({
+      isMatching: true
+    });
+  });
+
+  it('should keep the noun reading of a phrasal noun before an attribute head', () => {
+    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
+    expect(matcher.match({ words: ['check', 'in', 'button'], required: [], restricted: [Verb] })).toStrictEqual({
+      isMatching: true
+    });
+  });
+
+  it('should read a phrasal noun before an ordinary head only as a verb', () => {
+    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
+    expect(matcher.match({ words: ['check', 'in', 'cell'], required: [], restricted: [Verb] })).toMatchObject({
+      isMatching: false,
+      forbiddenWordIndexes: [0]
+    });
+  });
+
+  it('should keep the noun reading of a leading word that is not a leading verb', () => {
+    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
+    expect(matcher.match({ words: ['value', 'in', 'scene'], required: [], restricted: [Verb] })).toStrictEqual({
+      isMatching: true
     });
   });
 
@@ -120,7 +273,9 @@ describe('PartsOfSpeechMatcher', () => {
     expect(matcher.match({ words: ['calculate'], required: [], restricted: [Verb] })).toStrictEqual({
       isMatching: false,
       forbidden: [Verb],
-      missing: []
+      missing: [],
+      forbiddenWordIndexes: [0],
+      partsOfSpeechByWordIndex: new Map([[0, new Set([Verb])]])
     });
   });
 });
