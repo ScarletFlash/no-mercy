@@ -1,19 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json",
   "import": ["@no-mercy/configs/cspell"],
-  "words": [
-    "addin",
-    "allowsideeffects",
-    "checkin",
-    "drilldown",
-    "dropoff",
-    "optin",
-    "optout",
-    "refactorable",
-    "scarletflash",
-    "TSES",
-    "tseslint",
-    "Usakov",
-    "writedown"
-  ]
+  "words": ["allowsideeffects", "refactorable", "scarletflash", "TSES", "tseslint", "Usakov"]
 }

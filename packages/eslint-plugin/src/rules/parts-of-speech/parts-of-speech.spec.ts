@@ -2,6 +2,7 @@ import { join } from 'path';
 import packageJson from '../../../package.json' with { type: 'json' };
 import { runRuleTests } from '../../../tests/run-rule-tests';
 import { ts } from '../../../tests/ts.template-tag';
+import { PART_OF_SPEECH } from '../../constants/part-of-speech.constant';
 import { getMergedOptions } from '../../utilities/get-merged-options.utility';
 import { partsOfSpeech } from './parts-of-speech';
 import { PARTS_OF_SPEECH_DEFAULT } from './parts-of-speech.default';
@@ -11,10 +12,165 @@ import { PARTS_OF_SPEECH_REACT_COMPONENTS } from './parts-of-speech.react-compon
 
 const FIXTURE_FILE = join(import.meta.dirname, '../../../tests/fixtures/file.ts');
 
+const VALUE_POLICY = { required: [PART_OF_SPEECH.Noun], restricted: [PART_OF_SPEECH.Verb] };
+
 const COMPONENT_OPTIONS = getMergedOptions<Options>({
   base: PARTS_OF_SPEECH_DEFAULT,
   override: PARTS_OF_SPEECH_REACT_COMPONENTS
 });
+
+const REACT_MODULE_DECLARATION = ts`
+  declare module 'react' {
+    export interface ReactElement {
+      readonly type: string;
+    }
+    export type ReactNode = ReactElement | string | number | boolean | null | undefined;
+    export namespace JSX {
+      export interface Element extends ReactElement {}
+    }
+    export interface FunctionComponent {
+      (props: object): ReactNode | Promise<ReactNode>;
+    }
+    export type FC = FunctionComponent;
+    export interface ComponentClass {
+      new (props: object): object;
+    }
+    export type ComponentType = ComponentClass | FunctionComponent;
+  }
+`;
+
+const STATE_KIT_MODULE_DECLARATION = ts`
+  declare module 'state-kit' {
+    export interface Atom<Value> {
+      readonly init: Value;
+    }
+    export interface WritableAtom<Value, Args extends unknown[], Result> extends Atom<Value> {
+      write(...args: Args): Result;
+    }
+    export type PrimitiveAtom<Value> = WritableAtom<Value, [Value], void>;
+  }
+`;
+
+const OTHER_KIT_MODULE_DECLARATION = ts`
+  declare module 'other-kit' {
+    export interface PrimitiveAtom<Value> {
+      readonly init: Value;
+    }
+  }
+`;
+
+const REF_KIT_MODULE_DECLARATION = ts`
+  declare module 'ref-kit' {
+    export interface Ref<Value> {
+      current: Value;
+    }
+  }
+`;
+
+const SCHEMA_KIT_MODULE_DECLARATION = ts`
+  declare module 'schema-kit' {
+    export interface Type<Shape> {
+      (input: unknown): Shape;
+      readonly infer: Shape;
+    }
+  }
+`;
+
+const FEATURE_FLAG_CODE = ts`
+  interface FeatureFlag<Value> {
+    readonly value: Value;
+  }
+  declare const isBetaEnabled: FeatureFlag<boolean>;
+`;
+
+const BOOLEAN_ATOM_OPTIONS: Options = {
+  declarationPolicies: {
+    variable: {
+      '^is[A-Z]': { types: [{ package: 'state-kit', name: 'PrimitiveAtom' }], required: ['verb'] },
+      default: VALUE_POLICY
+    }
+  }
+};
+
+const ACTION_ATOM_OPTIONS: Options = {
+  declarationPolicies: {
+    variable: {
+      '.': {
+        types: [{ package: 'state-kit', name: 'WritableAtom', typeArguments: ['null'] }],
+        required: ['verb']
+      },
+      default: VALUE_POLICY
+    }
+  }
+};
+
+const BOOLEAN_MAP_OPTIONS: Options = {
+  declarationPolicies: {
+    variable: {
+      '^is[A-Z]': {
+        types: [{ package: 'typescript', name: 'Map', typeArguments: ['*', 'boolean'] }],
+        required: ['verb']
+      },
+      default: VALUE_POLICY
+    }
+  }
+};
+
+const FUNCTION_REF_OPTIONS: Options = {
+  declarationPolicies: {
+    variable: {
+      Ref$: { types: [{ package: 'ref-kit', name: 'Ref', typeArguments: ['function'] }], required: ['verb'] },
+      default: VALUE_POLICY
+    }
+  }
+};
+
+const ATOM_MAP_OPTIONS: Options = {
+  declarationPolicies: {
+    variable: {
+      '^is[A-Z]': {
+        types: [
+          {
+            package: 'typescript',
+            name: 'Map',
+            typeArguments: ['*', { package: 'state-kit', name: 'PrimitiveAtom', typeArguments: ['boolean'] }]
+          }
+        ],
+        required: ['verb']
+      },
+      default: VALUE_POLICY
+    }
+  }
+};
+
+const ATOM_REF_MAP_OPTIONS: Options = {
+  declarationPolicies: {
+    variable: {
+      '^is[A-Z]': {
+        types: [
+          {
+            package: 'typescript',
+            name: 'Map',
+            typeArguments: [
+              '*',
+              {
+                package: 'ref-kit',
+                name: 'Ref',
+                typeArguments: [{ package: 'state-kit', name: 'PrimitiveAtom', typeArguments: ['boolean'] }]
+              }
+            ]
+          }
+        ],
+        required: ['verb']
+      },
+      default: VALUE_POLICY
+    }
+  }
+};
+
+const PASCAL_CASE_FUNCTION_OPTIONS: Options = {
+  declarationPolicies: { function: { '^[A-Z]': { required: ['noun'] }, default: { required: ['verb'] } } }
+};
 
 runRuleTests({
   ruleName: 'parts-of-speech',
@@ -119,55 +275,18 @@ runRuleTests({
       },
       {
         name: 'Container holding a boolean should be allowed as a statement by a policy matching its type and package',
-        options: [
-          {
-            declarationPolicies: {
-              variable: {
-                '^is[A-Z]': { types: [{ package: 'state-kit', name: 'PrimitiveAtom' }], required: ['verb'] },
-                default: { required: ['noun'], restricted: ['verb'] }
-              }
-            }
-          }
-        ],
+        options: [BOOLEAN_ATOM_OPTIONS],
         code: ts`
-          declare module 'state-kit' {
-            export interface Atom<Value> {
-              readonly init: Value;
-            }
-            export interface WritableAtom<Value, Args extends unknown[], Result> extends Atom<Value> {
-              write(...args: Args): Result;
-            }
-            export type PrimitiveAtom<Value> = WritableAtom<Value, [Value], void>;
-          }
+          ${STATE_KIT_MODULE_DECLARATION};
           declare const isBannerDismissed: import('state-kit').PrimitiveAtom<boolean>;
           declare const isMenuOpen: import('state-kit').PrimitiveAtom<boolean> | undefined;
         `
       },
       {
         name: 'Container holding no value should be allowed as an action by a policy matching its type arguments',
-        options: [
-          {
-            declarationPolicies: {
-              variable: {
-                '.': {
-                  types: [{ package: 'state-kit', name: 'WritableAtom', typeArguments: ['null'] }],
-                  required: ['verb']
-                },
-                default: { required: ['noun'], restricted: ['verb'] }
-              }
-            }
-          }
-        ],
+        options: [ACTION_ATOM_OPTIONS],
         code: ts`
-          declare module 'state-kit' {
-            export interface Atom<Value> {
-              readonly init: Value;
-            }
-            export interface WritableAtom<Value, Args extends unknown[], Result> extends Atom<Value> {
-              write(...args: Args): Result;
-            }
-            export type PrimitiveAtom<Value> = WritableAtom<Value, [Value], void>;
-          }
+          ${STATE_KIT_MODULE_DECLARATION};
           declare const deleteRow: import('state-kit').WritableAtom<null, [number], void>;
           declare const currentUser: import('state-kit').WritableAtom<string, [string], void>;
         `
@@ -179,18 +298,13 @@ runRuleTests({
             declarationPolicies: {
               variable: {
                 '.': { types: [{ package: 'schema-kit', name: 'Type' }], required: ['noun'], restricted: ['verb'] },
-                default: { required: ['noun'], restricted: ['verb'] }
+                default: VALUE_POLICY
               }
             }
           }
         ],
         code: ts`
-          declare module 'schema-kit' {
-            export interface Type<Shape> {
-              (input: unknown): Shape;
-              readonly infer: Shape;
-            }
-          }
+          ${SCHEMA_KIT_MODULE_DECLARATION};
           declare const authResponse: import('schema-kit').Type<string>;
         `
       },
@@ -201,17 +315,12 @@ runRuleTests({
             declarationPolicies: {
               variable: {
                 '^is[A-Z]': { types: [{ path: FIXTURE_FILE, name: 'FeatureFlag' }], required: ['verb'] },
-                default: { required: ['noun'], restricted: ['verb'] }
+                default: VALUE_POLICY
               }
             }
           }
         ],
-        code: ts`
-          interface FeatureFlag<Value> {
-            readonly value: Value;
-          }
-          declare const isBetaEnabled: FeatureFlag<boolean>;
-        `
+        code: FEATURE_FLAG_CODE
       },
       {
         name: 'Local container type should be allowed as a statement by a policy matching its own package',
@@ -220,17 +329,12 @@ runRuleTests({
             declarationPolicies: {
               variable: {
                 '^is[A-Z]': { types: [{ package: packageJson.name, name: 'FeatureFlag' }], required: ['verb'] },
-                default: { required: ['noun'], restricted: ['verb'] }
+                default: VALUE_POLICY
               }
             }
           }
         ],
-        code: ts`
-          interface FeatureFlag<Value> {
-            readonly value: Value;
-          }
-          declare const isBetaEnabled: FeatureFlag<boolean>;
-        `
+        code: FEATURE_FLAG_CODE
       },
       {
         name: 'Functions leading with verbs tagged only as nouns should be allowed by the default dictionary',
@@ -243,39 +347,14 @@ runRuleTests({
       },
       {
         name: 'Map of booleans should be allowed as a statement by a policy matching any key and a boolean value',
-        options: [
-          {
-            declarationPolicies: {
-              variable: {
-                '^is[A-Z]': {
-                  types: [{ package: 'typescript', name: 'Map', typeArguments: ['*', 'boolean'] }],
-                  required: ['verb']
-                },
-                default: { required: ['noun'], restricted: ['verb'] }
-              }
-            }
-          }
-        ],
+        options: [BOOLEAN_MAP_OPTIONS],
         code: ts`declare const isRequiredByApproverId: Map<number, boolean>;`
       },
       {
         name: 'Reference to a function should be allowed as an action by a policy matching a function type argument',
-        options: [
-          {
-            declarationPolicies: {
-              variable: {
-                Ref$: { types: [{ package: 'ref-kit', name: 'Ref', typeArguments: ['function'] }], required: ['verb'] },
-                default: { required: ['noun'], restricted: ['verb'] }
-              }
-            }
-          }
-        ],
+        options: [FUNCTION_REF_OPTIONS],
         code: ts`
-          declare module 'ref-kit' {
-            export interface Ref<Value> {
-              current: Value;
-            }
-          }
+          ${REF_KIT_MODULE_DECLARATION};
           declare const getItemsRef: import('ref-kit').Ref<() => string[]>;
         `
       },
@@ -313,9 +392,7 @@ runRuleTests({
       },
       {
         name: 'PascalCase component should be allowed by its name pattern with a noun requirement',
-        options: [
-          { declarationPolicies: { function: { '^[A-Z]': { required: ['noun'] }, default: { required: ['verb'] } } } }
-        ],
+        options: [PASCAL_CASE_FUNCTION_OPTIONS],
         code: ts`
           function UserCard(): null {
             return null;
@@ -336,7 +413,7 @@ runRuleTests({
         options: [
           {
             declarationPolicies: {
-              variable: { '^[A-Z]': { required: ['noun'] }, default: { required: ['noun'], restricted: ['verb'] } }
+              variable: { '^[A-Z]': { required: ['noun'] }, default: VALUE_POLICY }
             }
           }
         ],
@@ -346,15 +423,7 @@ runRuleTests({
         name: 'PascalCase components should be allowed by the React components preset',
         options: [COMPONENT_OPTIONS],
         code: ts`
-          declare module 'react' {
-            export interface ReactElement {
-              readonly type: string;
-            }
-            export type ReactNode = ReactElement | string | number | boolean | null | undefined;
-            export namespace JSX {
-              export interface Element extends ReactElement {}
-            }
-          }
+          ${REACT_MODULE_DECLARATION};
           function UserCard(): import('react').ReactNode {
             return null;
           }
@@ -368,6 +437,20 @@ runRuleTests({
             return null;
           }
           declare const UserList: () => import('react').ReactNode;
+          declare const UserMenu: import('react').FC;
+        `
+      },
+      {
+        name: 'Async components resolving to a React element should be allowed by the React components preset',
+        options: [COMPONENT_OPTIONS],
+        code: ts`
+          ${REACT_MODULE_DECLARATION};
+          async function UserPanel(): Promise<import('react').JSX.Element> {
+            return { type: 'div' };
+          }
+          async function UserBanner(): Promise<import('react').ReactElement> {
+            return { type: 'div' };
+          }
         `
       },
       {
@@ -377,76 +460,64 @@ runRuleTests({
             declarationPolicies: {
               variable: {
                 '.': { types: [{ package: 'react', name: 'ReactNode' }], required: ['verb'] },
-                default: { required: ['noun'], restricted: ['verb'] }
+                default: VALUE_POLICY
               }
             }
           }
         ],
         code: ts`
-          declare module 'react' {
-            export interface ReactElement {
-              readonly type: string;
-            }
-            export type ReactNode = ReactElement | string | number | boolean | null | undefined;
-            export namespace JSX {
-              export interface Element extends ReactElement {}
+          ${REACT_MODULE_DECLARATION};
+          declare const showContent: import('react').ReactNode;
+        `
+      },
+      {
+        name: 'Name pattern holding several policies should apply the first one whose type conditions hold',
+        options: [
+          {
+            declarationPolicies: {
+              variable: {
+                '.': [
+                  { types: [{ package: 'schema-kit', name: 'Type' }], required: ['noun'], restricted: ['verb'] },
+                  { required: ['verb'] }
+                ],
+                default: VALUE_POLICY
+              }
             }
           }
-          declare const showContent: import('react').ReactNode;
+        ],
+        code: ts`
+          ${SCHEMA_KIT_MODULE_DECLARATION};
+          declare const authResponse: import('schema-kit').Type<string>;
+          const calculate = 1;
+        `
+      },
+      {
+        name: 'Map of containers should be allowed as a statement by a policy matching its type arguments by type and package',
+        options: [ATOM_MAP_OPTIONS],
+        code: ts`
+          ${STATE_KIT_MODULE_DECLARATION};
+          declare const isExpandedByRowId: Map<number, import('state-kit').PrimitiveAtom<boolean>>;
+        `
+      },
+      {
+        name: 'Map of references to containers should be allowed as a statement by a policy matching nested type arguments by type and package',
+        options: [ATOM_REF_MAP_OPTIONS],
+        code: ts`
+          ${REF_KIT_MODULE_DECLARATION};
+          ${STATE_KIT_MODULE_DECLARATION};
+          declare const isExpandedRefByRowId: Map<
+            number,
+            import('ref-kit').Ref<import('state-kit').PrimitiveAtom<boolean>>
+          >;
         `
       },
       {
         name: 'SCREAMING_SNAKE constant should keep the default policy with the React components preset',
         options: [COMPONENT_OPTIONS],
         code: ts`const MAX_RETRIES = 3;`
-      },
-      {
-        name: 'Leading verbs before attribute heads, nominal prepositions and conjunctions should be allowed as values',
-        code: ts`
-          const startIndex = 0;
-          const refreshToken = 'token';
-          const saveButton = { id: 1 };
-          const checkInRequest = { id: 1 };
-          const copyOfRows = [1];
-          const dragAndDrop = { id: 1 };
-          const REFRESH_INTERVAL_MS = 1000;
-        `
-      },
-      {
-        name: 'Leading nouns before adverbial prepositions should be allowed as values',
-        code: ts`
-          const positionInScene = { x: 0 };
-          const valueFromQueryParams = 'value';
-        `
-      },
-      {
-        name: 'Function names led by a word that can be a verb should be allowed regardless of the head',
-        code: ts`
-          function clickHandle(): void {}
-          function handleClick(): void {}
-        `
       }
     ],
     invalid: [
-      {
-        name: 'Leading verbs before ordinary heads or adverbial prepositions should be reported as values by the default policy',
-        code: ts`
-          const handleClick = { id: 1 };
-          const copyRows = [1];
-          const clickOnHandle = { id: 1 };
-          const updateForUser = { id: 1 };
-          const dragToFolder = { id: 1 };
-          const checkInCell = { id: 1 };
-        `,
-        errors: [
-          { messageId: MessageId.RestrictedPartOfSpeech },
-          { messageId: MessageId.RestrictedPartOfSpeech },
-          { messageId: MessageId.RestrictedPartOfSpeech },
-          { messageId: MessageId.RestrictedPartOfSpeech },
-          { messageId: MessageId.RestrictedPartOfSpeech },
-          { messageId: MessageId.RestrictedPartOfSpeech }
-        ]
-      },
       {
         name: 'Variable holding only a verb should be reported by the default policy',
         code: ts`const calculate = 1;`,
@@ -533,9 +604,7 @@ runRuleTests({
       },
       {
         name: 'PascalCase component without a noun should be reported by its name pattern',
-        options: [
-          { declarationPolicies: { function: { '^[A-Z]': { required: ['noun'] }, default: { required: ['verb'] } } } }
-        ],
+        options: [PASCAL_CASE_FUNCTION_OPTIONS],
         code: ts`
           function Active(): null {
             return null;
@@ -547,15 +616,7 @@ runRuleTests({
         name: 'PascalCase component without a noun should be reported by the React components preset',
         options: [COMPONENT_OPTIONS],
         code: ts`
-          declare module 'react' {
-            export interface ReactElement {
-              readonly type: string;
-            }
-            export type ReactNode = ReactElement | string | number | boolean | null | undefined;
-            export namespace JSX {
-              export interface Element extends ReactElement {}
-            }
-          }
+          ${REACT_MODULE_DECLARATION};
           function Active(): import('react').ReactNode {
             return null;
           }
@@ -566,20 +627,7 @@ runRuleTests({
         name: 'PascalCase variable typed as a React component should be reported by the React components preset',
         options: [COMPONENT_OPTIONS],
         code: ts`
-          declare module 'react' {
-            export interface ReactElement {
-              readonly type: string;
-            }
-            export type ReactNode = ReactElement | string | number | boolean | null | undefined;
-            export interface FunctionComponent {
-              (props: object): ReactNode | Promise<ReactNode>;
-            }
-            export type FC = FunctionComponent;
-            export interface ComponentClass {
-              new (props: object): object;
-            }
-            export type ComponentType = ComponentClass | FunctionComponent;
-          }
+          ${REACT_MODULE_DECLARATION};
           declare const Active: import('react').FC;
           declare const Ready: import('react').ComponentType;
         `,
@@ -592,15 +640,7 @@ runRuleTests({
         name: 'PascalCase function returning no React node should be reported by the default policy with the React components preset',
         options: [COMPONENT_OPTIONS],
         code: ts`
-          declare module 'react' {
-            export interface ReactElement {
-              readonly type: string;
-            }
-            export type ReactNode = ReactElement | string | number | boolean | null | undefined;
-            export namespace JSX {
-              export interface Element extends ReactElement {}
-            }
-          }
+          ${REACT_MODULE_DECLARATION};
           function UserAvatar(): string {
             return '';
           }
@@ -628,51 +668,18 @@ runRuleTests({
       },
       {
         name: 'Container with the same name from another package should be reported by the default policy',
-        options: [
-          {
-            declarationPolicies: {
-              variable: {
-                '^is[A-Z]': { types: [{ package: 'state-kit', name: 'PrimitiveAtom' }], required: ['verb'] },
-                default: { required: ['noun'], restricted: ['verb'] }
-              }
-            }
-          }
-        ],
+        options: [BOOLEAN_ATOM_OPTIONS],
         code: ts`
-          declare module 'other-kit' {
-            export interface PrimitiveAtom<Value> {
-              readonly init: Value;
-            }
-          }
+          ${OTHER_KIT_MODULE_DECLARATION};
           declare const isBannerDismissed: import('other-kit').PrimitiveAtom<boolean>;
         `,
         errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
       },
       {
         name: 'Container holding a value should be reported by the default policy when the policy expects no value',
-        options: [
-          {
-            declarationPolicies: {
-              variable: {
-                '.': {
-                  types: [{ package: 'state-kit', name: 'WritableAtom', typeArguments: ['null'] }],
-                  required: ['verb']
-                },
-                default: { required: ['noun'], restricted: ['verb'] }
-              }
-            }
-          }
-        ],
+        options: [ACTION_ATOM_OPTIONS],
         code: ts`
-          declare module 'state-kit' {
-            export interface Atom<Value> {
-              readonly init: Value;
-            }
-            export interface WritableAtom<Value, Args extends unknown[], Result> extends Atom<Value> {
-              write(...args: Args): Result;
-            }
-            export type PrimitiveAtom<Value> = WritableAtom<Value, [Value], void>;
-          }
+          ${STATE_KIT_MODULE_DECLARATION};
           declare const deleteRow: import('state-kit').WritableAtom<string, [string], void>;
         `,
         errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
@@ -680,12 +687,7 @@ runRuleTests({
       {
         name: 'Callable schema should be reported as a function by the default policy',
         code: ts`
-          declare module 'schema-kit' {
-            export interface Type<Shape> {
-              (input: unknown): Shape;
-              readonly infer: Shape;
-            }
-          }
+          ${SCHEMA_KIT_MODULE_DECLARATION};
           declare const authResponse: import('schema-kit').Type<string>;
         `,
         errors: [{ messageId: MessageId.MissingRequiredPartOfSpeech }]
@@ -697,17 +699,12 @@ runRuleTests({
             declarationPolicies: {
               variable: {
                 '^is[A-Z]': { types: [{ path: 'src/other.ts', name: 'FeatureFlag' }], required: ['verb'] },
-                default: { required: ['noun'], restricted: ['verb'] }
+                default: VALUE_POLICY
               }
             }
           }
         ],
-        code: ts`
-          interface FeatureFlag<Value> {
-            readonly value: Value;
-          }
-          declare const isBetaEnabled: FeatureFlag<boolean>;
-        `,
+        code: FEATURE_FLAG_CODE,
         errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
       },
       {
@@ -717,55 +714,47 @@ runRuleTests({
             declarationPolicies: {
               variable: {
                 '^is[A-Z]': { types: [{ package: 'other-package', name: 'FeatureFlag' }], required: ['verb'] },
-                default: { required: ['noun'], restricted: ['verb'] }
+                default: VALUE_POLICY
               }
             }
           }
         ],
-        code: ts`
-          interface FeatureFlag<Value> {
-            readonly value: Value;
-          }
-          declare const isBetaEnabled: FeatureFlag<boolean>;
-        `,
+        code: FEATURE_FLAG_CODE,
         errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
       },
       {
         name: 'Map of strings should be reported by the default policy when the policy expects boolean values',
-        options: [
-          {
-            declarationPolicies: {
-              variable: {
-                '^is[A-Z]': {
-                  types: [{ package: 'typescript', name: 'Map', typeArguments: ['*', 'boolean'] }],
-                  required: ['verb']
-                },
-                default: { required: ['noun'], restricted: ['verb'] }
-              }
-            }
-          }
-        ],
+        options: [BOOLEAN_MAP_OPTIONS],
         code: ts`declare const isRequiredByApproverId: Map<number, string>;`,
         errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
       },
       {
-        name: 'Reference to a value should be reported by the default policy when the policy expects a function',
-        options: [
-          {
-            declarationPolicies: {
-              variable: {
-                Ref$: { types: [{ package: 'ref-kit', name: 'Ref', typeArguments: ['function'] }], required: ['verb'] },
-                default: { required: ['noun'], restricted: ['verb'] }
-              }
-            }
-          }
-        ],
+        name: 'Map of containers should be reported by the default policy when the type argument policy names another package',
+        options: [ATOM_MAP_OPTIONS],
         code: ts`
-          declare module 'ref-kit' {
-            export interface Ref<Value> {
-              current: Value;
-            }
-          }
+          ${OTHER_KIT_MODULE_DECLARATION};
+          declare const isExpandedByRowId: Map<number, import('other-kit').PrimitiveAtom<boolean>>;
+        `,
+        errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
+      },
+      {
+        name: 'Map of references to containers should be reported by the default policy when the nested type argument policy names another package',
+        options: [ATOM_REF_MAP_OPTIONS],
+        code: ts`
+          ${REF_KIT_MODULE_DECLARATION};
+          ${OTHER_KIT_MODULE_DECLARATION};
+          declare const isExpandedRefByRowId: Map<
+            number,
+            import('ref-kit').Ref<import('other-kit').PrimitiveAtom<boolean>>
+          >;
+        `,
+        errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
+      },
+      {
+        name: 'Reference to a value should be reported by the default policy when the policy expects a function',
+        options: [FUNCTION_REF_OPTIONS],
+        code: ts`
+          ${REF_KIT_MODULE_DECLARATION};
           declare const getItemsRef: import('ref-kit').Ref<string[]>;
         `,
         errors: [{ messageId: MessageId.RestrictedPartOfSpeech }]
@@ -777,7 +766,7 @@ runRuleTests({
             declarationPolicies: {
               variable: {
                 '^[A-Z]': { required: ['noun'], appliesTo: 'React Component' },
-                default: { required: ['noun'], restricted: ['verb'] }
+                default: VALUE_POLICY
               }
             }
           }

@@ -1,15 +1,9 @@
 import { describe, expect, it } from '@rstest/core';
 import { PART_OF_SPEECH } from '../constants/part-of-speech.constant';
-import { type Dictionary } from './dictionary.type';
 import { type PartOfSpeech } from './part-of-speech.type';
 import { PartsOfSpeechMatcher } from './parts-of-speech-matcher.class';
 
 const { Noun, Verb, Adjective } = PART_OF_SPEECH;
-
-const PHRASE_DICTIONARY: Dictionary = {
-  noun: ['handle', 'checkin'],
-  verb: ['handle', 'click', 'check', 'start']
-};
 
 describe('PartsOfSpeechMatcher', () => {
   it('should match when a single word satisfies the only requirement', () => {
@@ -202,65 +196,6 @@ describe('PartsOfSpeechMatcher', () => {
   it('should keep the verb reading of a verb before a trailing particle', () => {
     const matcher = new PartsOfSpeechMatcher({});
     expect(matcher.match({ words: ['sign', 'up'], required: [Verb], restricted: [] })).toStrictEqual({
-      isMatching: true
-    });
-  });
-
-  it('should read a leading verb before an ordinary head only as a verb', () => {
-    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
-    expect(matcher.match({ words: ['handle', 'click'], required: [], restricted: [Verb] })).toMatchObject({
-      isMatching: false,
-      forbiddenWordIndexes: [0]
-    });
-  });
-
-  it('should keep the noun reading of a leading verb before an attribute head', () => {
-    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
-    expect(matcher.match({ words: ['start', 'index'], required: [Noun], restricted: [Verb] })).toStrictEqual({
-      isMatching: true
-    });
-  });
-
-  it('should read a leading verb before an adverbial preposition only as a verb', () => {
-    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
-    expect(matcher.match({ words: ['click', 'on', 'handle'], required: [], restricted: [Verb] })).toMatchObject({
-      isMatching: false,
-      forbiddenWordIndexes: [0]
-    });
-  });
-
-  it('should keep the noun reading of a leading verb before a nominal preposition', () => {
-    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
-    expect(matcher.match({ words: ['handle', 'of', 'click'], required: [], restricted: [Verb] })).toStrictEqual({
-      isMatching: true
-    });
-  });
-
-  it('should keep the noun reading of a leading verb before a conjunction', () => {
-    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
-    expect(matcher.match({ words: ['handle', 'and', 'click'], required: [], restricted: [Verb] })).toStrictEqual({
-      isMatching: true
-    });
-  });
-
-  it('should keep the noun reading of a phrasal noun before an attribute head', () => {
-    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
-    expect(matcher.match({ words: ['check', 'in', 'button'], required: [], restricted: [Verb] })).toStrictEqual({
-      isMatching: true
-    });
-  });
-
-  it('should read a phrasal noun before an ordinary head only as a verb', () => {
-    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
-    expect(matcher.match({ words: ['check', 'in', 'cell'], required: [], restricted: [Verb] })).toMatchObject({
-      isMatching: false,
-      forbiddenWordIndexes: [0]
-    });
-  });
-
-  it('should keep the noun reading of a leading word that is not a leading verb', () => {
-    const matcher = new PartsOfSpeechMatcher(PHRASE_DICTIONARY);
-    expect(matcher.match({ words: ['value', 'in', 'scene'], required: [], restricted: [Verb] })).toStrictEqual({
       isMatching: true
     });
   });

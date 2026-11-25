@@ -26,9 +26,10 @@ A policy without `required` and `restricted` (`{}`, or only `appliesTo`) is the 
 ### Type conditions
 
 A name regex or a type token can also require the declaration's type: its policy lists `types`, and the pattern matches
-only when the name matches **and** the type is one of them. This is how a container whose TypeScript type hides the
-meaning of the name gets the right policy — a jotai atom holding a boolean named as a statement, a write-only atom named
-as an action, a callable schema named as a value:
+only when the name matches **and** the type is one of them. A pattern can hold a list of policies instead of one: the
+first policy whose type conditions hold applies, and the pattern matches only when one of them does. This is how a
+container whose TypeScript type hides the meaning of the name gets the right policy — a jotai atom holding a boolean
+named as a statement, a write-only atom named as an action, a callable schema named as a value:
 
 ```ts
 {
@@ -42,17 +43,19 @@ as an action, a callable schema named as a value:
       required: ['verb'],
       appliesTo: 'Boolean container'
     },
-    '.': {
-      types: [{ package: 'jotai', name: 'WritableAtom', typeArguments: ['null'] }],
-      required: ['verb'],
-      appliesTo: 'Action atom'
-    },
-    '^': {
-      types: [{ package: 'arktype', name: 'Type' }],
-      required: ['noun'],
-      restricted: ['verb'],
-      appliesTo: 'Schema'
-    },
+    '.': [
+      {
+        types: [{ package: 'jotai', name: 'WritableAtom', typeArguments: ['null'] }],
+        required: ['verb'],
+        appliesTo: 'Action atom'
+      },
+      {
+        types: [{ package: 'arktype', name: 'Type' }],
+        required: ['noun'],
+        restricted: ['verb'],
+        appliesTo: 'Schema'
+      }
+    ],
     default: { required: ['noun'], restricted: ['verb'] }
   }
 }
@@ -65,16 +68,16 @@ A type is named by `name` — the name of the type or of its alias — and locat
   `react`, and a type declared in `declare module 'x'` matches `x`;
 - `path` — the file that declares the type, relative to the working directory of ESLint.
 
-`typeArguments` optionally requires the type arguments, in order: each one is either the text TypeScript prints for it
-(`'null'`, `'string[]'`), a reserved type token — `boolean` or `function`, resolved from real type information like the
-pattern keys — or `*` for any argument (`Map` of booleans: `['*', 'boolean']`). A type from the standard library is
-located by `package: 'typescript'`. An optional type (`Atom<boolean> | undefined`) is matched without `null` and
-`undefined`; a union alias (`ReactNode`) is matched by its own name first. Pattern keys are unique, so two type
-conditions that share a name regex either share a policy or use different regexes (`'.'`, `'^'`).
+`typeArguments` optionally requires the type arguments, in order: each one is the text TypeScript prints for it
+(`'null'`, `'string[]'`), a reserved type token (`boolean` or `function`, resolved from real type information like the
+pattern keys), `*` for any argument (`Map` of booleans: `['*', 'boolean']`) or a type specifier, matched like an entry
+of `types` (`Map` of jotai atoms: `['*', { package: 'jotai', name: 'PrimitiveAtom' }]`). A type from the standard
+library is located by `package: 'typescript'`. An optional type (`Atom<boolean> | undefined`) is matched without `null`
+and `undefined`; a union alias (`ReactNode`) is matched by its own name first.
 
 `returnTypes` takes the same specifiers and requires a callable value: the pattern matches only when every call
 signature returns one of them. This is how a function is told apart by what it produces — a React component returns a
-React node:
+React node, an `async` one a `Promise` of it:
 
 ```ts
 {
@@ -82,7 +85,7 @@ React node:
     '^[A-Z]': {
       returnTypes: [
         { package: 'react', name: 'ReactNode' },
-        { package: 'typescript', name: 'Promise', typeArguments: ['ReactNode'] }
+        { package: 'typescript', name: 'Promise', typeArguments: [{ package: 'react', name: 'ReactNode' }] }
       ],
       required: ['noun'],
       appliesTo: 'Component'
@@ -118,25 +121,6 @@ Three constructions add a reading from the surrounding words:
   because together they form a phrasal noun (`addIn`, `popUp`, `checkOut`); it keeps its verb reading, so `signUp()` is
   still an action.
 
-The position of the first word can also take a reading away. A word listed in `dictionary.verb` that the tagger also
-reads as a verb (`handle`, `copy`, `update`, `drag`) and that opens a name of several words reads only as a verb — the
-name describes an action — when:
-
-- the last word, the head, does not name a property, a part or a role of something else. Such an attribute (`index`,
-  `date`, `token`, `button`, `request`, `key`, a unit like `px` or `ms`) makes the word before it answer "of what?", so
-  `startIndex`, `refreshToken`, `saveButton` and `REFRESH_INTERVAL_MS` keep both readings, while `handleClick`,
-  `copyRows` and `updateEntry` are actions;
-- or the next word is a preposition that introduces a circumstance (`clickOnHandle`, `updateForUser`, `dragToFolder`).
-  `of` and `by` build a noun phrase instead (`copyOfRows`, `refreshByVersionKey`), and a phrasal noun — a word and a
-  particle whose closed form is listed in `dictionary.noun` (`checkin`, `signup`, `popup`) — still describes an
-  attribute head (`checkInRequest`, but not `checkInCell`).
-
-A conjunction keeps both readings (`dragAndDrop`), and so does every word not listed in `dictionary.verb`
-(`positionInScene`, `fileRow`) or listed there only to gain a verb reading the tagger misses (`cacheDirectory`). The
-attributes belong to the rule's grammar; a project convention such as a `…Spy` suffix is a name pattern of its own (see
-[Conventions](#conventions)). Since a word that can be a verb still satisfies a verb requirement, functions are
-unaffected: `clickHandle()` passes as before.
-
 Some words the tagger gets flatly wrong — it reads `message`, `target`, `package` or `modal` with no noun reading at
 all. The rule ships these universal corrections in its default `dictionary`; project-specific words are layered on top
 (see [Options](#options)).
@@ -152,7 +136,7 @@ Name "calculatePayload" must not contain: verb (read as: calculate → verb).
 
 A missing part lists the reading of every word, a function word showing as `function word`; a restricted part lists only
 the words that violate it. When a policy declares `appliesTo`, the message names it:
-`React Component name "Active" must contain: noun (…)`.
+`Component name "Active" must contain: noun (…)`.
 
 ### Incorrect
 
@@ -204,8 +188,11 @@ function UserCard(): null {
 type PartOfSpeech = 'noun' | 'verb' | 'adjective';
 
 type TypeSpecifier =
-  | { package: string; name: string; typeArguments?: string[] }
-  | { path: string; name: string; typeArguments?: string[] };
+  | { package: string; name: string; typeArguments?: TypeArgumentSpecifier[] }
+  | { path: string; name: string; typeArguments?: TypeArgumentSpecifier[] };
+
+// the printed text, "boolean" / "function" (reserved type tokens), "*" (any type) or a type specifier
+type TypeArgumentSpecifier = string | TypeSpecifier;
 
 type Policy = {
   required?: PartOfSpeech[];
@@ -218,13 +205,14 @@ type Policy = {
 type DeclarationType = 'variable' | 'function' | 'class' | 'interface' | 'type' | 'enum';
 
 // a key is "boolean" / "function" (reserved type tokens) or a name regex; `default` is mandatory
+// a list applies its first policy whose type conditions hold
 type PatternMap = {
-  [pattern: string]: Policy;
+  [pattern: string]: Policy | Policy[];
   default: Policy;
 };
 
 type Options = {
-  // extra readings for words, applied everywhere; a verb also reads only as a verb when it opens an action
+  // extra readings for words, applied everywhere
   dictionary?: Partial<Record<PartOfSpeech, string[]>>;
   declarationPolicies?: Partial<Record<DeclarationType, PatternMap>>;
 };
@@ -254,9 +242,9 @@ const options = getMergedOptions({
 Naming conventions belong to the project, so the defaults ship none. The plugin exports one ready-made convention,
 `PARTS_OF_SPEECH_REACT_COMPONENTS`: a function or a callable variable is a React component when its name is PascalCase
 with a lowercase letter (`UserCard`, `HTMLPreview`, but not `MAX_RETRIES`) **and** it returns a React node —
-`ReactNode`, `ReactElement`, `JSX.Element` or `Promise<ReactNode>`; a variable also counts when it is typed as a
-`FunctionComponent` (`FC`) or a `ComponentType`. A component must contain a noun instead of a verb; any other PascalCase
-name keeps the default policy. Merge it in explicitly:
+`ReactNode`, `ReactElement` or `JSX.Element` — or, as an `async` component, a `Promise` of one; a variable also counts
+when it is typed as a `FunctionComponent` (`FC`) or a `ComponentType`. A component must contain a noun instead of a
+verb; any other PascalCase name keeps the default policy. Merge it in explicitly:
 
 ```ts
 import { getMergedOptions, PARTS_OF_SPEECH_DEFAULT, PARTS_OF_SPEECH_REACT_COMPONENTS } from 'eslint-plugin-no-mercy';

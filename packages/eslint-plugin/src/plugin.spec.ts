@@ -7,4 +7,8 @@ describe('plugin', () => {
     const [config] = Array.isArray(recommendedConfig) ? recommendedConfig : [];
     expect(config?.plugins?.['no-mercy']).toBe(plugin);
   });
+
+  it('should return the same recommended config on every access', () => {
+    expect(plugin.configs?.recommended).toBe(plugin.configs?.recommended);
+  });
 });

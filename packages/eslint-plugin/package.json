@@ -41,6 +41,7 @@
     "typescript": ">=5.0.0 <7.0.0"
   },
   "dependencies": {
+    "arkregex": "catalog:stack",
     "change-case": "catalog:stack",
     "compromise": "catalog:stack"
   },
@@ -54,7 +55,6 @@
     "@typescript-eslint/rule-tester": "catalog:stack",
     "@typescript-eslint/typescript-estree": "catalog:stack",
     "@typescript-eslint/utils": "catalog:stack",
-    "arkregex": "catalog:stack",
     "eslint": "catalog:codebase",
     "eslint-doc-generator": "catalog:codebase",
     "prettier": "catalog:codebase",
