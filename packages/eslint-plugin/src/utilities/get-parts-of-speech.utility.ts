@@ -3,7 +3,6 @@ import { LEXICON } from '../constants/lexicon.constant';
 import { PART_OF_SPEECH } from '../constants/part-of-speech.constant';
 import { type Dictionary } from '../declarations/dictionary.type';
 import { type PartOfSpeech } from '../declarations/part-of-speech.type';
-import { getSingular } from './get-singular.utility';
 
 const CANON_PART_OF_SPEECH: Readonly<Record<string, PartOfSpeech>> = {
   Singular: PART_OF_SPEECH.Noun,
@@ -28,8 +27,30 @@ const MODIFIER_TAGS = ['#Gerund', '#PastTense', '#Adjective'];
 
 const FUNCTION_WORD_TAGS = ['#Preposition', '#Conjunction', '#Determiner'];
 
+const NOUN_CONTEXT = 'the';
+
 const dictionaryKeyByDictionary = new WeakMap<Dictionary, string>();
 const partsOfSpeechByWordByDictionaryKey = new Map<string, Map<string, ReadonlySet<PartOfSpeech>>>();
+const singularByWord = new Map<string, string>();
+
+function getSingular(word: string): string {
+  const nounPhrase = nlp(`${NOUN_CONTEXT} ${word}`);
+  const singularText = nounPhrase.has('#Plural')
+    ? nounPhrase.nouns().toSingular().text().replace(`${NOUN_CONTEXT} `, '')
+    : word;
+  return singularText === '' ? word : singularText;
+}
+
+function getLexiconPartsOfSpeech(word: string): ReadonlySet<PartOfSpeech> {
+  const lexiconEntry = LEXICON.get(word) ?? [];
+  const lexiconTags = typeof lexiconEntry === 'string' ? [lexiconEntry] : lexiconEntry;
+  return new Set(
+    lexiconTags.flatMap((tagName: string) => {
+      const canonicalPartOfSpeech = CANON_PART_OF_SPEECH[tagName];
+      return canonicalPartOfSpeech === undefined ? [] : [canonicalPartOfSpeech];
+    })
+  );
+}
 
 interface GetSingularPartsOfSpeechParams {
   readonly word: string;
@@ -76,23 +97,23 @@ export function getPartsOfSpeech({ word, dictionary }: GetPartsOfSpeechParams): 
     partsOfSpeech.add(PART_OF_SPEECH.Adjective);
   }
 
-  const lexiconEntry = LEXICON.get(word) ?? [];
-  const lexiconTags = typeof lexiconEntry === 'string' ? [lexiconEntry] : lexiconEntry;
-  lexiconTags.forEach((tagName: string) => {
-    const canonicalPartOfSpeech = CANON_PART_OF_SPEECH[tagName];
-    if (canonicalPartOfSpeech !== undefined) {
-      partsOfSpeech.add(canonicalPartOfSpeech);
-    }
+  getLexiconPartsOfSpeech(word).forEach((part: PartOfSpeech) => {
+    partsOfSpeech.add(part);
   });
 
-  const singularWord = getSingular(word);
+  const singularWord = singularByWord.get(word) ?? getSingular(word);
+  singularByWord.set(word, singularWord);
   getSingularPartsOfSpeech({ word, singularWord }).forEach((part: PartOfSpeech) => {
     partsOfSpeech.add(part);
   });
   Object.values(PART_OF_SPEECH).forEach((part: PartOfSpeech) => {
-    if ((dictionary[part] ?? []).some((entry: string) => getSingular(entry) === singularWord)) {
-      partsOfSpeech.add(part);
-    }
+    (dictionary[part] ?? []).forEach((entry: string) => {
+      const singularEntry = singularByWord.get(entry) ?? getSingular(entry);
+      singularByWord.set(entry, singularEntry);
+      if (singularEntry === singularWord) {
+        partsOfSpeech.add(part);
+      }
+    });
   });
 
   const resolvedPartsOfSpeech = partsOfSpeech.size > 0 ? partsOfSpeech : getFallbackPartsOfSpeech(taggedWord);

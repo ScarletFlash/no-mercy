@@ -18,24 +18,24 @@ const rules = {
   'prefer-parameter-object': preferParameterObject
 };
 
-export const plugin: TSESLint.FlatConfig.Plugin = {
-  meta,
-  rules,
-  configs: {
-    get recommended(): TSESLint.FlatConfig.ConfigArray {
-      return [
-        {
-          plugins: { 'no-mercy': plugin },
-          rules: {
-            'no-mercy/boolean-prefix': 'error',
-            'no-mercy/no-else': 'error',
-            'no-mercy/no-else-if': 'error',
-            'no-mercy/no-redundant-types': 'error',
-            'no-mercy/parts-of-speech': 'error',
-            'no-mercy/prefer-parameter-object': 'error'
-          }
-        }
-      ];
+const configs: TSESLint.FlatConfig.SharedConfigs = {};
+
+const plugin: TSESLint.FlatConfig.Plugin = { meta, rules, configs };
+
+const recommendedConfig: TSESLint.FlatConfig.ConfigArray = [
+  {
+    plugins: { 'no-mercy': plugin },
+    rules: {
+      'no-mercy/boolean-prefix': 'error',
+      'no-mercy/no-else': 'error',
+      'no-mercy/no-else-if': 'error',
+      'no-mercy/no-redundant-types': 'error',
+      'no-mercy/parts-of-speech': 'error',
+      'no-mercy/prefer-parameter-object': 'error'
     }
   }
-};
+];
+
+Object.assign(configs, { recommended: recommendedConfig });
+
+export { plugin };

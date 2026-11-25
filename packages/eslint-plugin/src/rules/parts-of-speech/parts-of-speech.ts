@@ -25,8 +25,9 @@ import { type Options } from './parts-of-speech.options';
 type DeclarationPolicies = NonNullable<Options['declarationPolicies']>;
 type DeclarationType = keyof DeclarationPolicies;
 type PatternMap = NonNullable<DeclarationPolicies[DeclarationType]>;
-type Policy = PatternMap[string];
+type Policy = Extract<PatternMap[string], readonly unknown[]>[number];
 type TypeSpecifier = NonNullable<Policy['types']>[number];
+type TypeArgumentSpecifier = NonNullable<TypeSpecifier['typeArguments']>[number];
 type RuleContext = Readonly<TSESLint.RuleContext<MessageId, readonly [Options]>>;
 
 const DEFAULT_PATTERN = 'default';
@@ -38,6 +39,8 @@ const PACKAGE_MANIFEST_NAME = 'package.json';
 const TYPES_SCOPE = '@types/';
 
 const ANY_TYPE_ARGUMENT = '*';
+
+const TYPE_SPECIFIER_DEFINITION = 'typeSpecifier';
 
 const packageNameByDirectory = new Map<string, string>();
 
@@ -73,24 +76,39 @@ const DEFAULT_POLICY_PROPERTIES: Readonly<Record<string, JSONSchema.JSONSchema4>
   appliesTo: { type: 'string' }
 };
 
+const TYPE_SPECIFIER_REFERENCE_SCHEMA: JSONSchema.JSONSchema4 = { $ref: `#/$defs/${TYPE_SPECIFIER_DEFINITION}` };
+
+const TYPE_ARGUMENT_SPECIFIER_ARRAY_SCHEMA: JSONSchema.JSONSchema4 = {
+  type: 'array',
+  items: { oneOf: [{ type: 'string' }, TYPE_SPECIFIER_REFERENCE_SCHEMA] }
+};
+
 const TYPE_SPECIFIER_SCHEMA: JSONSchema.JSONSchema4 = {
   oneOf: [
     {
       type: 'object',
       additionalProperties: false,
-      properties: { package: { type: 'string' }, name: { type: 'string' }, typeArguments: STRING_ARRAY_SCHEMA },
+      properties: {
+        package: { type: 'string' },
+        name: { type: 'string' },
+        typeArguments: TYPE_ARGUMENT_SPECIFIER_ARRAY_SCHEMA
+      },
       required: ['package', 'name']
     },
     {
       type: 'object',
       additionalProperties: false,
-      properties: { path: { type: 'string' }, name: { type: 'string' }, typeArguments: STRING_ARRAY_SCHEMA },
+      properties: {
+        path: { type: 'string' },
+        name: { type: 'string' },
+        typeArguments: TYPE_ARGUMENT_SPECIFIER_ARRAY_SCHEMA
+      },
       required: ['path', 'name']
     }
   ]
 };
 
-const TYPE_SPECIFIER_ARRAY_SCHEMA: JSONSchema.JSONSchema4 = { type: 'array', items: TYPE_SPECIFIER_SCHEMA };
+const TYPE_SPECIFIER_ARRAY_SCHEMA: JSONSchema.JSONSchema4 = { type: 'array', items: TYPE_SPECIFIER_REFERENCE_SCHEMA };
 
 const DEFAULT_POLICY_SCHEMA: JSONSchema.JSONSchema4 = {
   type: 'object',
@@ -108,9 +126,11 @@ const POLICY_SCHEMA: JSONSchema.JSONSchema4 = {
   }
 };
 
+const POLICY_ARRAY_SCHEMA: JSONSchema.JSONSchema4 = { type: 'array', minItems: 1, items: POLICY_SCHEMA };
+
 const PATTERN_MAP_SCHEMA: JSONSchema.JSONSchema4 = {
   type: 'object',
-  additionalProperties: POLICY_SCHEMA,
+  additionalProperties: { oneOf: [POLICY_SCHEMA, POLICY_ARRAY_SCHEMA] },
   properties: { [DEFAULT_PATTERN]: DEFAULT_POLICY_SCHEMA },
   required: [DEFAULT_PATTERN]
 };
@@ -223,63 +243,143 @@ function isSymbolMatching({ symbol, specifier, cwd }: IsSymbolMatchingParams): b
   );
 }
 
-interface AreTypeArgumentsMatchingParams {
-  readonly typeArguments: readonly TS_API.Type[];
-  readonly specifier: TypeSpecifier;
-  readonly checker: TS_API.TypeChecker;
-}
-
-function areTypeArgumentsMatching({ typeArguments, specifier, checker }: AreTypeArgumentsMatchingParams): boolean {
-  return (specifier.typeArguments ?? []).every((typeArgumentText: string, index: number) => {
-    const typeArgument = typeArguments[index];
-    if (typeArgument === undefined) {
-      return false;
-    }
-    if (typeArgumentText === ANY_TYPE_ARGUMENT) {
-      return true;
-    }
-    const isTypeConditionMatching = TYPE_CONDITION_PREDICATES.get(typeArgumentText);
-    return isTypeConditionMatching === undefined
-      ? checker.typeToString(typeArgument) === typeArgumentText
-      : isTypeConditionMatching(getTypeInfo({ type: typeArgument, checker }));
-  });
-}
-
-interface IsTypeMatchingParams {
+interface SpecifiedType {
   readonly type: TS_API.Type;
   readonly specifier: TypeSpecifier;
+}
+
+interface NamedType {
+  readonly symbol: TS_API.Symbol | undefined;
+  readonly typeArguments: readonly TS_API.Type[];
+}
+
+interface TypeMatchingScope {
   readonly checker: TS_API.TypeChecker;
   readonly cwd: string;
 }
 
-function isNamedTypeMatching({ type, specifier, checker, cwd }: IsTypeMatchingParams): boolean {
-  if (
-    isSymbolMatching({ symbol: type.aliasSymbol, specifier, cwd }) &&
-    areTypeArgumentsMatching({ typeArguments: type.aliasTypeArguments ?? [], specifier, checker })
-  ) {
-    return true;
+interface GetMatchingNamedTypesParams extends SpecifiedType, TypeMatchingScope {}
+
+function getMatchingNamedTypes({ type, specifier, checker, cwd }: GetMatchingNamedTypesParams): readonly NamedType[] {
+  const namedTypes: readonly NamedType[] = [
+    { symbol: type.aliasSymbol, typeArguments: type.aliasTypeArguments ?? [] },
+    { symbol: type.getSymbol(), typeArguments: isTypeReference(type) ? checker.getTypeArguments(type) : [] }
+  ];
+  return namedTypes.filter(({ symbol }: NamedType) => isSymbolMatching({ symbol, specifier, cwd }));
+}
+
+interface GetUnionMembersParams {
+  readonly type: TS_API.Type;
+  readonly checker: TS_API.TypeChecker;
+}
+
+function getUnionMembers({ type, checker }: GetUnionMembersParams): readonly TS_API.Type[] {
+  const nonNullableType = checker.getNonNullableType(type);
+  return nonNullableType.isUnion() ? nonNullableType.types : [nonNullableType];
+}
+
+function getIntersectionMembers(type: TS_API.Type): readonly TS_API.Type[] {
+  return type.isIntersection() ? type.types : [type];
+}
+
+interface GetSpecifiedTypesParams extends SpecifiedType, TypeMatchingScope {}
+
+function getSpecifiedTypes({ type, specifier, checker, cwd }: GetSpecifiedTypesParams): readonly SpecifiedType[] {
+  const specifiedTypes: SpecifiedType[] = [];
+  const pendingSpecifiedTypes: SpecifiedType[] = [{ type, specifier }];
+  while (pendingSpecifiedTypes.length > 0) {
+    const specifiedType = pendingSpecifiedTypes.pop();
+    if (specifiedType === undefined) {
+      break;
+    }
+    specifiedTypes.push(specifiedType);
+    new Set(
+      [specifiedType.type].concat(
+        getUnionMembers({ type: specifiedType.type, checker }).flatMap((unionMember: TS_API.Type) =>
+          getIntersectionMembers(unionMember)
+        )
+      )
+    )
+      .values()
+      .flatMap((memberType: TS_API.Type) =>
+        getMatchingNamedTypes({ type: memberType, specifier: specifiedType.specifier, checker, cwd })
+      )
+      .flatMap(({ typeArguments }: NamedType) =>
+        (specifiedType.specifier.typeArguments ?? [])
+          .entries()
+          .flatMap(([index, typeArgumentSpecifier]: [number, TypeArgumentSpecifier]): SpecifiedType[] => {
+            const typeArgument = typeArguments[index];
+            return typeof typeArgumentSpecifier === 'string' || typeArgument === undefined
+              ? []
+              : [{ type: typeArgument, specifier: typeArgumentSpecifier }];
+          })
+      )
+      .forEach((nestedSpecifiedType: SpecifiedType) => {
+        pendingSpecifiedTypes.push(nestedSpecifiedType);
+      });
   }
-  return (
-    isSymbolMatching({ symbol: type.getSymbol(), specifier, cwd }) &&
-    areTypeArgumentsMatching({
-      typeArguments: isTypeReference(type) ? checker.getTypeArguments(type) : [],
-      specifier,
-      checker
+  return specifiedTypes;
+}
+
+interface IsNamedTypeMatchingParams extends SpecifiedType, TypeMatchingScope {
+  readonly matchingTypesBySpecifier: ReadonlyMap<TypeSpecifier, ReadonlySet<TS_API.Type>>;
+}
+
+function isNamedTypeMatching({
+  type,
+  specifier,
+  checker,
+  cwd,
+  matchingTypesBySpecifier
+}: IsNamedTypeMatchingParams): boolean {
+  return getMatchingNamedTypes({ type, specifier, checker, cwd }).some(({ typeArguments }: NamedType) =>
+    (specifier.typeArguments ?? []).every((typeArgumentSpecifier: TypeArgumentSpecifier, index: number) => {
+      const typeArgument = typeArguments[index];
+      if (typeArgument === undefined) {
+        return false;
+      }
+      if (typeof typeArgumentSpecifier !== 'string') {
+        return matchingTypesBySpecifier.get(typeArgumentSpecifier)?.has(typeArgument) === true;
+      }
+      if (typeArgumentSpecifier === ANY_TYPE_ARGUMENT) {
+        return true;
+      }
+      const isTypeConditionMatching = TYPE_CONDITION_PREDICATES.get(typeArgumentSpecifier);
+      return isTypeConditionMatching === undefined
+        ? checker.typeToString(typeArgument) === typeArgumentSpecifier
+        : isTypeConditionMatching(getTypeInfo({ type: typeArgument, checker }));
     })
   );
 }
 
+interface IsTypeMatchingParams extends SpecifiedType, TypeMatchingScope {}
+
 function isTypeMatching({ type, specifier, checker, cwd }: IsTypeMatchingParams): boolean {
-  if (isNamedTypeMatching({ type, specifier, checker, cwd })) {
-    return true;
-  }
-  const nonNullableType = checker.getNonNullableType(type);
-  const unionMembers = nonNullableType.isUnion() ? nonNullableType.types : [nonNullableType];
-  return unionMembers.every((unionMember: TS_API.Type) =>
-    (unionMember.isIntersection() ? unionMember.types : [unionMember]).some((intersectionMember: TS_API.Type) =>
-      isNamedTypeMatching({ type: intersectionMember, specifier, checker, cwd })
-    )
-  );
+  const matchingTypesBySpecifier = new Map<TypeSpecifier, Set<TS_API.Type>>();
+  getSpecifiedTypes({ type, specifier, checker, cwd })
+    .toReversed()
+    .forEach((specifiedType: SpecifiedType) => {
+      const isMatching =
+        isNamedTypeMatching({ ...specifiedType, checker, cwd, matchingTypesBySpecifier }) ||
+        getUnionMembers({ type: specifiedType.type, checker }).every((unionMember: TS_API.Type) =>
+          getIntersectionMembers(unionMember).some((intersectionMember: TS_API.Type) =>
+            isNamedTypeMatching({
+              type: intersectionMember,
+              specifier: specifiedType.specifier,
+              checker,
+              cwd,
+              matchingTypesBySpecifier
+            })
+          )
+        );
+      if (isMatching) {
+        matchingTypesBySpecifier.set(
+          specifiedType.specifier,
+          (matchingTypesBySpecifier.get(specifiedType.specifier) ?? new Set<TS_API.Type>()).add(specifiedType.type)
+        );
+      }
+    });
+  return matchingTypesBySpecifier.get(specifier)?.has(type) === true;
 }
 
 interface IsTypeMatchingSpecifiersParams {
@@ -328,7 +428,10 @@ interface GetMatchingPolicyParams {
 }
 
 function getMatchingPolicy({ patternMap, name, typeInfo, type, checker, cwd }: GetMatchingPolicyParams): Policy {
-  const candidates = Object.entries(patternMap).filter(([key]: [string, Policy]) => key !== DEFAULT_PATTERN);
+  const candidates = Object.entries(patternMap).flatMap(
+    ([key, policyOrPolicies]: [string, PatternMap[string]]): [string, Policy][] =>
+      key === DEFAULT_PATTERN ? [] : [policyOrPolicies].flat().map((policy: Policy): [string, Policy] => [key, policy])
+  );
   const namePatternCandidate = candidates.find(
     ([key, policy]: [string, Policy]) =>
       !TYPE_CONDITION_PREDICATES.has(key) &&
@@ -456,16 +559,21 @@ export const partsOfSpeech = getRule<readonly [Options], MessageId>({
       description:
         'Require or restrict parts of speech in declaration names, configured per declaration type and name pattern.'
     },
-    schema: [
-      {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          dictionary: DICTIONARY_SCHEMA,
-          declarationPolicies: DECLARATION_POLICIES_SCHEMA
+    schema: {
+      $defs: { [TYPE_SPECIFIER_DEFINITION]: TYPE_SPECIFIER_SCHEMA },
+      type: 'array',
+      items: [
+        {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            dictionary: DICTIONARY_SCHEMA,
+            declarationPolicies: DECLARATION_POLICIES_SCHEMA
+          }
         }
-      }
-    ],
+      ],
+      additionalItems: false
+    },
     messages: {
       [MessageId.MissingRequiredPartOfSpeech]:
         'Name "{{name}}" must contain: {{partsOfSpeech}} (read as: {{readings}}).',

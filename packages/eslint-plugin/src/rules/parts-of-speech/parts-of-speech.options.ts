@@ -8,17 +8,19 @@ interface PackageTypeSpecifier {
   readonly package: string;
   readonly path?: never;
   readonly name: string;
-  readonly typeArguments?: readonly string[];
+  readonly typeArguments?: readonly TypeArgumentSpecifier[];
 }
 
 interface FileTypeSpecifier {
   readonly path: string;
   readonly package?: never;
   readonly name: string;
-  readonly typeArguments?: readonly string[];
+  readonly typeArguments?: readonly TypeArgumentSpecifier[];
 }
 
 type TypeSpecifier = PackageTypeSpecifier | FileTypeSpecifier;
+
+type TypeArgumentSpecifier = string | TypeSpecifier;
 
 interface DefaultPolicy {
   readonly required?: readonly PartOfSpeech[];
@@ -32,7 +34,7 @@ interface Policy extends DefaultPolicy {
 }
 
 interface PatternMap {
-  readonly [pattern: string]: Policy;
+  readonly [pattern: string]: Policy | readonly Policy[];
   readonly default: DefaultPolicy;
 }
 

@@ -1,7 +1,6 @@
 import nlp from 'compromise';
 import { PART_OF_SPEECH } from '../constants/part-of-speech.constant';
 import { getPartsOfSpeech } from '../utilities/get-parts-of-speech.utility';
-import { getSingular } from '../utilities/get-singular.utility';
 import { type Dictionary } from './dictionary.type';
 import { type PartOfSpeech } from './part-of-speech.type';
 
@@ -29,218 +28,6 @@ const TEMPORAL_PREPOSITIONS: ReadonlySet<string> = new Set(['at', 'in', 'on', 'u
 
 const PARTICLES: ReadonlySet<string> = new Set(['up', 'down', 'in', 'out', 'off', 'on', 'over']);
 
-const ADVERBIAL_PREPOSITIONS: ReadonlySet<string> = new Set([
-  'at',
-  'in',
-  'on',
-  'for',
-  'from',
-  'to',
-  'with',
-  'into',
-  'onto',
-  'over',
-  'under',
-  'after',
-  'before',
-  'until',
-  'since',
-  'within',
-  'without',
-  'per',
-  'via',
-  'about',
-  'across',
-  'through',
-  'between',
-  'against',
-  'among'
-]);
-
-const ATTRIBUTE_NOUNS: ReadonlySet<string> = new Set(
-  [
-    'action',
-    'api',
-    'area',
-    'array',
-    'attempt',
-    'attribute',
-    'base',
-    'body',
-    'box',
-    'btn',
-    'buffer',
-    'button',
-    'callback',
-    'class',
-    'client',
-    'code',
-    'column',
-    'comparison',
-    'config',
-    'configuration',
-    'content',
-    'context',
-    'controller',
-    'count',
-    'counter',
-    'data',
-    'date',
-    'delay',
-    'delta',
-    'description',
-    'destination',
-    'dialog',
-    'direction',
-    'duration',
-    'effect',
-    'email',
-    'endpoint',
-    'error',
-    'event',
-    'factory',
-    'factor',
-    'field',
-    'filter',
-    'flag',
-    'form',
-    'format',
-    'handle',
-    'handler',
-    'header',
-    'height',
-    'helper',
-    'hint',
-    'href',
-    'icon',
-    'id',
-    'ids',
-    'identifier',
-    'index',
-    'info',
-    'input',
-    'interval',
-    'key',
-    'kind',
-    'label',
-    'length',
-    'level',
-    'limit',
-    'link',
-    'listener',
-    'menu',
-    'message',
-    'metric',
-    'modal',
-    'mode',
-    'name',
-    'note',
-    'number',
-    'offset',
-    'option',
-    'order',
-    'outcome',
-    'page',
-    'panel',
-    'param',
-    'parent',
-    'path',
-    'pathname',
-    'pattern',
-    'payload',
-    'placeholder',
-    'point',
-    'policy',
-    'position',
-    'prefix',
-    'preview',
-    'price',
-    'promise',
-    'prop',
-    'property',
-    'provider',
-    'query',
-    'rank',
-    'rate',
-    'ratio',
-    'reason',
-    'ref',
-    'request',
-    'response',
-    'result',
-    'root',
-    'rule',
-    'schema',
-    'screen',
-    'segment',
-    'selection',
-    'separator',
-    'service',
-    'setting',
-    'shader',
-    'signature',
-    'size',
-    'source',
-    'state',
-    'statistic',
-    'statistics',
-    'status',
-    'step',
-    'string',
-    'style',
-    'suffix',
-    'summary',
-    'target',
-    'template',
-    'text',
-    'threshold',
-    'time',
-    'timeout',
-    'timestamp',
-    'title',
-    'token',
-    'tooltip',
-    'type',
-    'url',
-    'uuid',
-    'value',
-    'version',
-    'view',
-    'width',
-    'zone',
-    'x',
-    'y',
-    'z',
-    'a',
-    'b',
-    'px',
-    'ms',
-    'millis',
-    'milliseconds',
-    'seconds',
-    'sec',
-    'minutes',
-    'hours',
-    'days',
-    'dp',
-    'pt',
-    'em',
-    'rem',
-    'percent',
-    'bytes',
-    'kb',
-    'mb',
-    'pixels',
-    'units'
-  ].map(getSingular)
-);
-
-const TAGGER_DICTIONARY: Dictionary = {};
-
-const NOMINAL_PREPOSITIONS: ReadonlySet<string> = new Set(['of', 'by']);
-
-const COORDINATING_CONJUNCTIONS: ReadonlySet<string> = new Set(['and', 'or']);
-
 const PRESENT_TENSE_TAG = '#PresentTense';
 
 const INFINITIVE_TAG = '#Infinitive';
@@ -249,13 +36,6 @@ interface WordContextParams {
   readonly words: readonly string[];
   readonly taggedPartsOfSpeech: readonly ReadonlySet<PartOfSpeech>[];
   readonly index: number;
-}
-
-interface IsVerbPhraseParams {
-  readonly leadingWord: string;
-  readonly nextWord: string;
-  readonly headWord: string;
-  readonly wordCount: number;
 }
 
 interface GetMissingParams {
@@ -283,23 +63,11 @@ interface AssignmentStep {
   wordIndex: number | undefined;
 }
 
-function isAttributeNoun(word: string): boolean {
-  return ATTRIBUTE_NOUNS.has(getSingular(word));
-}
-
 export class PartsOfSpeechMatcher {
   readonly #dictionary: Dictionary;
-  readonly #leadingVerbs: ReadonlySet<string>;
-  readonly #nouns: ReadonlySet<string>;
 
   constructor(dictionary: Dictionary) {
     this.#dictionary = dictionary;
-    this.#leadingVerbs = new Set(
-      (dictionary[PART_OF_SPEECH.Verb] ?? []).filter((word: string) =>
-        getPartsOfSpeech({ word, dictionary: TAGGER_DICTIONARY }).has(PART_OF_SPEECH.Verb)
-      )
-    );
-    this.#nouns = new Set(dictionary[PART_OF_SPEECH.Noun]);
   }
 
   public match({ words, required, restricted }: MatchParams): MatchResult {
@@ -312,9 +80,7 @@ export class PartsOfSpeechMatcher {
       taggedPartsOfSpeech.map(
         (partsOfSpeech: ReadonlySet<PartOfSpeech>, index: number): [number, ReadonlySet<PartOfSpeech>] => [
           index,
-          partsOfSpeech
-            .union(this.#getContextualPartsOfSpeech({ words, taggedPartsOfSpeech, index }))
-            .difference(this.#getExcludedPartsOfSpeech({ words, taggedPartsOfSpeech, index }))
+          partsOfSpeech.union(this.#getContextualPartsOfSpeech({ words, taggedPartsOfSpeech, index }))
         ]
       )
     );
@@ -342,35 +108,6 @@ export class PartsOfSpeechMatcher {
     const compoundPartsOfSpeech: readonly PartOfSpeech[] =
       this.#isTemporalHead(params) || this.#isPhrasalHead(params) ? [PART_OF_SPEECH.Noun] : [];
     return new Set(infinitivePartsOfSpeech.concat(compoundPartsOfSpeech));
-  }
-
-  #getExcludedPartsOfSpeech({ words, index }: WordContextParams): ReadonlySet<PartOfSpeech> {
-    return index === 0 && this.#isLeadingVerb(words) ? new Set([PART_OF_SPEECH.Noun]) : new Set();
-  }
-
-  #isLeadingVerb(words: readonly string[]): boolean {
-    const [leadingWord, nextWord] = words;
-    const headWord = words.at(-1);
-    if (
-      leadingWord === undefined ||
-      nextWord === undefined ||
-      headWord === undefined ||
-      !this.#leadingVerbs.has(leadingWord)
-    ) {
-      return false;
-    }
-    return this.#isVerbPhrase({ leadingWord, nextWord, headWord, wordCount: words.length });
-  }
-
-  #isVerbPhrase({ leadingWord, nextWord, headWord, wordCount }: IsVerbPhraseParams): boolean {
-    const isTrailingConstruction = wordCount === 2 && (TEMPORAL_PREPOSITIONS.has(nextWord) || PARTICLES.has(nextWord));
-    if (COORDINATING_CONJUNCTIONS.has(nextWord) || NOMINAL_PREPOSITIONS.has(nextWord) || isTrailingConstruction) {
-      return false;
-    }
-    if (ADVERBIAL_PREPOSITIONS.has(nextWord) || PARTICLES.has(nextWord)) {
-      return !this.#nouns.has(`${leadingWord}${nextWord}`) || !isAttributeNoun(headWord);
-    }
-    return !isAttributeNoun(headWord);
   }
 
   #isInfinitiveModifier({ words, taggedPartsOfSpeech, index }: WordContextParams): boolean {
